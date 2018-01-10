@@ -1166,7 +1166,7 @@ public abstract class OpenConverter {
             Set<BitSet> getterIndexSets = newSet();
             for (Constructor constr : annotatedConstrList) {
                 String[] propertyNames =
-                    constr.getAnnotation(propertyNamesClass).value();
+                    ((ConstructorProperties) constr.getAnnotation(propertyNamesClass)).value();
 
                 Type[] paramTypes = constr.getGenericParameterTypes();
                 if (paramTypes.length != propertyNames.length) {
