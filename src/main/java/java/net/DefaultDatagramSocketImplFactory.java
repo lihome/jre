@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007,2011, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -35,7 +35,7 @@ import java.security.AccessController;
  */
 
 class DefaultDatagramSocketImplFactory {
-    static Class prefixImplClass = null;
+    static Class<?> prefixImplClass = null;
 
     static {
         String prefix = null;

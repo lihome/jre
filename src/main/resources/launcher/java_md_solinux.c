@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1998, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1998, 2015, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -41,7 +41,11 @@
 
 #define JVM_DLL "libjvm.so"
 #define JAVA_DLL "libjava.so"
+#ifdef AIX
+#define LD_LIBRARY_PATH "LIBPATH"
+#else
 #define LD_LIBRARY_PATH "LD_LIBRARY_PATH"
+#endif
 
 /* help jettison the LD_LIBRARY_PATH settings in the future */
 #ifndef SETENV_REQUIRED
@@ -59,7 +63,6 @@
  */
 
 #ifdef __solaris__
-#  define DUAL_MODE
 #  ifndef LIBARCH32NAME
 #    error "The macro LIBARCH32NAME was not defined on the compile line"
 #  endif
@@ -288,6 +291,11 @@ RequiresSetenv(int wanted, const char *jvmpath) {
     char *dmllp = NULL;
     char *p; /* a utility pointer */
 
+#ifdef AIX
+    /* We always have to set the LIBPATH on AIX because ld doesn't support $ORIGIN. */
+    return JNI_TRUE;
+#endif
+
     llp = getenv("LD_LIBRARY_PATH");
 #ifdef __solaris__
     dmllp = (CURRENT_DATA_MODEL == 32)
@@ -478,9 +486,11 @@ CreateExecutionEnvironment(int *pargc, char ***pargv,
         JLI_TraceLauncher("mustsetenv: %s\n", mustsetenv ? "TRUE" : "FALSE");
 
         if (mustsetenv == JNI_FALSE) {
+            JLI_MemFree(newargv);
             return;
         }
 #else
+        JLI_MemFree(newargv);
         return;
 #endif /* SETENV_REQUIRED */
       } else {  /* do the same speculatively or exit */
@@ -597,16 +607,21 @@ CreateExecutionEnvironment(int *pargc, char ***pargv,
              * If not on Solaris, assume only a single LD_LIBRARY_PATH
              * variable.
              */
-            runpath = getenv("LD_LIBRARY_PATH");
+            runpath = getenv(LD_LIBRARY_PATH);
 #endif /* __solaris__ */
 
             /* runpath contains current effective LD_LIBRARY_PATH setting */
 
             jvmpath = JLI_StringDup(jvmpath);
-            new_runpath = JLI_MemAlloc(((runpath != NULL) ? JLI_StrLen(runpath) : 0) +
+            size_t new_runpath_size = ((runpath != NULL) ? JLI_StrLen(runpath) : 0) +
                     2 * JLI_StrLen(jrepath) + 2 * JLI_StrLen(arch) +
-                    JLI_StrLen(jvmpath) + 52);
-            newpath = new_runpath + JLI_StrLen("LD_LIBRARY_PATH=");
+#ifdef AIX
+                    /* On AIX we additionally need 'jli' in the path because ld doesn't support $ORIGIN. */
+                    JLI_StrLen(jrepath) + JLI_StrLen(arch) + JLI_StrLen("/lib//jli:") +
+#endif
+                    JLI_StrLen(jvmpath) + 52;
+            new_runpath = JLI_MemAlloc(new_runpath_size);
+            newpath = new_runpath + JLI_StrLen(LD_LIBRARY_PATH "=");
 
 
             /*
@@ -618,9 +633,12 @@ CreateExecutionEnvironment(int *pargc, char ***pargv,
                 if (lastslash)
                     *lastslash = '\0';
 
-                sprintf(new_runpath, "LD_LIBRARY_PATH="
+                sprintf(new_runpath, LD_LIBRARY_PATH "="
                         "%s:"
                         "%s/lib/%s:"
+#ifdef AIX
+                        "%s/lib/%s/jli:" /* Needed on AIX because ld doesn't support $ORIGIN. */
+#endif
                         "%s/../lib/%s",
                         jvmpath,
 #ifdef DUAL_MODE
@@ -628,6 +646,9 @@ CreateExecutionEnvironment(int *pargc, char ***pargv,
                         jrepath, GetArchPath(wanted)
 #else /* !DUAL_MODE */
                         jrepath, arch,
+#ifdef AIX
+                        jrepath, arch,
+#endif
                         jrepath, arch
 #endif /* DUAL_MODE */
                         );
@@ -647,9 +668,9 @@ CreateExecutionEnvironment(int *pargc, char ***pargv,
                         && (dmpath == NULL) /* data model specific variables not set  */
 #endif /* __solaris__ */
                         ) {
-
+                    JLI_MemFree(newargv);
+                    JLI_MemFree(new_runpath);
                     return;
-
                 }
             }
 
@@ -659,6 +680,11 @@ CreateExecutionEnvironment(int *pargc, char ***pargv,
              * loop of execv() because we test for the prefix, above.
              */
             if (runpath != 0) {
+                /* ensure storage for runpath + colon + NULL */
+                if ((JLI_StrLen(runpath) + 1 + 1) > new_runpath_size) {
+                    JLI_ReportErrorMessageSys(JRE_ERROR11);
+                    exit(1);
+                }
                 JLI_StrCat(new_runpath, ":");
                 JLI_StrCat(new_runpath, runpath);
             }
@@ -791,7 +817,11 @@ GetJREPath(char *path, jint pathsize, const char * arch, jboolean speculative)
             JLI_TraceLauncher("JRE path is %s\n", path);
             return JNI_TRUE;
         }
-
+        /* ensure storage for path + /jre + NULL */
+        if ((JLI_StrLen(path) + 4  + 1) > pathsize) {
+            JLI_TraceLauncher("Insufficient space to store JRE path\n");
+            return JNI_FALSE;
+        }
         /* Does the app ship a private JRE in <apphome>/jre directory? */
         JLI_Snprintf(libjava, sizeof(libjava), "%s/jre/lib/%s/" JAVA_DLL, path, arch);
         if (access(libjava, F_OK) == 0) {
@@ -933,7 +963,7 @@ SetExecname(char **argv)
         char buf[PATH_MAX+1];
         int len = readlink(self, buf, PATH_MAX);
         if (len >= 0) {
-            buf[len] = '\0';            /* readlink doesn't nul terminate */
+            buf[len] = '\0';            /* readlink(2) doesn't NUL terminate */
             exec_path = JLI_StringDup(buf);
         }
     }
@@ -999,18 +1029,7 @@ void SplashFreeLibrary() {
 int
 ContinueInNewThread0(int (JNICALL *continuation)(void *), jlong stack_size, void * args) {
     int rslt;
-#ifdef __solaris__
-    thread_t tid;
-    long flags = 0;
-    if (thr_create(NULL, stack_size, (void *(*)(void *))continuation, args, flags, &tid) == 0) {
-      void * tmp;
-      thr_join(tid, NULL, &tmp);
-      rslt = (int)tmp;
-    } else {
-      /* See below. Continue in current thread if thr_create() failed */
-      rslt = continuation(args);
-    }
-#else /* ! __solaris__ */
+#ifndef __solaris__
     pthread_t tid;
     pthread_attr_t attr;
     pthread_attr_init(&attr);
@@ -1035,7 +1054,18 @@ ContinueInNewThread0(int (JNICALL *continuation)(void *), jlong stack_size, void
     }
 
     pthread_attr_destroy(&attr);
-#endif /* __solaris__ */
+#else /* __solaris__ */
+    thread_t tid;
+    long flags = 0;
+    if (thr_create(NULL, stack_size, (void *(*)(void *))continuation, args, flags, &tid) == 0) {
+      void * tmp;
+      thr_join(tid, NULL, &tmp);
+      rslt = (int)tmp;
+    } else {
+      /* See above. Continue in current thread if thr_create() failed */
+      rslt = continuation(args);
+    }
+#endif /* !__solaris__ */
     return rslt;
 }
 

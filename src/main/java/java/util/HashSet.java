@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2017, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -24,6 +24,9 @@
  */
 
 package java.util;
+
+import java.io.InvalidObjectException;
+import sun.misc.SharedSecrets;
 
 /**
  * This class implements the <tt>Set</tt> interface, backed by a hash table
@@ -247,13 +250,14 @@ public class HashSet<E>
      *
      * @return a shallow copy of this set
      */
+    @SuppressWarnings("unchecked")
     public Object clone() {
         try {
             HashSet<E> newSet = (HashSet<E>) super.clone();
             newSet.map = (HashMap<E, Object>) map.clone();
             return newSet;
         } catch (CloneNotSupportedException e) {
-            throw new InternalError();
+            throw new InternalError(e);
         }
     }
 
@@ -293,20 +297,65 @@ public class HashSet<E>
         // Read in any hidden serialization magic
         s.defaultReadObject();
 
-        // Read in HashMap capacity and load factor and create backing HashMap
+        // Read capacity and verify non-negative.
         int capacity = s.readInt();
+        if (capacity < 0) {
+            throw new InvalidObjectException("Illegal capacity: " +
+                                             capacity);
+        }
+
+        // Read load factor and verify positive and non NaN.
         float loadFactor = s.readFloat();
-        map = (((HashSet)this) instanceof LinkedHashSet ?
+        if (loadFactor <= 0 || Float.isNaN(loadFactor)) {
+            throw new InvalidObjectException("Illegal load factor: " +
+                                             loadFactor);
+        }
+
+        // Read size and verify non-negative.
+        int size = s.readInt();
+        if (size < 0) {
+            throw new InvalidObjectException("Illegal size: " +
+                                             size);
+        }
+        // Set the capacity according to the size and load factor ensuring that
+        // the HashMap is at least 25% full but clamping to maximum capacity.
+        capacity = (int) Math.min(size * Math.min(1 / loadFactor, 4.0f),
+                HashMap.MAXIMUM_CAPACITY);
+
+        // Constructing the backing map will lazily create an array when the first element is
+        // added, so check it before construction. Call HashMap.tableSizeFor to compute the
+        // actual allocation size. Check Map.Entry[].class since it's the nearest public type to
+        // what is actually created.
+
+        SharedSecrets.getJavaOISAccess()
+                     .checkArray(s, Map.Entry[].class, HashMap.tableSizeFor(capacity));
+
+        // Create backing HashMap
+        map = (((HashSet<?>)this) instanceof LinkedHashSet ?
                new LinkedHashMap<E,Object>(capacity, loadFactor) :
                new HashMap<E,Object>(capacity, loadFactor));
 
-        // Read in size
-        int size = s.readInt();
-
         // Read in all elements in the proper order.
         for (int i=0; i<size; i++) {
-            E e = (E) s.readObject();
+            @SuppressWarnings("unchecked")
+                E e = (E) s.readObject();
             map.put(e, PRESENT);
         }
+    }
+
+    /**
+     * Creates a <em><a href="Spliterator.html#binding">late-binding</a></em>
+     * and <em>fail-fast</em> {@link Spliterator} over the elements in this
+     * set.
+     *
+     * <p>The {@code Spliterator} reports {@link Spliterator#SIZED} and
+     * {@link Spliterator#DISTINCT}.  Overriding implementations should document
+     * the reporting of additional characteristic values.
+     *
+     * @return a {@code Spliterator} over the elements in this set
+     * @since 1.8
+     */
+    public Spliterator<E> spliterator() {
+        return new HashMap.KeySpliterator<E,Object>(map, 0, -1, 0, 0);
     }
 }

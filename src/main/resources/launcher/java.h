@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1998, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1998, 2015, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -242,14 +242,68 @@ typedef struct {
     InvocationFunctions ifn;
 } JavaMainArgs;
 
-#define NULL_CHECK0(e) if ((e) == 0) { \
-    JLI_ReportErrorMessage(JNI_ERROR); \
-    return 0; \
-  }
+#define NULL_CHECK_RETURN_VALUE(NCRV_check_pointer, NCRV_return_value) \
+    do { \
+        if ((NCRV_check_pointer) == NULL) { \
+            JLI_ReportErrorMessage(JNI_ERROR); \
+            return NCRV_return_value; \
+        } \
+    } while (JNI_FALSE)
 
-#define NULL_CHECK(e) if ((e) == 0) { \
-    JLI_ReportErrorMessage(JNI_ERROR); \
-    return; \
-  }
+#define NULL_CHECK0(NC0_check_pointer) \
+    NULL_CHECK_RETURN_VALUE(NC0_check_pointer, 0)
+
+#define NULL_CHECK(NC_check_pointer) \
+    NULL_CHECK_RETURN_VALUE(NC_check_pointer, )
+
+#define CHECK_EXCEPTION_RETURN() \
+    do { \
+        if ((*env)->ExceptionOccurred(env)) { \
+            return; \
+        } \
+    } while (JNI_FALSE)
+
+/*
+ * For JNI calls :
+ *  - check for thrown exceptions
+ *  - check for null return
+ *
+ *  JNI calls can return null and/or throw an exception.  Check for these.
+ *
+ *  : CHECK_JNI_RETURN_EXCEPTION()
+ *    return the specified RETURNVALUE if exception was generated
+ *  : CHECK_JNI_RETURN_0(JNISTATEMENT)        : check if JNISTATEMENT was successful, return 0 if not
+ *  : CHECK_JNI_RETURN_VOID(JNISTATEMENT)     : check if JNISTATEMENT was successful, return void if not
+ *  : CHECK_JNI_RETURN_VALUE(JNISTATEMENT,n)  : check if JNISTATEMENT was successful, return n if not
+ *
+ *  These macros need at least one parameter, the JNI statement [ JNISTATEMENT ].
+ *
+ *  E.G.: check the JNI statement, and specify a value to return if a failure was detected.
+ *
+ *      CHECK_JNI_RETURN_VALUE(str = (*env)->CallStaticObjectMethod(env, cls,
+ *                                               makePlatformStringMID, USE_STDERR, ary), -1);
+ */
+
+#define RETURNVOID return
+#define RETURN0 return 0
+#define RETURN(N) return (N)
+
+#define CHECK_JNI_RETURN_EXCEPTION(RETURNVALUE) \
+        if ((((*env)->ExceptionOccurred(env))!=NULL)) { \
+            RETURNVALUE; \
+        }
+
+#define CHECK_JNI_RETURN_0(JNISTATEMENT) \
+    CHECK_JNI_RETURN_EXCEPTION(RETURN0); \
+    NULL_CHECK0(JNISTATEMENT);
+
+#define CHECK_JNI_RETURN_VOID(JNISTATEMENT) \
+    CHECK_JNI_RETURN_EXCEPTION(RETURNVOID); \
+    NULL_CHECK(JNISTATEMENT);
+
+#define CHECK_JNI_RETURN_VALUE(JNISTATEMENT, NCRV_return_value) \
+    CHECK_JNI_RETURN_EXCEPTION(RETURN(NCRV_return_value)); \
+    NULL_CHECK_RETURN_VALUE(JNISTATEMENT, NCRV_return_value);
+
 
 #endif /* _JAVA_H_ */

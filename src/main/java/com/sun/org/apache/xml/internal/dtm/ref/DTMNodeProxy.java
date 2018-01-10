@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /*
@@ -24,10 +24,10 @@ package com.sun.org.apache.xml.internal.dtm.ref;
 
 import java.util.Vector;
 
-import com.sun.org.apache.xalan.internal.utils.Objects;
 import com.sun.org.apache.xml.internal.dtm.DTM;
 import com.sun.org.apache.xml.internal.dtm.DTMDOMException;
 import com.sun.org.apache.xpath.internal.NodeSet;
+import java.util.Objects;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;
@@ -2116,7 +2116,7 @@ public class DTMNodeProxy
      */
     @Override
     public String getTextContent() throws DOMException {
-        return getNodeValue();  // overriden in some subclasses
+        return dtm.getStringValue(node).toString();
     }
 
      /**

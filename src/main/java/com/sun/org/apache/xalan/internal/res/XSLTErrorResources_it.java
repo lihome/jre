@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /*
@@ -16,9 +16,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
-/*
- * $Id: XSLTErrorResources_it.java /st_wptg_1.7.0.79.0jdk/1 2015/01/23 11:41:53 gmolloy Exp $
  */
 package com.sun.org.apache.xalan.internal.res;
 
@@ -1016,7 +1013,7 @@ public class XSLTErrorResources_it extends ListResourceBundle
      "Propriet\u00E0 di sistema org.xml.sax.parser non specificata"},
 
     { ER_PARSER_ARG_CANNOT_BE_NULL,
-     "L''argomento del parser non deve essere nullo"},
+     "L'argomento del parser non deve essere nullo"},
 
     { ER_FEATURE,
      "Funzione: {0}"},

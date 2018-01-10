@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
- * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ * Copyright (c) 2005, 2015, Oracle and/or its affiliates. All rights reserved.
  */
 /*
- * Copyright 1999-2004 The Apache Software Foundation.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -22,28 +22,24 @@
  */
 package com.sun.org.apache.xalan.internal.lib;
 
-import java.util.Hashtable;
-import java.util.StringTokenizer;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 import com.sun.org.apache.xalan.internal.extensions.ExpressionContext;
+import com.sun.org.apache.xalan.internal.utils.ObjectFactory;
 import com.sun.org.apache.xalan.internal.xslt.EnvironmentCheck;
 import com.sun.org.apache.xpath.internal.NodeSet;
 import com.sun.org.apache.xpath.internal.objects.XBoolean;
 import com.sun.org.apache.xpath.internal.objects.XNumber;
 import com.sun.org.apache.xpath.internal.objects.XObject;
-import com.sun.org.apache.xalan.internal.utils.ObjectFactory;
-
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.StringTokenizer;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.w3c.dom.traversal.NodeIterator;
-
 import org.xml.sax.SAXNotSupportedException;
 
 /**
@@ -117,10 +113,10 @@ public class Extensions
       // Document myDoc = myProcessor.getContextNode().getOwnerDocument();
       Document myDoc = getDocument();
 
-      Text textNode = myDoc.createTextNode(textNodeValue);
-      DocumentFragment docFrag = myDoc.createDocumentFragment();
+        Text textNode = myDoc.createTextNode(textNodeValue);
+        DocumentFragment docFrag = myDoc.createDocumentFragment();
 
-      docFrag.appendChild(textNode);
+        docFrag.appendChild(textNode);
 
       return new NodeSet(docFrag);
     }
@@ -313,7 +309,7 @@ public class Extensions
 
       // If reflection failed, fallback to our internal EnvironmentCheck
       EnvironmentCheck envChecker = new EnvironmentCheck();
-      Hashtable h = envChecker.getEnvironmentHash();
+      Map<String, Object> h = envChecker.getEnvironmentHash();
       resultNode = factoryDocument.createElement("checkEnvironmentExtension");
       envChecker.appendEnvironmentReport(resultNode, factoryDocument, h);
       envChecker = null;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2007, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -26,6 +26,9 @@
 package javax.imageio.spi;
 
 import java.io.File;
+import java.security.AccessControlContext;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -157,6 +160,8 @@ public class ServiceRegistry {
      * or <code>null</code> if the system class loader (or, failing that
      * the bootstrap class loader) is to be used.
      *
+     * @param <T> the type of the providerClass.
+     *
      * @return An <code>Iterator</code> that yields provider objects
      * for the given service, in some arbitrary order.  The iterator
      * will throw an <code>Error</code> if a provider-configuration
@@ -187,6 +192,8 @@ public class ServiceRegistry {
      *
      * @param providerClass a <code>Class</code>object indicating the
      * class or interface of the service providers being detected.
+     *
+     * @param <T> the type of the providerClass.
      *
      * @return An <code>Iterator</code> that yields provider objects
      * for the given service, in some arbitrary order.  The iterator
@@ -247,6 +254,7 @@ public class ServiceRegistry {
      * @param provider the service provide object to be registered.
      * @param category the category under which to register the
      * provider.
+     * @param <T> the type of the provider.
      *
      * @return true if no provider of the same class was previously
      * registered in the same category category.
@@ -348,6 +356,7 @@ public class ServiceRegistry {
      * @param provider the service provider object to be deregistered.
      * @param category the category from which to deregister the
      * provider.
+     * @param <T> the type of the provider.
      *
      * @return <code>true</code> if the provider was previously
      * registered in the same category category,
@@ -435,6 +444,7 @@ public class ServiceRegistry {
      * @param category the category to be retrieved from.
      * @param useOrdering <code>true</code> if pairwise orderings
      * should be taken account in ordering the returned objects.
+     * @param <T> the type of the category.
      *
      * @return an <code>Iterator</code> containing service provider
      * objects from the given category, possibly in order.
@@ -490,6 +500,7 @@ public class ServiceRegistry {
      * whose <code>filter</code> method will be invoked.
      * @param useOrdering <code>true</code> if pairwise orderings
      * should be taken account in ordering the returned objects.
+     * @param <T> the type of the category.
      *
      * @return an <code>Iterator</code> containing service provider
      * objects from the given category, possibly in order.
@@ -517,6 +528,7 @@ public class ServiceRegistry {
      *
      * @param providerClass the <code>Class</code> of the desired
      * service provider object.
+     * @param <T> the type of the provider.
      *
      * @return a currently registered service provider object with the
      * desired <code>Class</code>type, or <code>null</code> is none is
@@ -561,6 +573,7 @@ public class ServiceRegistry {
      * @param firstProvider the preferred provider.
      * @param secondProvider the provider to which
      * <code>firstProvider</code> is preferred.
+     * @param <T> the type of the category.
      *
      * @return <code>true</code> if a previously unset ordering
      * was established.
@@ -606,6 +619,7 @@ public class ServiceRegistry {
      * @param firstProvider the formerly preferred provider.
      * @param secondProvider the provider to which
      * <code>firstProvider</code> was formerly preferred.
+     * @param <T> the type of the category.
      *
      * @return <code>true</code> if a previously set ordering was
      * disestablished.
@@ -690,11 +704,12 @@ class SubRegistry {
 
     Class category;
 
-    // Provider Objects organized by partial oridering
-    PartiallyOrderedSet poset = new PartiallyOrderedSet();
+    // Provider Objects organized by partial ordering
+    final PartiallyOrderedSet poset = new PartiallyOrderedSet();
 
     // Class -> Provider Object of that class
-    Map<Class<?>,Object> map = new HashMap();
+    final Map<Class<?>,Object> map = new HashMap();
+    final Map<Class<?>,AccessControlContext> accMap = new HashMap<>();
 
     public SubRegistry(ServiceRegistry registry, Class category) {
         this.registry = registry;
@@ -709,6 +724,7 @@ class SubRegistry {
             deregisterServiceProvider(oprovider);
         }
         map.put(provider.getClass(), provider);
+        accMap.put(provider.getClass(), AccessController.getContext());
         poset.add(provider);
         if (provider instanceof RegisterableService) {
             RegisterableService rs = (RegisterableService)provider;
@@ -728,6 +744,7 @@ class SubRegistry {
 
         if (provider == oprovider) {
             map.remove(provider.getClass());
+            accMap.remove(provider.getClass());
             poset.remove(provider);
             if (provider instanceof RegisterableService) {
                 RegisterableService rs = (RegisterableService)provider;
@@ -774,10 +791,17 @@ class SubRegistry {
 
             if (provider instanceof RegisterableService) {
                 RegisterableService rs = (RegisterableService)provider;
-                rs.onDeregistration(registry, category);
+                AccessControlContext acc = accMap.get(provider.getClass());
+                if (acc != null || System.getSecurityManager() == null) {
+                    AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
+                    rs.onDeregistration(registry, category);
+                        return null;
+                    }, acc);
+                }
             }
         }
         poset.clear();
+        accMap.clear();
     }
 
     public void finalize() {

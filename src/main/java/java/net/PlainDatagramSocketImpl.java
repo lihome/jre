@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -69,6 +69,15 @@ class PlainDatagramSocketImpl extends AbstractPlainDatagramSocketImpl
         return (T)flow;
     }
 
+    protected void socketSetOption(int opt, Object val) throws SocketException {
+        try {
+            socketSetOption0(opt, val);
+        } catch (SocketException se) {
+            if (!connected)
+                throw se;
+        }
+    }
+
     protected synchronized native void bind0(int lport, InetAddress laddr)
         throws SocketException;
 
@@ -85,8 +94,10 @@ class PlainDatagramSocketImpl extends AbstractPlainDatagramSocketImpl
 
     protected native int getTimeToLive() throws IOException;
 
+    @Deprecated
     protected native void setTTL(byte ttl) throws IOException;
 
+    @Deprecated
     protected native byte getTTL() throws IOException;
 
     protected native void join(InetAddress inetaddr, NetworkInterface netIf)
@@ -99,7 +110,7 @@ class PlainDatagramSocketImpl extends AbstractPlainDatagramSocketImpl
 
     protected native void datagramSocketClose();
 
-    protected native void socketSetOption(int opt, Object val)
+    protected native void socketSetOption0(int opt, Object val)
         throws SocketException;
 
     protected native Object socketGetOption(int opt) throws SocketException;
@@ -107,6 +118,8 @@ class PlainDatagramSocketImpl extends AbstractPlainDatagramSocketImpl
     protected native void connect0(InetAddress address, int port) throws SocketException;
 
     protected native void disconnect0(int family);
+
+    native int dataAvailable();
 
     /**
      * Perform class load-time initializations.

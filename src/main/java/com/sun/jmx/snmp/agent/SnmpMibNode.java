@@ -346,8 +346,9 @@ public abstract class SnmpMibNode implements Serializable {
         final int[] a = table;
         final int val= (int) value;
 
-        if (a == null)
+        if (a == null) {
             throw new SnmpStatusException(SnmpStatusException.noSuchObject);
+        }
 
         int low= 0;
         int max= a.length;
@@ -356,11 +357,13 @@ public abstract class SnmpMibNode implements Serializable {
 
         // Basic check
         //
-        if (max < 1)
+        if (max < 1) {
             throw new SnmpStatusException(SnmpStatusException.noSuchObject);
+        }
 
-        if (a[max-1] <= val)
+        if (a[max-1] <= val) {
             throw new SnmpStatusException(SnmpStatusException.noSuchObject);
+        }
 
         while (low <= max) {
             elmt= a[curr];

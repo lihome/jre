@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1995, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1995, 2014, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -35,10 +35,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.security.AccessController;
 import static java.security.AccessController.doPrivileged;
 import java.security.PrivilegedAction;
@@ -49,8 +52,9 @@ import java.security.PrivilegedExceptionAction;
  * java.lang.Process subclass in the UNIX environment.
  *
  * @author Mario Wolczko and Ross Knippel.
- * @author Konstantin Kladko (ported to Bsd)
+ * @author Konstantin Kladko (ported to Linux and Bsd)
  * @author Martin Buchholz
+ * @author Volker Simonis (ported to AIX)
  */
 final class UNIXProcess extends Process {
     private static final sun.misc.JavaIOFileDescriptorAccess fdAccess
@@ -64,17 +68,106 @@ final class UNIXProcess extends Process {
     private /* final */ InputStream  stdout;
     private /* final */ InputStream  stderr;
 
+    // only used on Solaris
+    private /* final */ DeferredCloseInputStream stdout_inner_stream;
+
     private static enum LaunchMechanism {
-        FORK(1),
-        POSIX_SPAWN(2);
+        // order IS important!
+        FORK,
+        POSIX_SPAWN,
+        VFORK
+    }
 
-        private int value;
-        LaunchMechanism(int x) {value = x;}
-    };
+    private static enum Platform {
 
-    /* On BSD, the default is to spawn */
-    private static final LaunchMechanism launchMechanism;
-    private static byte[] helperpath;
+        LINUX(LaunchMechanism.VFORK, LaunchMechanism.FORK),
+
+        BSD(LaunchMechanism.POSIX_SPAWN, LaunchMechanism.FORK),
+
+        SOLARIS(LaunchMechanism.POSIX_SPAWN, LaunchMechanism.FORK),
+
+        AIX(LaunchMechanism.POSIX_SPAWN, LaunchMechanism.FORK);
+
+        final LaunchMechanism defaultLaunchMechanism;
+        final Set<LaunchMechanism> validLaunchMechanisms;
+
+        Platform(LaunchMechanism ... launchMechanisms) {
+            this.defaultLaunchMechanism = launchMechanisms[0];
+            this.validLaunchMechanisms =
+                EnumSet.copyOf(Arrays.asList(launchMechanisms));
+        }
+
+        private String helperPath(String javahome, String osArch) {
+            switch (this) {
+                case SOLARIS:
+                    if (osArch.equals("x86")) { osArch = "i386"; }
+                    else if (osArch.equals("x86_64")) { osArch = "amd64"; }
+                    // fall through...
+                case LINUX:
+                case AIX:
+                    return javahome + "/lib/" + osArch + "/jspawnhelper";
+
+                case BSD:
+                    return javahome + "/lib/jspawnhelper";
+
+                default:
+                    throw new AssertionError("Unsupported platform: " + this);
+            }
+        }
+
+        String helperPath() {
+            return AccessController.doPrivileged(
+                (PrivilegedAction<String>) () ->
+                    helperPath(System.getProperty("java.home"),
+                               System.getProperty("os.arch"))
+            );
+        }
+
+        LaunchMechanism launchMechanism() {
+            return AccessController.doPrivileged(
+                (PrivilegedAction<LaunchMechanism>) () -> {
+                    String s = System.getProperty(
+                        "jdk.lang.Process.launchMechanism");
+                    LaunchMechanism lm;
+                    if (s == null) {
+                        lm = defaultLaunchMechanism;
+                        s = lm.name().toLowerCase(Locale.ENGLISH);
+                    } else {
+                        try {
+                            lm = LaunchMechanism.valueOf(
+                                s.toUpperCase(Locale.ENGLISH));
+                        } catch (IllegalArgumentException e) {
+                            lm = null;
+                        }
+                    }
+                    if (lm == null || !validLaunchMechanisms.contains(lm)) {
+                        throw new Error(
+                            s + " is not a supported " +
+                            "process launch mechanism on this platform."
+                        );
+                    }
+                    return lm;
+                }
+            );
+        }
+
+        static Platform get() {
+            String osName = AccessController.doPrivileged(
+                (PrivilegedAction<String>) () -> System.getProperty("os.name")
+            );
+
+            if (osName.equals("Linux")) { return LINUX; }
+            if (osName.contains("OS X")) { return BSD; }
+            if (osName.equals("SunOS")) { return SOLARIS; }
+            if (osName.equals("AIX")) { return AIX; }
+
+            throw new Error(osName + " is not a supported OS platform.");
+        }
+    }
+
+    private static final Platform platform = Platform.get();
+    private static final LaunchMechanism launchMechanism = platform.launchMechanism();
+    private static final byte[] helperpath = toCString(platform.helperPath());
 
     private static byte[] toCString(String s) {
         if (s == null)
@@ -88,36 +181,19 @@ final class UNIXProcess extends Process {
         return result;
     }
 
-    static {
-        launchMechanism = AccessController.doPrivileged(
-                new PrivilegedAction<LaunchMechanism>()
-        {
-            public LaunchMechanism run() {
-                String javahome = System.getProperty("java.home");
-
-                helperpath = toCString(javahome + "/lib/jspawnhelper");
-                String s = System.getProperty(
-                    "jdk.lang.Process.launchMechanism", "posix_spawn");
-
-                try {
-                    return LaunchMechanism.valueOf(s.toUpperCase(Locale.ENGLISH));
-                } catch (IllegalArgumentException e) {
-                    throw new Error(s + " is not a supported " +
-                        "process launch mechanism on this platform.");
-                }
-            }
-        });
-    }
-
     /* this is for the reaping thread */
     private native int waitForProcessExit(int pid);
 
     /**
-     * Create a process. Depending on the mode flag, this is done by
-     * one of the following mechanisms.
-     * - fork(2) and exec(2)
-     * - posix_spawn(2)
+     * Creates a process. Depending on the {@code mode} flag, this is done by
+     * one of the following mechanisms:
+     * <pre>
+     *   1 - fork(2) and exec(2)
+     *   2 - posix_spawn(3P)
+     *   3 - vfork(2) and exec(2)
      *
+     *  (4 - clone(2) and exec(2) - obsolete and currently disabled in native code)
+     * </pre>
      * @param fds an array of three file descriptors.
      *        Indexes 0, 1, and 2 correspond to standard input,
      *        standard output and standard error, respectively.  On
@@ -139,40 +215,26 @@ final class UNIXProcess extends Process {
         throws IOException;
 
     /**
-     * The thread factory used to create "process reaper" daemon threads.
-     */
-    private static class ProcessReaperThreadFactory implements ThreadFactory {
-        private final static ThreadGroup group = getRootThreadGroup();
-
-        private static ThreadGroup getRootThreadGroup() {
-            return doPrivileged(new PrivilegedAction<ThreadGroup> () {
-                public ThreadGroup run() {
-                    ThreadGroup root = Thread.currentThread().getThreadGroup();
-                    while (root.getParent() != null)
-                        root = root.getParent();
-                    return root;
-                }});
-        }
-
-        public Thread newThread(Runnable grimReaper) {
-            // Our thread stack requirement is quite modest.
-            Thread t = new Thread(group, grimReaper, "process reaper", 32768);
-            t.setDaemon(true);
-            // A small attempt (probably futile) to avoid priority inversion
-            t.setPriority(Thread.MAX_PRIORITY);
-            return t;
-        }
-    }
-
-    /**
      * The thread pool of "process reaper" daemon threads.
      */
     private static final Executor processReaperExecutor =
-        doPrivileged(new PrivilegedAction<Executor>() {
-            public Executor run() {
-                return Executors.newCachedThreadPool
-                    (new ProcessReaperThreadFactory());
-            }});
+        doPrivileged((PrivilegedAction<Executor>) () -> {
+
+            ThreadGroup tg = Thread.currentThread().getThreadGroup();
+            while (tg.getParent() != null) tg = tg.getParent();
+            ThreadGroup systemThreadGroup = tg;
+
+            ThreadFactory threadFactory = grimReaper -> {
+                long stackSize = Boolean.getBoolean("jdk.lang.processReaperUseDefaultStackSize") ? 0 : 32768;
+                Thread t = new Thread(systemThreadGroup, grimReaper,"process reaper", stackSize);
+                t.setDaemon(true);
+                // A small attempt (probably futile) to avoid priority inversion
+                t.setPriority(Thread.MAX_PRIORITY);
+                return t;
+            };
+
+            return Executors.newCachedThreadPool(threadFactory);
+        });
 
     UNIXProcess(final byte[] prog,
                 final byte[] argBlock, final int argc,
@@ -182,7 +244,7 @@ final class UNIXProcess extends Process {
                 final boolean redirectErrorStream)
             throws IOException {
 
-        pid = forkAndExec(launchMechanism.value,
+        pid = forkAndExec(launchMechanism.ordinal() + 1,
                           helperpath,
                           prog,
                           argBlock, argc,
@@ -192,11 +254,10 @@ final class UNIXProcess extends Process {
                           redirectErrorStream);
 
         try {
-            doPrivileged(new PrivilegedExceptionAction<Void>() {
-                public Void run() throws IOException {
-                    initStreams(fds);
-                    return null;
-                }});
+            doPrivileged((PrivilegedExceptionAction<Void>) () -> {
+                initStreams(fds);
+                return null;
+            });
         } catch (PrivilegedActionException ex) {
             throw (IOException) ex.getException();
         }
@@ -209,40 +270,112 @@ final class UNIXProcess extends Process {
     }
 
     void initStreams(int[] fds) throws IOException {
-        stdin = (fds[0] == -1) ?
-            ProcessBuilder.NullOutputStream.INSTANCE :
-            new ProcessPipeOutputStream(fds[0]);
+        switch (platform) {
+            case LINUX:
+            case BSD:
+                stdin = (fds[0] == -1) ?
+                        ProcessBuilder.NullOutputStream.INSTANCE :
+                        new ProcessPipeOutputStream(fds[0]);
 
-        stdout = (fds[1] == -1) ?
-            ProcessBuilder.NullInputStream.INSTANCE :
-            new ProcessPipeInputStream(fds[1]);
+                stdout = (fds[1] == -1) ?
+                         ProcessBuilder.NullInputStream.INSTANCE :
+                         new ProcessPipeInputStream(fds[1]);
 
-        stderr = (fds[2] == -1) ?
-            ProcessBuilder.NullInputStream.INSTANCE :
-            new ProcessPipeInputStream(fds[2]);
+                stderr = (fds[2] == -1) ?
+                         ProcessBuilder.NullInputStream.INSTANCE :
+                         new ProcessPipeInputStream(fds[2]);
 
-        processReaperExecutor.execute(new Runnable() {
-            public void run() {
-                int exitcode = waitForProcessExit(pid);
-                UNIXProcess.this.processExited(exitcode);
-            }});
-    }
+                processReaperExecutor.execute(() -> {
+                    int exitcode = waitForProcessExit(pid);
 
-    void processExited(int exitcode) {
-        synchronized (this) {
-            this.exitcode = exitcode;
-            hasExited = true;
-            notifyAll();
+                    synchronized (this) {
+                        this.exitcode = exitcode;
+                        this.hasExited = true;
+                        this.notifyAll();
+                    }
+
+                    if (stdout instanceof ProcessPipeInputStream)
+                        ((ProcessPipeInputStream) stdout).processExited();
+
+                    if (stderr instanceof ProcessPipeInputStream)
+                        ((ProcessPipeInputStream) stderr).processExited();
+
+                    if (stdin instanceof ProcessPipeOutputStream)
+                        ((ProcessPipeOutputStream) stdin).processExited();
+                });
+                break;
+
+            case SOLARIS:
+                stdin = (fds[0] == -1) ?
+                        ProcessBuilder.NullOutputStream.INSTANCE :
+                        new BufferedOutputStream(
+                            new FileOutputStream(newFileDescriptor(fds[0])));
+
+                stdout = (fds[1] == -1) ?
+                         ProcessBuilder.NullInputStream.INSTANCE :
+                         new BufferedInputStream(
+                             stdout_inner_stream =
+                                 new DeferredCloseInputStream(
+                                     newFileDescriptor(fds[1])));
+
+                stderr = (fds[2] == -1) ?
+                         ProcessBuilder.NullInputStream.INSTANCE :
+                         new DeferredCloseInputStream(newFileDescriptor(fds[2]));
+
+                /*
+                 * For each subprocess forked a corresponding reaper task
+                 * is submitted.  That task is the only thread which waits
+                 * for the subprocess to terminate and it doesn't hold any
+                 * locks while doing so.  This design allows waitFor() and
+                 * exitStatus() to be safely executed in parallel (and they
+                 * need no native code).
+                 */
+                processReaperExecutor.execute(() -> {
+                    int exitcode = waitForProcessExit(pid);
+
+                    synchronized (this) {
+                        this.exitcode = exitcode;
+                        this.hasExited = true;
+                        this.notifyAll();
+                    }
+                });
+                break;
+
+            case AIX:
+                stdin = (fds[0] == -1) ?
+                        ProcessBuilder.NullOutputStream.INSTANCE :
+                        new ProcessPipeOutputStream(fds[0]);
+
+                stdout = (fds[1] == -1) ?
+                         ProcessBuilder.NullInputStream.INSTANCE :
+                         new DeferredCloseProcessPipeInputStream(fds[1]);
+
+                stderr = (fds[2] == -1) ?
+                         ProcessBuilder.NullInputStream.INSTANCE :
+                         new DeferredCloseProcessPipeInputStream(fds[2]);
+
+                processReaperExecutor.execute(() -> {
+                    int exitcode = waitForProcessExit(pid);
+
+                    synchronized (this) {
+                        this.exitcode = exitcode;
+                        this.hasExited = true;
+                        this.notifyAll();
+                    }
+
+                    if (stdout instanceof DeferredCloseProcessPipeInputStream)
+                        ((DeferredCloseProcessPipeInputStream) stdout).processExited();
+
+                    if (stderr instanceof DeferredCloseProcessPipeInputStream)
+                        ((DeferredCloseProcessPipeInputStream) stderr).processExited();
+
+                    if (stdin instanceof ProcessPipeOutputStream)
+                        ((ProcessPipeOutputStream) stdin).processExited();
+                });
+                break;
+
+            default: throw new AssertionError("Unsupported platform: " + platform);
         }
-
-        if (stdout instanceof ProcessPipeInputStream)
-            ((ProcessPipeInputStream) stdout).processExited();
-
-        if (stderr instanceof ProcessPipeInputStream)
-            ((ProcessPipeInputStream) stderr).processExited();
-
-        if (stdin instanceof ProcessPipeOutputStream)
-            ((ProcessPipeOutputStream) stdin).processExited();
     }
 
     public OutputStream getOutputStream() {
@@ -264,6 +397,27 @@ final class UNIXProcess extends Process {
         return exitcode;
     }
 
+    @Override
+    public synchronized boolean waitFor(long timeout, TimeUnit unit)
+        throws InterruptedException
+    {
+        if (hasExited) return true;
+        if (timeout <= 0) return false;
+
+        long remainingNanos = unit.toNanos(timeout);
+        long deadline = System.nanoTime() + remainingNanos;
+
+        do {
+            // Round up to next millisecond
+            wait(TimeUnit.NANOSECONDS.toMillis(remainingNanos + 999_999L));
+            if (hasExited) {
+                return true;
+            }
+            remainingNanos = deadline - System.nanoTime();
+        } while (remainingNanos > 0);
+        return hasExited;
+    }
+
     public synchronized int exitValue() {
         if (!hasExited) {
             throw new IllegalThreadStateException("process hasn't exited");
@@ -271,21 +425,68 @@ final class UNIXProcess extends Process {
         return exitcode;
     }
 
-    private static native void destroyProcess(int pid);
-    public void destroy() {
-        // There is a risk that pid will be recycled, causing us to
-        // kill the wrong process!  So we only terminate processes
-        // that appear to still be running.  Even with this check,
-        // there is an unavoidable race condition here, but the window
-        // is very small, and OSes try hard to not recycle pids too
-        // soon, so this is quite safe.
-        synchronized (this) {
-            if (!hasExited)
-                destroyProcess(pid);
+    private static native void destroyProcess(int pid, boolean force);
+
+    private void destroy(boolean force) {
+        switch (platform) {
+            case LINUX:
+            case BSD:
+            case AIX:
+                // There is a risk that pid will be recycled, causing us to
+                // kill the wrong process!  So we only terminate processes
+                // that appear to still be running.  Even with this check,
+                // there is an unavoidable race condition here, but the window
+                // is very small, and OSes try hard to not recycle pids too
+                // soon, so this is quite safe.
+                synchronized (this) {
+                    if (!hasExited)
+                        destroyProcess(pid, force);
+                }
+                try { stdin.close();  } catch (IOException ignored) {}
+                try { stdout.close(); } catch (IOException ignored) {}
+                try { stderr.close(); } catch (IOException ignored) {}
+                break;
+
+            case SOLARIS:
+                // There is a risk that pid will be recycled, causing us to
+                // kill the wrong process!  So we only terminate processes
+                // that appear to still be running.  Even with this check,
+                // there is an unavoidable race condition here, but the window
+                // is very small, and OSes try hard to not recycle pids too
+                // soon, so this is quite safe.
+                synchronized (this) {
+                    if (!hasExited)
+                        destroyProcess(pid, force);
+                    try {
+                        stdin.close();
+                        if (stdout_inner_stream != null)
+                            stdout_inner_stream.closeDeferred(stdout);
+                        if (stderr instanceof DeferredCloseInputStream)
+                            ((DeferredCloseInputStream) stderr)
+                                .closeDeferred(stderr);
+                    } catch (IOException e) {
+                        // ignore
+                    }
+                }
+                break;
+
+            default: throw new AssertionError("Unsupported platform: " + platform);
         }
-        try { stdin.close();  } catch (IOException ignored) {}
-        try { stdout.close(); } catch (IOException ignored) {}
-        try { stderr.close(); } catch (IOException ignored) {}
+    }
+
+    public void destroy() {
+        destroy(false);
+    }
+
+    @Override
+    public Process destroyForcibly() {
+        destroy(true);
+        return this;
+    }
+
+    @Override
+    public synchronized boolean isAlive() {
+        return !hasExited;
     }
 
     private static native void init();
@@ -303,7 +504,7 @@ final class UNIXProcess extends Process {
      * closed until the user invokes close(), and we need to continue to be
      * able to read any buffered data lingering in the OS pipe buffer.
      */
-    static class ProcessPipeInputStream extends BufferedInputStream {
+    private static class ProcessPipeInputStream extends BufferedInputStream {
         private final Object closeLock = new Object();
 
         ProcessPipeInputStream(int fd) {
@@ -340,8 +541,8 @@ final class UNIXProcess extends Process {
 
         @Override
         public void close() throws IOException {
-            // BufferedInputStream#close() is not synchronized unlike most other methods.
-            // Synchronizing helps avoid race with processExited().
+            // BufferedInputStream#close() is not synchronized unlike most other
+            // methods. Synchronizing helps avoid race with processExited().
             synchronized (closeLock) {
                 super.close();
             }
@@ -353,7 +554,7 @@ final class UNIXProcess extends Process {
      * that allows the underlying file descriptor to be reclaimed when
      * the process exits, via the processExited hook.
      */
-    static class ProcessPipeOutputStream extends BufferedOutputStream {
+    private static class ProcessPipeOutputStream extends BufferedOutputStream {
         ProcessPipeOutputStream(int fd) {
             super(new FileOutputStream(newFileDescriptor(fd)));
         }
@@ -369,6 +570,259 @@ final class UNIXProcess extends Process {
                     // we do, there's nothing else to do but carry on.
                 }
                 this.out = ProcessBuilder.NullOutputStream.INSTANCE;
+            }
+        }
+    }
+
+    // A FileInputStream that supports the deferment of the actual close
+    // operation until the last pending I/O operation on the stream has
+    // finished.  This is required on Solaris because we must close the stdin
+    // and stdout streams in the destroy method in order to reclaim the
+    // underlying file descriptors.  Doing so, however, causes any thread
+    // currently blocked in a read on one of those streams to receive an
+    // IOException("Bad file number"), which is incompatible with historical
+    // behavior.  By deferring the close we allow any pending reads to see -1
+    // (EOF) as they did before.
+    //
+    private static class DeferredCloseInputStream extends FileInputStream
+    {
+        DeferredCloseInputStream(FileDescriptor fd) {
+            super(fd);
+        }
+
+        private Object lock = new Object();     // For the following fields
+        private boolean closePending = false;
+        private int useCount = 0;
+        private InputStream streamToClose;
+
+        private void raise() {
+            synchronized (lock) {
+                useCount++;
+            }
+        }
+
+        private void lower() throws IOException {
+            synchronized (lock) {
+                useCount--;
+                if (useCount == 0 && closePending) {
+                    streamToClose.close();
+                }
+            }
+        }
+
+        // stc is the actual stream to be closed; it might be this object, or
+        // it might be an upstream object for which this object is downstream.
+        //
+        private void closeDeferred(InputStream stc) throws IOException {
+            synchronized (lock) {
+                if (useCount == 0) {
+                    stc.close();
+                } else {
+                    closePending = true;
+                    streamToClose = stc;
+                }
+            }
+        }
+
+        public void close() throws IOException {
+            synchronized (lock) {
+                useCount = 0;
+                closePending = false;
+            }
+            super.close();
+        }
+
+        public int read() throws IOException {
+            raise();
+            try {
+                return super.read();
+            } finally {
+                lower();
+            }
+        }
+
+        public int read(byte[] b) throws IOException {
+            raise();
+            try {
+                return super.read(b);
+            } finally {
+                lower();
+            }
+        }
+
+        public int read(byte[] b, int off, int len) throws IOException {
+            raise();
+            try {
+                return super.read(b, off, len);
+            } finally {
+                lower();
+            }
+        }
+
+        public long skip(long n) throws IOException {
+            raise();
+            try {
+                return super.skip(n);
+            } finally {
+                lower();
+            }
+        }
+
+        public int available() throws IOException {
+            raise();
+            try {
+                return super.available();
+            } finally {
+                lower();
+            }
+        }
+    }
+
+    /**
+     * A buffered input stream for a subprocess pipe file descriptor
+     * that allows the underlying file descriptor to be reclaimed when
+     * the process exits, via the processExited hook.
+     *
+     * This is tricky because we do not want the user-level InputStream to be
+     * closed until the user invokes close(), and we need to continue to be
+     * able to read any buffered data lingering in the OS pipe buffer.
+     *
+     * On AIX this is especially tricky, because the 'close()' system call
+     * will block if another thread is at the same time blocked in a file
+     * operation (e.g. 'read()') on the same file descriptor. We therefore
+     * combine 'ProcessPipeInputStream' approach used on Linux and Bsd
+     * with the DeferredCloseInputStream approach used on Solaris. This means
+     * that every potentially blocking operation on the file descriptor
+     * increments a counter before it is executed and decrements it once it
+     * finishes. The 'close()' operation will only be executed if there are
+     * no pending operations. Otherwise it is deferred after the last pending
+     * operation has finished.
+     *
+     */
+    private static class DeferredCloseProcessPipeInputStream
+        extends BufferedInputStream {
+
+        private final Object closeLock = new Object();
+        private int useCount = 0;
+        private boolean closePending = false;
+
+        DeferredCloseProcessPipeInputStream(int fd) {
+            super(new FileInputStream(newFileDescriptor(fd)));
+        }
+
+        private InputStream drainInputStream(InputStream in)
+                throws IOException {
+            int n = 0;
+            int j;
+            byte[] a = null;
+            synchronized (closeLock) {
+                if (buf == null) // asynchronous close()?
+                    return null; // discard
+                j = in.available();
+            }
+            while (j > 0) {
+                a = (a == null) ? new byte[j] : Arrays.copyOf(a, n + j);
+                synchronized (closeLock) {
+                    if (buf == null) // asynchronous close()?
+                        return null; // discard
+                    n += in.read(a, n, j);
+                    j = in.available();
+                }
+            }
+            return (a == null) ?
+                    ProcessBuilder.NullInputStream.INSTANCE :
+                    new ByteArrayInputStream(n == a.length ? a : Arrays.copyOf(a, n));
+        }
+
+        /** Called by the process reaper thread when the process exits. */
+        synchronized void processExited() {
+            try {
+                InputStream in = this.in;
+                if (in != null) {
+                    InputStream stragglers = drainInputStream(in);
+                    in.close();
+                    this.in = stragglers;
+                }
+            } catch (IOException ignored) { }
+        }
+
+        private void raise() {
+            synchronized (closeLock) {
+                useCount++;
+            }
+        }
+
+        private void lower() throws IOException {
+            synchronized (closeLock) {
+                useCount--;
+                if (useCount == 0 && closePending) {
+                    closePending = false;
+                    super.close();
+                }
+            }
+        }
+
+        @Override
+        public int read() throws IOException {
+            raise();
+            try {
+                return super.read();
+            } finally {
+                lower();
+            }
+        }
+
+        @Override
+        public int read(byte[] b) throws IOException {
+            raise();
+            try {
+                return super.read(b);
+            } finally {
+                lower();
+            }
+        }
+
+        @Override
+        public int read(byte[] b, int off, int len) throws IOException {
+            raise();
+            try {
+                return super.read(b, off, len);
+            } finally {
+                lower();
+            }
+        }
+
+        @Override
+        public long skip(long n) throws IOException {
+            raise();
+            try {
+                return super.skip(n);
+            } finally {
+                lower();
+            }
+        }
+
+        @Override
+        public int available() throws IOException {
+            raise();
+            try {
+                return super.available();
+            } finally {
+                lower();
+            }
+        }
+
+        @Override
+        public void close() throws IOException {
+            // BufferedInputStream#close() is not synchronized unlike most other
+            // methods. Synchronizing helps avoid racing with drainInputStream().
+            synchronized (closeLock) {
+                if (useCount == 0) {
+                    super.close();
+                }
+                else {
+                    closePending = true;
+                }
             }
         }
     }

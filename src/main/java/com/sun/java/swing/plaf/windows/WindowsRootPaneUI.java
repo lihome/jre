@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2012, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -165,8 +165,11 @@ public class WindowsRootPaneUI extends BasicRootPaneUI {
         }
 
         public boolean postProcessKeyEvent(KeyEvent ev) {
-            if(ev.isConsumed()) {
-                // do not manage consumed event
+            if(ev.isConsumed() && ev.getKeyCode() != KeyEvent.VK_ALT) {
+                // mnemonic combination, it's consumed, but we need
+                // set altKeyPressed to false, otherwise after selection
+                // component by mnemonic combination a menu will be open
+                altKeyPressed = false;
                 return false;
             }
             if (ev.getKeyCode() == KeyEvent.VK_ALT) {

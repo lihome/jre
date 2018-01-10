@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /*
@@ -16,9 +16,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
-/*
- * $Id: XMLErrorResources_es.java /st_wptg_1.7.0.79.0jdk/1 2015/01/23 11:38:53 gmolloy Exp $
  */
 package com.sun.org.apache.xml.internal.res;
 
@@ -227,7 +224,7 @@ public class XMLErrorResources_es extends ListResourceBundle
       "La clonaci\u00F3n del iterador no est\u00E1 soportada"},
 
     { ER_UNKNOWN_AXIS_TYPE,
-      "Tipo transversal de eje desconocido: {0}"},
+      "Tipo de recorrido de eje desconocido: {0}"},
 
     { ER_AXIS_NOT_SUPPORTED,
       "Traverser de eje no soportado: {0}"},

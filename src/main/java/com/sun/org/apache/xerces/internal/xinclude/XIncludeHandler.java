@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /*
@@ -68,8 +68,8 @@ import com.sun.org.apache.xerces.internal.xni.parser.XMLParserConfiguration;
 import com.sun.org.apache.xerces.internal.xpointer.XPointerHandler;
 import com.sun.org.apache.xerces.internal.xpointer.XPointerProcessor;
 import com.sun.org.apache.xerces.internal.utils.ObjectFactory;
-import com.sun.org.apache.xerces.internal.utils.Objects;
 import com.sun.org.apache.xerces.internal.utils.XMLSecurityPropertyManager;
+import java.util.Objects;
 
 /**
  * <p>

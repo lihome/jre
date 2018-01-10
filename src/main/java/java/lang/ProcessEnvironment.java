@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2003, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2003, 2011, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -91,6 +91,7 @@ final class ProcessEnvironment
     }
 
     /* Only for use by ProcessBuilder.environment() */
+    @SuppressWarnings("unchecked")
     static Map<String,String> environment() {
         return new StringEnvironment
             ((Map<Variable,Value>)(theEnvironment.clone()));

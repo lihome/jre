@@ -229,7 +229,7 @@ public class SnmpPeer implements Serializable {
      * @param adrList The list of <CODE>InetAddresses</CODE>.
      */
     final public synchronized void useAddressList(InetAddress adrList[]) {
-        _devAddrList = adrList ;
+        _devAddrList = (adrList != null) ? adrList.clone() : null;
         _addrIndex = 0 ;
         useNextAddress() ;
     }
@@ -265,7 +265,7 @@ public class SnmpPeer implements Serializable {
      * @return The <CODE>InetAddress</CODE> of the peer.
      */
     final public InetAddress[] getDestAddrList() {
-        return _devAddrList;
+        return _devAddrList == null ? null : _devAddrList.clone();
     }
 
     /**
@@ -405,7 +405,7 @@ public class SnmpPeer implements Serializable {
      * <P>Sets all the references to this SNMP peer object to <CODE>null</CODE>.
      */
     @Override
-    public void finalize() {
+    protected void finalize() {
         _devAddr = null ;
         _devAddrList = null ;
         _snmpParameter = null ;

@@ -91,7 +91,9 @@ public abstract class SnmpMibEntry extends SnmpMibNode
      */
     public void validateVarId(long arc, Object userData)
         throws SnmpStatusException {
-        if (isVariable(arc) == false) throw new SnmpStatusException(SnmpDefinitions.snmpRspNoSuchName);
+        if (isVariable(arc) == false) {
+            throw new SnmpStatusException(SnmpDefinitions.snmpRspNoSuchName);
+        }
     }
 
     /**
