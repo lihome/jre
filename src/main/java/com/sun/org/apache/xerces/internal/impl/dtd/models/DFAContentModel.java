@@ -1,8 +1,12 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * The Apache Software License, Version 1.1
  *
  *
- * Copyright (c) 1999-2002 The Apache Software Foundation.  All rights 
+ * Copyright (c) 1999-2002 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -10,7 +14,7 @@
  * are met:
  *
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer. 
+ *    notice, this list of conditions and the following disclaimer.
  *
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in
@@ -18,7 +22,7 @@
  *    distribution.
  *
  * 3. The end-user documentation included with the redistribution,
- *    if any, must include the following acknowledgment:  
+ *    if any, must include the following acknowledgment:
  *       "This product includes software developed by the
  *        Apache Software Foundation (http://www.apache.org/)."
  *    Alternately, this acknowledgment may appear in the software itself,
@@ -26,7 +30,7 @@
  *
  * 4. The names "Xerces" and "Apache Software Foundation" must
  *    not be used to endorse or promote products derived from this
- *    software without prior written permission. For written 
+ *    software without prior written permission. For written
  *    permission, please contact apache@apache.org.
  *
  * 5. Products derived from this software may not be called "Apache",
@@ -57,26 +61,28 @@
 
 package com.sun.org.apache.xerces.internal.impl.dtd.models;
 
-import com.sun.org.apache.xerces.internal.xni.QName;
+import java.util.HashMap;
+
 import com.sun.org.apache.xerces.internal.impl.dtd.XMLContentSpec;
+import com.sun.org.apache.xerces.internal.xni.QName;
 
 /**
 
- * @version $Id: DFAContentModel.java,v 1.3 2007/07/19 04:38:28 ofung Exp $
+ * @version $Id: DFAContentModel.java,v 1.4 2010/08/06 23:49:43 joehw Exp $
  * DFAContentModel is the derivative of ContentModel that does
- * all of the non-trivial element content validation. This class does 
- * the conversion from the regular expression to the DFA that 
+ * all of the non-trivial element content validation. This class does
+ * the conversion from the regular expression to the DFA that
  * it then uses in its validation algorithm.
  * <p>
  * <b>Note:</b> Upstream work insures that this class will never see
- * a content model with PCDATA in it. Any model with PCDATA is 'mixed' 
- * and is handled via the MixedContentModel class since mixed models 
- * are very constrained in form and easily handled via a special case. 
+ * a content model with PCDATA in it. Any model with PCDATA is 'mixed'
+ * and is handled via the MixedContentModel class since mixed models
+ * are very constrained in form and easily handled via a special case.
  * This also makes implementation of this class much easier.
- * 
+ *
  * @xerces.internal
- * 
- * @version $Id: DFAContentModel.java,v 1.3 2007/07/19 04:38:28 ofung Exp $
+ *
+ * @version $Id: DFAContentModel.java,v 1.4 2010/08/06 23:49:43 joehw Exp $
  */
 public class DFAContentModel
     implements ContentModelValidator {
@@ -119,7 +125,7 @@ public class DFAContentModel
     private QName fElemMap[] = null;
 
     /**
-     * This is a map of whether the element map contains information 
+     * This is a map of whether the element map contains information
      * related to ANY models.
      */
     private int fElemMapType[] = null;
@@ -215,7 +221,7 @@ public class DFAContentModel
     // temp variables
 
     /** Temporary qualified name. */
-    private QName fQName = new QName();
+    private final QName fQName = new QName();
 
     //
     // Constructors
@@ -261,12 +267,12 @@ public class DFAContentModel
 
     /**
      * Check that the specified content is valid according to this
-     * content model. This method can also be called to do 'what if' 
+     * content model. This method can also be called to do 'what if'
      * testing of content models just to see if they would be valid.
      * <p>
-     * A value of -1 in the children array indicates a PCDATA node. All other 
+     * A value of -1 in the children array indicates a PCDATA node. All other
      * indexes will be positive and represent child elements. The count can be
-     * zero, since some elements have the EMPTY content model and that must be 
+     * zero, since some elements have the EMPTY content model and that must be
      * confirmed.
      *
      * @param children The children of this element.  Each integer is an index within
@@ -284,13 +290,13 @@ public class DFAContentModel
      */
     public int validate(QName[] children, int offset, int length) {
 
-        if (DEBUG_VALIDATE_CONTENT) 
+        if (DEBUG_VALIDATE_CONTENT)
             System.out.println("DFAContentModel#validateContent");
 
         //
         // A DFA content model must *always* have at least 1 child
         // so a failure is given if no children present.
-        // 
+        //
         // Defect 782: This is an incorrect statement because a DFA
         // content model is also used for constructions such as:
         //
@@ -307,13 +313,13 @@ public class DFAContentModel
                 for (int i = 0; i < fElemMap.length; i++) {
                     String uri = fElemMap[i].uri;
                     String localpart = fElemMap[i].localpart;
-                    
+
                     System.out.println("fElemMap["+i+"]="+uri+","+
                                        localpart+" ("+
                                        uri+", "+
                                        localpart+
                                        ')');
-                                       
+
                 }
                 System.out.println("EOCIndex="+fEOCString);
             }
@@ -389,7 +395,7 @@ public class DFAContentModel
 
             // If its not a legal transition, then invalid
             if (curState == -1) {
-                if (DEBUG_VALIDATE_CONTENT) 
+                if (DEBUG_VALIDATE_CONTENT)
                     System.out.println("!!! not a legal transition");
                 return childIndex;
             }
@@ -400,7 +406,7 @@ public class DFAContentModel
         //  does not mean that we ended in a final state. So check whether
         //  our ending state is a final state.
         //
-        if (DEBUG_VALIDATE_CONTENT) 
+        if (DEBUG_VALIDATE_CONTENT)
             System.out.println("curState="+curState+", childCount="+length);
         if (!fFinalStateFlags[curState])
             return length;
@@ -414,14 +420,14 @@ public class DFAContentModel
     // Private methods
     //
 
-    /** 
+    /**
      * Builds the internal DFA transition table from the given syntax tree.
      *
      * @param syntaxTree The syntax tree.
      *
      * @exception CMException Thrown if DFA cannot be built.
      */
-    private void buildDFA(CMNode syntaxTree) 
+    private void buildDFA(CMNode syntaxTree)
     {
         //
         //  The first step we need to take is to rewrite the content model
@@ -452,17 +458,17 @@ public class DFAContentModel
         //  for that matter.)
         //
 
-	/* MODIFIED (Jan, 2001) 
-	 *
-	 * Use following rules.
-	 *   nullable(x+) := nullable(x), first(x+) := first(x),  last(x+) := last(x)
-	 *   nullable(x?) := true, first(x?) := first(x),  last(x?) := last(x)
-	 *
-	 * The same computation of follow as x* is applied to x+
-	 *
-	 * The modification drastically reduces computation time of
-	 * "(a, (b, a+, (c, (b, a+)+, a+, (d,  (c, (b, a+)+, a+)+, (b, a+)+, a+)+)+)+)+"
-	 */
+        /* MODIFIED (Jan, 2001)
+         *
+         * Use following rules.
+         *   nullable(x+) := nullable(x), first(x+) := first(x),  last(x+) := last(x)
+         *   nullable(x?) := true, first(x?) := first(x),  last(x?) := last(x)
+         *
+         * The same computation of follow as x* is applied to x+
+         *
+         * The modification drastically reduces computation time of
+         * "(a, (b, a+, (c, (b, a+)+, a+, (d,  (c, (b, a+)+, a+)+, (b, a+)+, a+)+)+)+)+"
+         */
 
         fQName.setValues(null, fEOCString, fEOCString, null);
         CMLeaf nodeEOC = new CMLeaf(fQName);
@@ -561,27 +567,27 @@ public class DFAContentModel
             fLeafNameTypeVector.setValues(fElemMap, fElemMapType, fElemMapSize);
         }
 
-	/*** 
-	* Optimization(Jan, 2001); We sort fLeafList according to 
-	* elemIndex which is *uniquely* associated to each leaf.  
-	* We are *assuming* that each element appears in at least one leaf.
-	**/
+        /***
+        * Optimization(Jan, 2001); We sort fLeafList according to
+        * elemIndex which is *uniquely* associated to each leaf.
+        * We are *assuming* that each element appears in at least one leaf.
+        **/
 
-	int[] fLeafSorter = new int[fLeafCount + fElemMapSize];
-	int fSortCount = 0;
+        int[] fLeafSorter = new int[fLeafCount + fElemMapSize];
+        int fSortCount = 0;
 
-	for (int elemIndex = 0; elemIndex < fElemMapSize; elemIndex++) {
-	    for (int leafIndex = 0; leafIndex < fLeafCount; leafIndex++) {
-		    final QName leaf = fLeafList[leafIndex].getElement();
-		    final QName element = fElemMap[elemIndex];
-		    if (leaf.rawname == element.rawname) {
-			    fLeafSorter[fSortCount++] = leafIndex;
-		    }
-	    }
-	    fLeafSorter[fSortCount++] = -1;
-	}
+        for (int elemIndex = 0; elemIndex < fElemMapSize; elemIndex++) {
+            for (int leafIndex = 0; leafIndex < fLeafCount; leafIndex++) {
+                    final QName leaf = fLeafList[leafIndex].getElement();
+                    final QName element = fElemMap[elemIndex];
+                    if (leaf.rawname == element.rawname) {
+                            fLeafSorter[fSortCount++] = leafIndex;
+                    }
+            }
+            fLeafSorter[fSortCount++] = -1;
+        }
 
-	/* Optimization(Jan, 2001) */
+        /* Optimization(Jan, 2001) */
 
         //
         //  Next lets create some arrays, some that that hold transient
@@ -627,13 +633,13 @@ public class DFAContentModel
         statesToDo[curState] = setT;
         curState++;
 
-	    /* Optimization(Jan, 2001); This is faster for
-	     * a large content model such as, "(t001+|t002+|.... |t500+)".
-	     */
+            /* Optimization(Jan, 2001); This is faster for
+             * a large content model such as, "(t001+|t002+|.... |t500+)".
+             */
 
-	java.util.Hashtable stateTable = new java.util.Hashtable();
+        HashMap stateTable = new HashMap();
 
-	    /* Optimization(Jan, 2001) */
+            /* Optimization(Jan, 2001) */
 
         //
         //  Ok, almost done with the algorithm... We now enter the
@@ -657,9 +663,9 @@ public class DFAContentModel
 
             // Loop through each possible input symbol in the element map
             CMStateSet newSet = null;
-	    /* Optimization(Jan, 2001) */
+            /* Optimization(Jan, 2001) */
             int sorterIndex = 0;
-	    /* Optimization(Jan, 2001) */
+            /* Optimization(Jan, 2001) */
             for (int elemIndex = 0; elemIndex < fElemMapSize; elemIndex++)
             {
                 //
@@ -673,11 +679,11 @@ public class DFAContentModel
                 else
                     newSet.zeroBits();
 
-	    /* Optimization(Jan, 2001) */
+            /* Optimization(Jan, 2001) */
                 int leafIndex = fLeafSorter[sorterIndex++];
 
                 while (leafIndex != -1) {
-	        // If this leaf index (DFA position) is in the current set...
+                // If this leaf index (DFA position) is in the current set...
                     if (setT.getBit(leafIndex))
                     {
                         //
@@ -689,8 +695,8 @@ public class DFAContentModel
                             }
 
                    leafIndex = fLeafSorter[sorterIndex++];
-	}
-	    /* Optimization(Jan, 2001) */
+        }
+            /* Optimization(Jan, 2001) */
 
                 //
                 //  If this new set is not empty, then see if its in the list
@@ -703,10 +709,10 @@ public class DFAContentModel
                     //  state set is already in there.
                     //
 
-	    /* Optimization(Jan, 2001) */
-	    Integer stateObj = (Integer)stateTable.get(newSet);
-	    int stateIndex = (stateObj == null ? curState : stateObj.intValue());
-	    /* Optimization(Jan, 2001) */
+            /* Optimization(Jan, 2001) */
+            Integer stateObj = (Integer)stateTable.get(newSet);
+            int stateIndex = (stateObj == null ? curState : stateObj.intValue());
+            /* Optimization(Jan, 2001) */
 
                     // If we did not find it, then add it
                     if (stateIndex == curState)
@@ -719,9 +725,9 @@ public class DFAContentModel
                         statesToDo[curState] = newSet;
                         fTransTable[curState] = makeDefStateList();
 
-	    /* Optimization(Jan, 2001) */
+            /* Optimization(Jan, 2001) */
                         stateTable.put(newSet, new Integer(curState));
-	    /* Optimization(Jan, 2001) */
+            /* Optimization(Jan, 2001) */
 
                         // We now have a new state to do so bump the count
                         curState++;
@@ -756,12 +762,9 @@ public class DFAContentModel
                         int[][] newTransTable = new int[newSize][];
 
                         // Copy over all of the existing content
-                        for (int expIndex = 0; expIndex < curArraySize; expIndex++)
-                        {
-                            newToDo[expIndex] = statesToDo[expIndex];
-                            newFinalFlags[expIndex] = fFinalStateFlags[expIndex];
-                            newTransTable[expIndex] = fTransTable[expIndex];
-                        }
+                        System.arraycopy(statesToDo, 0, newToDo, 0, curArraySize);
+                        System.arraycopy(fFinalStateFlags, 0, newFinalFlags, 0, curArraySize);
+                        System.arraycopy(fTransTable, 0, newTransTable, 0, curArraySize);
 
                         // Store the new array size
                         curArraySize = newSize;
@@ -780,7 +783,7 @@ public class DFAContentModel
         //  And now we can say bye bye to the temp representation since we've
         //  built the DFA.
         //
-        if (DEBUG_VALIDATE_CONTENT) 
+        if (DEBUG_VALIDATE_CONTENT)
             dumpTree(fHeadNode, 0);
         fHeadNode = null;
         fLeafList = null;
@@ -795,7 +798,7 @@ public class DFAContentModel
      *
      * @exception CMException Thrown if follow list cannot be calculated.
      */
-    private void calcFollowList(CMNode nodeCur) 
+    private void calcFollowList(CMNode nodeCur)
     {
         // Recurse as required
         if (nodeCur.type() == XMLContentSpec.CONTENTSPECNODE_CHOICE)
@@ -860,7 +863,7 @@ public class DFAContentModel
         }
         /***/
          else if (nodeCur.type() == XMLContentSpec.CONTENTSPECNODE_ZERO_OR_MORE
-	    || nodeCur.type() == XMLContentSpec.CONTENTSPECNODE_ONE_OR_MORE)
+            || nodeCur.type() == XMLContentSpec.CONTENTSPECNODE_ONE_OR_MORE)
         {
             // Recurse first
             calcFollowList(((CMUniOp)nodeCur).getChild());
@@ -883,7 +886,7 @@ public class DFAContentModel
                     fFollowList[index].union(first);
             }
         }
-       
+
         else if (nodeCur.type() == XMLContentSpec.CONTENTSPECNODE_ZERO_OR_ONE) {
             // Recurse only
             calcFollowList(((CMUniOp)nodeCur).getChild());
@@ -899,7 +902,7 @@ public class DFAContentModel
      *
      * @exception CMException Thrown on error.
      */
-    private void dumpTree(CMNode nodeCur, int level) 
+    private void dumpTree(CMNode nodeCur, int level)
     {
         for (int index = 0; index < level; index++)
             System.out.print("   ");
@@ -980,7 +983,7 @@ public class DFAContentModel
     }
 
     /** Post tree build initialization. */
-    private int postTreeBuildInit(CMNode nodeCur, int curIndex) 
+    private int postTreeBuildInit(CMNode nodeCur, int curIndex)
     {
         // Set the maximum states on this node
         nodeCur.setMaxStates(fLeafCount);
@@ -1002,8 +1005,8 @@ public class DFAContentModel
             curIndex = postTreeBuildInit(((CMBinOp)nodeCur).getRight(), curIndex);
         }
          else if (nodeCur.type() == XMLContentSpec.CONTENTSPECNODE_ZERO_OR_MORE
-	     || nodeCur.type() == XMLContentSpec.CONTENTSPECNODE_ONE_OR_MORE
-	     || nodeCur.type() == XMLContentSpec.CONTENTSPECNODE_ZERO_OR_ONE)
+             || nodeCur.type() == XMLContentSpec.CONTENTSPECNODE_ONE_OR_MORE
+             || nodeCur.type() == XMLContentSpec.CONTENTSPECNODE_ZERO_OR_ONE)
         {
             curIndex = postTreeBuildInit(((CMUniOp)nodeCur).getChild(), curIndex);
         }

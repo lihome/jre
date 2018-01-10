@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 1998, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package com.sun.java.swing.plaf.motif;
@@ -24,7 +42,6 @@ import javax.swing.plaf.ComponentUI;
  * version of Swing.  A future release of Swing will provide support for
  * long term persistence.
  *
- * @version %I% %G%
  * @author Amy Fowler
  */
 public class MotifLabelUI extends BasicLabelUI
@@ -33,7 +50,7 @@ public class MotifLabelUI extends BasicLabelUI
 
     public static ComponentUI createUI(JComponent c) {
         AppContext appContext = AppContext.getAppContext();
-        MotifLabelUI motifLabelUI = 
+        MotifLabelUI motifLabelUI =
                 (MotifLabelUI) appContext.get(MOTIF_LABEL_UI_KEY);
         if (motifLabelUI == null) {
             motifLabelUI = new MotifLabelUI();

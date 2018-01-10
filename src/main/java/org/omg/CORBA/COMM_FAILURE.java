@@ -1,15 +1,33 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1995, 2006, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package org.omg.CORBA;
 
 /**
  * This exception is raised if communication is lost while an operation
- * is in progress, after the request was sent by the client, but before 
+ * is in progress, after the request was sent by the client, but before
  * the reply from the server has been returned to the client.<P>
  * It contains a minor code, which gives more detailed information about
  * what caused the exception, and a completion status. It may also contain
@@ -20,7 +38,6 @@ package org.omg.CORBA;
  *
  * @see <A href="../../../../technotes/guides/idl/jidlExceptions.html#minorcodemeanings">meaning of
  * minor codes</A>
- * @version     1.17, 09/09/97
  * @since       JDK1.2
  */
 

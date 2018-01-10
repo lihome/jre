@@ -1,10 +1,26 @@
 /*
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1999, 2007, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
- */
-
-/*
- * %W% %E%
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.math;
@@ -22,9 +38,8 @@ package java.math;
  *
  * Note that SignedMutableBigIntegers only support signed addition and
  * subtraction. All other operations occur as with MutableBigIntegers.
- * 
+ *
  * @see     BigInteger
- * @version 1.11, 11/07/08
  * @author  Michael McCloskey
  * @since   1.3
  */
@@ -83,7 +98,7 @@ class SignedMutableBigInteger extends MutableBigInteger {
             add(addend);
         else
             sign = sign * subtract(addend);
-        
+
     }
 
    /**
@@ -94,7 +109,7 @@ class SignedMutableBigInteger extends MutableBigInteger {
             sign = sign * subtract(addend);
         else
             add(addend);
-        
+
     }
 
    /**

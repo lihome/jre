@@ -1,10 +1,28 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2001, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
- 
+
 package javax.swing.plaf.basic;
 
 import java.awt.*;
@@ -18,7 +36,6 @@ import java.io.Serializable;
 /**
  * BasicCheckboxMenuItem implementation
  *
- * @version %I% %G%
  * @author Georges Saab
  * @author David Karlton
  * @author Arnaud Weber
@@ -30,7 +47,7 @@ public class BasicCheckBoxMenuItemUI extends BasicMenuItemUI {
     }
 
     protected String getPropertyPrefix() {
-	return "CheckBoxMenuItem";
+        return "CheckBoxMenuItem";
     }
 
     public void processMouseEvent(JMenuItem item,MouseEvent e,MenuElement path[],MenuSelectionManager manager) {
@@ -51,11 +68,3 @@ public class BasicCheckBoxMenuItemUI extends BasicMenuItemUI {
         }
     }
 }
-
-
-
-
-
-
-
-

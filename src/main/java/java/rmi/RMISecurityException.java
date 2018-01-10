@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2004, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 package java.rmi;
 
@@ -11,7 +29,6 @@ package java.rmi;
  * has occurred during the execution of one of
  * <code>java.rmi.RMISecurityManager</code>'s methods.
  *
- * @version %I%, %G%
  * @author  Roger Riggs
  * @since   JDK1.1
  * @deprecated Use {@link java.lang.SecurityException} instead.
@@ -33,7 +50,7 @@ public class RMISecurityException extends java.lang.SecurityException {
      */
     @Deprecated
     public RMISecurityException(String name) {
-	super(name);
+        super(name);
     }
 
     /**
@@ -45,6 +62,6 @@ public class RMISecurityException extends java.lang.SecurityException {
      */
     @Deprecated
     public RMISecurityException(String name, String arg) {
-	this(name);
+        this(name);
     }
 }

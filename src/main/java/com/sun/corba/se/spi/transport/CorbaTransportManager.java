@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2003, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package com.sun.corba.se.spi.transport;
@@ -21,20 +39,20 @@ import com.sun.corba.se.impl.oa.poa.Policies;
  */
 public interface CorbaTransportManager
     extends
-	TransportManager
+        TransportManager
 {
     public static final String SOCKET_OR_CHANNEL_CONNECTION_CACHE =
-	"SocketOrChannelConnectionCache";
+        "SocketOrChannelConnectionCache";
 
     public Collection getAcceptors(String objectAdapterManagerId,
-				   ObjectAdapterId objectAdapterId);
+                                   ObjectAdapterId objectAdapterId);
 
     // REVISIT - POA specific policies
-    public void addToIORTemplate(IORTemplate iorTemplate, 
-				 Policies policies,
-				 String codebase,
-				 String objectAdapterManagerId,
-				 ObjectAdapterId objectAdapterId);
+    public void addToIORTemplate(IORTemplate iorTemplate,
+                                 Policies policies,
+                                 String codebase,
+                                 String objectAdapterManagerId,
+                                 ObjectAdapterId objectAdapterId);
 }
-    
+
 // End of file.

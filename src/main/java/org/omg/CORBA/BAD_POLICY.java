@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1998, 2001, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package org.omg.CORBA;
@@ -11,7 +29,6 @@ package org.omg.CORBA;
  * the <tt>PolicyError</tt> exception.
  *
  * @author rip-dev
- * @version %I% %G%
  */
 
 public interface BAD_POLICY {

@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2005, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.io;
@@ -64,7 +82,6 @@ import java.util.StringTokenizer;
  * @see java.security.PermissionCollection
  * @see java.lang.SecurityManager
  *
- * @version %I%, %G%
  *
  * @author Joe Fialli
  * @since 1.2
@@ -93,7 +110,7 @@ public final class SerializablePermission extends BasicPermission {
      */
     public SerializablePermission(String name)
     {
-	super(name);
+        super(name);
     }
 
     /**
@@ -110,6 +127,6 @@ public final class SerializablePermission extends BasicPermission {
 
     public SerializablePermission(String name, String actions)
     {
-	super(name, actions);
+        super(name, actions);
     }
 }

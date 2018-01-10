@@ -1,35 +1,33 @@
 /*
- * The contents of this file are subject to the terms
- * of the Common Development and Distribution License
- * (the "License").  You may not use this file except
- * in compliance with the License.
+ * Copyright (c) 2005, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
- * You can obtain a copy of the license at
- * https://jaxp.dev.java.net/CDDLv1.0.html.
- * See the License for the specific language governing
- * permissions and limitations under the License.
  *
- * When distributing Covered Code, include this CDDL
- * HEADER in each file and include the License file at
- * https://jaxp.dev.java.net/CDDLv1.0.html
- * If applicable add the following below this CDDL HEADER
- * with the fields enclosed by brackets "[]" replaced with
- * your own identifying information: Portions Copyright
- * [year] [name of copyright owner]
- */
-
-/*
- * $Id: XMLEntityReader.java,v 1.3 2005/11/03 17:02:21 jeffsuttor Exp $
- * @(#)StAXValidatorHelper.java	1.4 09/02/24
  *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package com.sun.org.apache.xerces.internal.jaxp.validation;
 
 import com.sun.org.apache.xerces.internal.impl.Constants;
+import com.sun.org.apache.xerces.internal.utils.XMLSecurityManager;
 import java.io.IOException;
-import java.util.Locale;
 
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
@@ -53,29 +51,42 @@ import org.xml.sax.SAXException;
  */
 public final class StAXValidatorHelper implements ValidatorHelper {
     private static final String DEFAULT_TRANSFORMER_IMPL = "com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl";
-    
+
     /** Component manager. **/
     private XMLSchemaValidatorComponentManager fComponentManager;
-    
+
     private Transformer identityTransformer1 = null;
     private TransformerHandler identityTransformer2 = null;
     private ValidatorHandlerImpl handler = null;
-    
+
     /** Creates a new instance of StaxValidatorHelper */
     public StAXValidatorHelper(XMLSchemaValidatorComponentManager componentManager) {
         fComponentManager = componentManager;
     }
-    
-    public void validate(Source source, Result result) 
+
+    public void validate(Source source, Result result)
         throws SAXException, IOException {
-        
+
         if (result == null || result instanceof StAXResult) {
-         
+
             if( identityTransformer1==null ) {
                 try {
                     SAXTransformerFactory tf = fComponentManager.getFeature(Constants.ORACLE_FEATURE_SERVICE_MECHANISM) ?
                                     (SAXTransformerFactory)SAXTransformerFactory.newInstance()
                                     : (SAXTransformerFactory) TransformerFactory.newInstance(DEFAULT_TRANSFORMER_IMPL, StAXValidatorHelper.class.getClassLoader());
+                    XMLSecurityManager securityManager = (XMLSecurityManager)fComponentManager.getProperty(Constants.SECURITY_MANAGER);
+                    if (securityManager != null) {
+                        for (XMLSecurityManager.Limit limit : XMLSecurityManager.Limit.values()) {
+                            if (securityManager.isSet(limit.ordinal())){
+                                tf.setAttribute(limit.apiProperty(),
+                                        securityManager.getLimitValueAsString(limit));
+                            }
+                        }
+                        if (securityManager.printEntityCountInfo()) {
+                            tf.setAttribute(Constants.JDK_ENTITY_COUNT_INFO, "yes");
+                        }
+                    }
+
                     identityTransformer1 = tf.newTransformer();
                     identityTransformer2 = tf.newTransformerHandler();
                 } catch (TransformerConfigurationException e) {
@@ -101,8 +112,8 @@ public final class StAXValidatorHelper implements ValidatorHelper {
             }
             return;
         }
-        throw new IllegalArgumentException(JAXPValidationMessageFormatter.formatMessage(Locale.getDefault(), 
-                "SourceResultMismatch", 
+        throw new IllegalArgumentException(JAXPValidationMessageFormatter.formatMessage(fComponentManager.getLocale(),
+                "SourceResultMismatch",
                 new Object [] {source.getClass().getName(), result.getClass().getName()}));
     }
 }

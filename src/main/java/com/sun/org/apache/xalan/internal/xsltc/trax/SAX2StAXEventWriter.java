@@ -1,28 +1,26 @@
 /*
- * The contents of this file are subject to the terms
- * of the Common Development and Distribution License
- * (the "License").  You may not use this file except
- * in compliance with the License.
+ * Copyright (c) 2005, 2006, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
- * You can obtain a copy of the license at
- * https://jaxp.dev.java.net/CDDLv1.0.html.
- * See the License for the specific language governing
- * permissions and limitations under the License.
  *
- * When distributing Covered Code, include this CDDL
- * HEADER in each file and include the License file at
- * https://jaxp.dev.java.net/CDDLv1.0.html
- * If applicable add the following below this CDDL HEADER
- * with the fields enclosed by brackets "[]" replaced with
- * your own identifying information: Portions Copyright
- * [year] [name of copyright owner]
- */
-
-/*
- * $Id: SAX2StAXEventWriter.java,v 1.3 2005/11/03 17:53:11 jeffsuttor Exp $
- * @(#)SAX2StAXEventWriter.java	1.7 06/01/27
  *
- * Copyright (c) 2005, Oracle and/or its affiliates. All rights reserved.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package com.sun.org.apache.xalan.internal.xsltc.trax;
@@ -49,7 +47,7 @@ import org.xml.sax.ext.Locator2;
  */
 public class SAX2StAXEventWriter extends SAX2StAXBaseWriter {
 
-  
+
     private XMLEventWriter writer;
 
 
@@ -57,10 +55,10 @@ public class SAX2StAXEventWriter extends SAX2StAXBaseWriter {
 
 
     private List namespaceStack = new ArrayList();
-    
-    
+
+
     private boolean needToCallStartDocument = false;
-   
+
 
     public SAX2StAXEventWriter() {
 
@@ -68,7 +66,7 @@ public class SAX2StAXEventWriter extends SAX2StAXBaseWriter {
 
     }
 
- 
+
     public SAX2StAXEventWriter(XMLEventWriter writer) {
 
         this.writer = writer;
@@ -105,7 +103,7 @@ public class SAX2StAXEventWriter extends SAX2StAXBaseWriter {
 
     }
 
- 
+
     public XMLEventFactory getEventFactory() {
 
         return eventFactory;
@@ -126,14 +124,14 @@ public class SAX2StAXEventWriter extends SAX2StAXBaseWriter {
         namespaceStack.clear();
 
         eventFactory.setLocation(getCurrentLocation());
-        
-        // Encoding and version info will be available only after startElement 
+
+        // Encoding and version info will be available only after startElement
         // is called for first time. So, defer START_DOCUMENT event of StAX till
         // that point of time.
         needToCallStartDocument = true;
-    }        
+    }
 
-    private void writeStartDocument() throws SAXException {        
+    private void writeStartDocument() throws SAXException {
         try {
             if (docLocator == null)
                 writer.add(eventFactory.createStartDocument());
@@ -149,7 +147,7 @@ public class SAX2StAXEventWriter extends SAX2StAXBaseWriter {
         }
         needToCallStartDocument = false;
     }
-    
+
     public void endDocument() throws SAXException {
 
         eventFactory.setLocation(getCurrentLocation());
@@ -172,11 +170,11 @@ public class SAX2StAXEventWriter extends SAX2StAXBaseWriter {
     }
 
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-        
+
         if (needToCallStartDocument) {
             writeStartDocument();
         }
-        
+
         // set document location
         eventFactory.setLocation(getCurrentLocation());
 
@@ -298,7 +296,7 @@ public class SAX2StAXEventWriter extends SAX2StAXBaseWriter {
             // going to have to do without the locator if it hasn't been set yet.
             writeStartDocument();
         }
-        
+
         super.processingInstruction(target, data);
         try {
 

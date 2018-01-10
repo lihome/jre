@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1994, 1998, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.io;
@@ -16,7 +34,6 @@ package java.io;
  *
  * @author  Arthur van Hoff
  * @author  Jonathan Payne
- * @version %I%, %G%
  * @see     java.awt.FileDialog#setFilenameFilter(java.io.FilenameFilter)
  * @see     java.io.File
  * @see     java.io.File#list(java.io.FilenameFilter)

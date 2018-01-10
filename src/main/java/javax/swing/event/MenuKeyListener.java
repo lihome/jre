@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1998, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 package javax.swing.event;
 
@@ -13,7 +31,6 @@ import java.util.EventListener;
 /**
  * MenuKeyListener
  *
- * @version %I% %G%
  * @author Georges Saab
  */
 public interface MenuKeyListener extends EventListener {
@@ -33,4 +50,3 @@ public interface MenuKeyListener extends EventListener {
      */
     void menuKeyReleased(MenuKeyEvent e);
 }
-

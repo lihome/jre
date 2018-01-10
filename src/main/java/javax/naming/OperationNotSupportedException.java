@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1999, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.naming;
@@ -16,10 +34,9 @@ package javax.naming;
   * <p>
   * Synchronization and serialization issues that apply to NamingException
   * apply directly here.
-  * 
+  *
   * @author Rosanna Lee
   * @author Scott Seligman
-  * @version %I% %E%
   * @since 1.3
   */
 
@@ -29,18 +46,18 @@ public class OperationNotSupportedException extends NamingException {
       * All fields default to null.
       */
     public OperationNotSupportedException() {
-	super();
+        super();
     }
 
     /**
       * Constructs a new instance of OperationNotSupportedException using an
       * explanation. All other fields default to null.
       *
-      * @param	explanation	Possibly null additional detail about this exception
+      * @param  explanation     Possibly null additional detail about this exception
       * @see java.lang.Throwable#getMessage
       */
     public OperationNotSupportedException(String explanation) {
-	super(explanation);
+        super(explanation);
     }
 
     /**

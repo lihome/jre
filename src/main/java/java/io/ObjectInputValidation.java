@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 1999, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.io;
@@ -13,7 +31,6 @@ package java.io;
  * been deserialized.
  *
  * @author  unascribed
- * @version %I%, %G%
  * @see     ObjectInputStream
  * @see     ObjectInputStream#registerValidation(java.io.ObjectInputValidation, int)
  * @since   JDK1.1

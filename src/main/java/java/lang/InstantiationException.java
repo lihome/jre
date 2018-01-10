@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1995, 2008, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.lang;
@@ -21,26 +39,27 @@ package java.lang;
  *</ul>
  *
  * @author  unascribed
- * @version %I%, %G%
  * @see     java.lang.Class#newInstance()
  * @since   JDK1.0
  */
 public
-class InstantiationException extends Exception {
+class InstantiationException extends ReflectiveOperationException {
+    private static final long serialVersionUID = -8441929162975509110L;
+
     /**
      * Constructs an {@code InstantiationException} with no detail message.
      */
     public InstantiationException() {
-	super();
+        super();
     }
 
     /**
-     * Constructs an {@code InstantiationException} with the 
-     * specified detail message. 
+     * Constructs an {@code InstantiationException} with the
+     * specified detail message.
      *
      * @param   s   the detail message.
      */
     public InstantiationException(String s) {
-	super(s);
+        super(s);
     }
 }

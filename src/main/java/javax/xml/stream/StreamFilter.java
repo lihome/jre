@@ -1,4 +1,33 @@
+/*
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+
+/*
+ * Copyright (c) 2009 by Oracle Corporation. All Rights Reserved.
+ */
+
 package javax.xml.stream;
+
 /**
  * This interface declares a simple filter interface that one can
  * create to filter XMLStreamReaders

@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 1999, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package org.omg.CORBA;
@@ -72,7 +90,6 @@ package org.omg.CORBA;
  * @see ARG_INOUT
  * @see ARG_OUT
  *
- * @version 1.12 ,09/09/97
  * @since       JDK1.2
  */
 
@@ -81,7 +98,7 @@ public abstract class NamedValue {
     /**
      * Retrieves the name for this <code>NamedValue</code> object.
      *
-     * @return			a <code>String</code> object representing
+     * @return                  a <code>String</code> object representing
      *                    the name of this <code>NamedValue</code> object
      */
 
@@ -90,7 +107,7 @@ public abstract class NamedValue {
     /**
      * Retrieves the value for this <code>NamedValue</code> object.
      *
-     * @return			an <code>Any</code> object containing
+     * @return                  an <code>Any</code> object containing
      *                    the value of this <code>NamedValue</code> object
      */
 
@@ -99,7 +116,7 @@ public abstract class NamedValue {
     /**
      * Retrieves the argument mode flag for this <code>NamedValue</code> object.
      *
-     * @return			an <code>int</code> representing the argument
+     * @return                  an <code>int</code> representing the argument
      *                    mode for this <code>NamedValue</code> object
      */
 

@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2003, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package com.sun.corba.se.impl.encoding;
@@ -22,18 +40,18 @@ public interface BufferManagerRead
      *  in a fragment map (when collecting - GIOP 1.2 phase 1) or
      *  in an active server requests map (when streaming - GIOP 1.2 phase 2).
      *
-     *  As a model for implementation see IIOPInputStream's 
+     *  As a model for implementation see IIOPInputStream's
      *  constructor of the same name. There are going to be some variations.
      *
      */
 
-    public void processFragment ( ByteBuffer byteBuffer, 
-	FragmentMessage header);
+    public void processFragment ( ByteBuffer byteBuffer,
+        FragmentMessage header);
 
 
     /**
      * Case: called from CDRInputStream constructor before unmarshaling.
-     * 
+     *
      * Does:
      *
      *  this.bufQ.get()
@@ -44,7 +62,7 @@ public interface BufferManagerRead
 
     /**
      * Case: called from CDRInputStream.grow.
-     * 
+     *
      * Does:
      *
      *  this.bufQ.get()

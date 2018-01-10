@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 1999, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.util.zip;
@@ -10,8 +28,7 @@ package java.util.zip;
 /**
  * An interface representing a data checksum.
  *
- * @version 	%I%, %G%
- * @author 	David Connelly
+ * @author      David Connelly
  */
 public
 interface Checksum {

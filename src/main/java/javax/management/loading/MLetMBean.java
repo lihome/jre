@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1999, 2006, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.management.loading;
@@ -47,7 +65,7 @@ public interface MLetMBean   {
      * MLET tag is not specified, the value of url is malformed.
      */
     public Set<Object> getMBeansFromURL(String url)
-	    throws ServiceNotFoundException;
+            throws ServiceNotFoundException;
 
     /**
      * Loads a text file containing MLET tags that define the MBeans
@@ -70,7 +88,7 @@ public interface MLetMBean   {
      * MLET tag is not specified, the value of url is null.
      */
     public Set<Object> getMBeansFromURL(URL url)
-	    throws ServiceNotFoundException;
+            throws ServiceNotFoundException;
 
     /**
      * Appends the specified URL to the list of URLs to search for classes and

@@ -1,12 +1,16 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright 2001,2002,2004,2005 The Apache Software Foundation.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,17 +25,17 @@ import java.io.Serializable;
 /**
  * This class is used, via a pool managed on CoreDocumentImpl, in ParentNode to
  * improve performance of the NodeList accessors, getLength() and item(i).
- * 
+ *
  * @xerces.internal
- * 
+ *
  * @author Arnaud  Le Hors, IBM
  *
- * @version $Id: NodeListCache.java,v 1.4 2007/07/19 04:38:20 ofung Exp $
+ * @version $Id: NodeListCache.java,v 1.6 2010/07/20 20:25:25 joehw Exp $
  */
 class NodeListCache implements Serializable {
 
     /** Serialization version. */
-    private static final long serialVersionUID = 3258135743263224377L;
+    private static final long serialVersionUID = -7927529254918631002L;
 
     /** Cached node list length. */
     int fLength = -1;
@@ -53,4 +57,3 @@ class NodeListCache implements Serializable {
         fOwner = owner;
     }
 }
-

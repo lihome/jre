@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2001, 2005, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package com.sun.imageio.plugins.png;
@@ -126,7 +144,7 @@ public class PNGMetadataFormatResources extends ListResourceBundle {
             "The number of vertical pixels per unit, multiplied by 1e5" },
         { "pHYS/unitSpecifier",
             "The unit specifier for this chunk (i.e., meters)" },
-        
+
         { "sBIT_Grayscale/gray",
             "The number of significant bits of the gray samples" },
         { "sBIT_GrayAlpha/gray",

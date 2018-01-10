@@ -1,12 +1,16 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright 2001-2004 The Apache Software Foundation.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,7 +33,7 @@ import java.util.ArrayList;
  *
  * This model validated on the way in.
  *
- * @xerces.internal 
+ * @xerces.internal
  *
  * @author Elena Litani, Lisa Martin
  * @author IBM
@@ -43,7 +47,7 @@ public class XSEmptyCM  implements XSCMValidator {
 
     // start the content model: did not see any children
     private static final short STATE_START = 0;
-    
+
     private static final Vector EMPTY = new Vector(0);
 
     //
@@ -53,7 +57,7 @@ public class XSEmptyCM  implements XSCMValidator {
     //
     // XSCMValidator methods
     //
-    
+
     /**
      * This methods to be called on entering a first element whose type
      * has this content model. It will return the initial state of the content model
@@ -121,7 +125,7 @@ public class XSEmptyCM  implements XSCMValidator {
      * Check which elements are valid to appear at this point. This method also
      * works if the state is in error, in which case it returns what should
      * have been seen.
-     * 
+     *
      * @param state  the current state
      * @return       a Vector whose entries are instances of
      *               either XSWildcardDecl or XSElementDecl.
@@ -129,7 +133,7 @@ public class XSEmptyCM  implements XSCMValidator {
     public Vector whatCanGoHere(int[] state) {
         return EMPTY;
     }
-    
+
     public ArrayList checkMinMaxBounds() {
         return null;
     }

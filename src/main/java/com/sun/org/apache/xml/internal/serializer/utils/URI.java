@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright 1999-2004 The Apache Software Foundation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,8 +22,8 @@
  */
 package com.sun.org.apache.xml.internal.serializer.utils;
 
+import com.sun.org.apache.xalan.internal.utils.Objects;
 import java.io.IOException;
-import java.io.Serializable;
 
 
 /**
@@ -51,13 +55,13 @@ import java.io.Serializable;
  * default port for a specific scheme). Rather, it only knows the
  * grammar and basic set of operations that can be applied to a URI.
  *
- * This class is a copy of the one in com.sun.org.apache.xml.internal.utils. 
+ * This class is a copy of the one in com.sun.org.apache.xml.internal.utils.
  * It exists to cut the serializers dependancy on that package.
- * 
+ *
  * A minor change from the original is that this class no longer implements
  * Serializable, and the serialVersionUID magic field is dropped, and
  * the class is no longer "public".
- *  
+ *
  * @xsl.usage internal
  */
 final class URI
@@ -97,7 +101,7 @@ final class URI
 
   /**
    * URI punctuation mark characters - these, combined with
-   *   alphanumerics, constitute the "unreserved" characters 
+   *   alphanumerics, constitute the "unreserved" characters
    */
   private static final String MARK_CHARACTERS = "-_.!~*'() ";
 
@@ -106,7 +110,7 @@ final class URI
 
   /**
    * userinfo can be composed of unreserved, escaped and these
-   *   characters 
+   *   characters
    */
   private static final String USERINFO_CHARACTERS = ";:&=+$,";
 
@@ -132,8 +136,8 @@ final class URI
 
   /**
    * If specified, stores the query string for this URI; otherwise
-   *   null. 
-   * @serial 
+   *   null.
+   * @serial
    */
   private String m_queryString = null;
 
@@ -443,7 +447,7 @@ final class URI
     // In some cases, it might make more sense to throw an exception
     // (when scheme is specified is the string spec and the base URI
     // is also specified, for example), but we're just following the
-    // RFC specifications 
+    // RFC specifications
     if (p_base != null)
     {
 
@@ -451,7 +455,7 @@ final class URI
       // note that this is slightly different from the RFC spec in that
       // we don't include the check for query string being null
       // - this handles cases where the urispec is just a query
-      // string or a fragment (e.g. "?y" or "#s") - 
+      // string or a fragment (e.g. "?y" or "#s") -
       // see <http://www.ics.uci.edu/~fielding/url/test1.html> which
       // identified this as a bug in the RFC
       if (m_path.length() == 0 && m_scheme == null && m_host == null)
@@ -498,7 +502,7 @@ final class URI
 
       // if we get to this point, we need to resolve relative path
       // RFC 2396 5.2 #6
-      String path = new String();
+      String path = "";
       String basePath = p_base.getPath();
 
       // 6a - get all but the last segment of the base URI path
@@ -529,7 +533,7 @@ final class URI
         path = path.substring(0, path.length() - 1);
       }
 
-      // 6e - remove all "<segment>/../" where "<segment>" is a complete 
+      // 6e - remove all "<segment>/../" where "<segment>" is a complete
       // path segment not equal to ".."
       index = -1;
 
@@ -551,7 +555,7 @@ final class URI
         }
       }
 
-      // 6f - remove ending "<segment>/.." where "<segment>" is a 
+      // 6f - remove ending "<segment>/.." where "<segment>" is a
       // complete path segment
       if (path.endsWith("/.."))
       {
@@ -859,7 +863,7 @@ final class URI
   public String getSchemeSpecificPart()
   {
 
-    StringBuffer schemespec = new StringBuffer();
+    final StringBuilder schemespec = new StringBuilder();
 
     if (m_userinfo != null || m_host != null || m_port != -1)
     {
@@ -951,7 +955,7 @@ final class URI
                         boolean p_includeFragment)
   {
 
-    StringBuffer pathString = new StringBuffer(m_path);
+    final StringBuilder pathString = new StringBuilder(m_path);
 
     if (p_includeQueryString && m_queryString != null)
     {
@@ -1317,6 +1321,7 @@ final class URI
    * @return true if p_test is a URI with all values equal to this
    *         URI, false otherwise
    */
+  @Override
   public boolean equals(Object p_test)
   {
 
@@ -1339,15 +1344,29 @@ final class URI
     return false;
   }
 
+  @Override
+  public int hashCode() {
+    int hash = 5;
+    hash = 41 * hash + Objects.hashCode(this.m_scheme);
+    hash = 41 * hash + Objects.hashCode(this.m_userinfo);
+    hash = 41 * hash + Objects.hashCode(this.m_host);
+    hash = 41 * hash + this.m_port;
+    hash = 41 * hash + Objects.hashCode(this.m_path);
+    hash = 41 * hash + Objects.hashCode(this.m_queryString);
+    hash = 41 * hash + Objects.hashCode(this.m_fragment);
+    return hash;
+  }
+
   /**
    * Get the URI as a string specification. See RFC 2396 Section 5.2.
    *
    * @return the URI string specification
    */
+  @Override
   public String toString()
   {
 
-    StringBuffer uriSpecString = new StringBuffer();
+    final StringBuilder uriSpecString = new StringBuilder();
 
     if (m_scheme != null)
     {
@@ -1370,7 +1389,7 @@ final class URI
   public boolean isGenericURI()
   {
 
-    // presence of the host (whether valid or empty) means 
+    // presence of the host (whether valid or empty) means
     // double-slashes which means generic uri
     return (m_host != null);
   }
@@ -1462,7 +1481,7 @@ final class URI
       int numDots = 0;
 
       // make sure that 1) we see only digits and dot separators, 2) that
-      // any dot separator is preceded and followed by a digit and 
+      // any dot separator is preceded and followed by a digit and
       // 3) that we find 3 dots
       for (int i = 0; i < addrLength; i++)
       {
@@ -1539,7 +1558,7 @@ final class URI
    *
    *
    * @param p_char the character to check
-   * @return true if the char is betweeen '0' and '9', 'a' and 'f'
+   * @return true if the char is between '0' and '9', 'a' and 'f'
    *         or 'A' and 'F', false otherwise
    */
   private static boolean isHex(char p_char)

@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 1998, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 package com.sun.java.swing.plaf.motif;
 
@@ -22,7 +40,6 @@ import javax.swing.plaf.basic.BasicPasswordFieldUI;
  * long term persistence.
  *
  * @author  Timothy Prinzing
- * @version %I% %G%
  */
 public class MotifPasswordFieldUI extends BasicPasswordFieldUI {
 
@@ -45,12 +62,7 @@ public class MotifPasswordFieldUI extends BasicPasswordFieldUI {
      * @return the caret object
      */
     protected Caret createCaret() {
-	return MotifTextUI.createCaret();
+        return MotifTextUI.createCaret();
     }
 
 }
-
-
-
-
-

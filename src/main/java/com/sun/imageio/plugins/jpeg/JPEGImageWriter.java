@@ -1,6 +1,26 @@
 /*
- * Copyright (c) 2006, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2007, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package com.sun.imageio.plugins.jpeg;
@@ -54,7 +74,7 @@ public class JPEGImageWriter extends ImageWriter {
     private boolean debug = false;
 
     /**
-     * The following variable contains a pointer to the IJG library 
+     * The following variable contains a pointer to the IJG library
      * structure for this reader.  It is assigned in the constructor
      * and then is passed in to every native call.  It is set to 0
      * by dispose to avoid disposing twice.
@@ -67,13 +87,13 @@ public class JPEGImageWriter extends ImageWriter {
 
     /** The Raster we will write from */
     private Raster srcRas = null;
-    
+
     /** An intermediate Raster holding compressor-friendly data */
     private WritableRaster raster = null;
 
-    /** 
-     * Set to true if we are writing an image with an 
-     * indexed ColorModel 
+    /**
+     * Set to true if we are writing an image with an
+     * indexed ColorModel
      */
     private boolean indexed = false;
     private IndexColorModel indexCM = null;
@@ -93,7 +113,7 @@ public class JPEGImageWriter extends ImageWriter {
      * If metadata should include an icc profile, store it here.
      */
     private ICC_Profile iccProfile = null;
-    
+
     private int sourceXOffset = 0;
     private int sourceYOffset = 0;
     private int sourceWidth = 0;
@@ -117,7 +137,7 @@ public class JPEGImageWriter extends ImageWriter {
     private boolean writeDefaultJFIF = false;
     private boolean writeAdobe = false;
     private JPEGMetadata metadata = null;
-    
+
     private boolean sequencePrepared = false;
 
     private int numScans = 0;
@@ -152,9 +172,9 @@ public class JPEGImageWriter extends ImageWriter {
     private static final int MAX_WARNING = WARNING_NO_GRAY_THUMB_AS_INDEXED;
 
     ///////// End of Protected variables
-    
+
     ///////// static initializer
-    
+
     static {
         java.security.AccessController.doPrivileged(
             new sun.security.action.LoadLibraryAction("jpeg"));
@@ -191,12 +211,12 @@ public class JPEGImageWriter extends ImageWriter {
     }
 
     public IIOMetadata getDefaultStreamMetadata(ImageWriteParam param) {
-        setThreadLock(); 
-        try { 
-            return new JPEGMetadata(param, this); 
-        } finally { 
-            clearThreadLock(); 
-        } 
+        setThreadLock();
+        try {
+            return new JPEGMetadata(param, this);
+        } finally {
+            clearThreadLock();
+        }
     }
 
     public IIOMetadata
@@ -255,7 +275,7 @@ public class JPEGImageWriter extends ImageWriter {
         // If it's not one of ours, create a default and set it from
         // the standard tree from the input, if it exists.
         if (inData.isStandardMetadataFormatSupported()) {
-            String formatName = 
+            String formatName =
                 IIOMetadataFormatImpl.standardMetadataFormatName;
             Node tree = inData.getAsTree(formatName);
             if (tree != null) {
@@ -282,13 +302,13 @@ public class JPEGImageWriter extends ImageWriter {
                                          IIOMetadata imageMetadata) {
         if (jfifOK(imageType, param, streamMetadata, imageMetadata)) {
             return Integer.MAX_VALUE;
-        } 
+        }
         return 0;
     }
 
-    static final Dimension [] preferredThumbSizes = {new Dimension(1, 1), 
+    static final Dimension [] preferredThumbSizes = {new Dimension(1, 1),
                                                      new Dimension(255, 255)};
-    
+
     public Dimension[] getPreferredThumbnailSizes(ImageTypeSpecifier imageType,
                                                   ImageWriteParam param,
                                                   IIOMetadata streamMetadata,
@@ -426,7 +446,7 @@ public class JPEGImageWriter extends ImageWriter {
         srcBands = JPEG.bandOffsets[numSrcBands-1];
         int numBandsUsed = numSrcBands;
         // Consult the param to determine if we're writing a subset
-        
+
         if (param != null) {
             int[] sBands = param.getSourceBands();
             if (sBands != null) {
@@ -470,8 +490,8 @@ public class JPEGImageWriter extends ImageWriter {
             // handle <= 8-bit samples.  We now check the band sizes and throw
             // an exception for images, such as USHORT_GRAY, with > 8 bits
             // per sample.
-            if (bandSizes[i] > 8) {
-                throw new IIOException("Sample size must be <= 8");
+            if (bandSizes[i] <= 0 || bandSizes[i] > 8) {
+                throw new IIOException("Illegal band size: should be 0 < size <= 8");
             }
             // 4450894 part 2: We expand IndexColorModel images to full 24-
             // or 32-bit in grabPixels() for each scanline.  For indexed
@@ -575,7 +595,7 @@ public class JPEGImageWriter extends ImageWriter {
             progressiveMode = param.getProgressiveMode();
 
             if (param instanceof JPEGImageWriteParam) {
-                jparam = (JPEGImageWriteParam)param;                
+                jparam = (JPEGImageWriteParam)param;
                 optimizeHuffman = jparam.getOptimizeHuffmanTables();
             }
         }
@@ -600,7 +620,7 @@ public class JPEGImageWriter extends ImageWriter {
                                                                    param);
                 } else {
                     warningOccurred(WARNING_METADATA_NOT_JPEG_FOR_RASTER);
-                }                            
+                }
             }
         }
 
@@ -628,7 +648,7 @@ public class JPEGImageWriter extends ImageWriter {
             sof = (SOFMarkerSegment) metadata.findMarkerSegment
                 (SOFMarkerSegment.class, true);
         }
-        
+
         iccProfile = null;  // By default don't write one
         convertTosRGB = false;  // PhotoYCC does this
         converted = null;
@@ -648,7 +668,7 @@ public class JPEGImageWriter extends ImageWriter {
                 if ((jfif != null) && (ignoreJFIF == false)) {
                     if (JPEG.isNonStandardICC(cs)) {
                         iccProfile = ((ICC_ColorSpace) cs).getProfile();
-                    }                    
+                    }
                 }
                 checkAdobe(adobe, destType, false);
 
@@ -689,14 +709,14 @@ public class JPEGImageWriter extends ImageWriter {
                     inCsType = getSrcCSType(rimage);
                     outCsType = getDefaultDestCSType(rimage);
                 }
-                // else no dest, no metadata, not an image, 
+                // else no dest, no metadata, not an image,
                 // so no special headers, no color conversion
             } else { // no dest type, but there is metadata
                 checkSOFBands(sof, numBandsUsed);
                 if (fullImage) {  // no dest, metadata, image
                     // Check that the metadata and the image match
 
-                    ImageTypeSpecifier inputType = 
+                    ImageTypeSpecifier inputType =
                         new ImageTypeSpecifier(rimage);
 
                     inCsType = getSrcCSType(rimage);
@@ -715,7 +735,7 @@ public class JPEGImageWriter extends ImageWriter {
                                 }
                                 // out colorspace remains unknown
                             }
-                            if ((adobe != null) 
+                            if ((adobe != null)
                                 && (adobe.transform != JPEG.ADOBE_UNKNOWN)) {
                                 newAdobeTransform = JPEG.ADOBE_UNKNOWN;
                                 warningOccurred
@@ -726,14 +746,14 @@ public class JPEGImageWriter extends ImageWriter {
                             if (!alpha) {
                                 if (jfif != null) {
                                     outCsType = JPEG.JCS_YCbCr;
-                                    if (JPEG.isNonStandardICC(cs) 
-                                        || ((cs instanceof ICC_ColorSpace) 
+                                    if (JPEG.isNonStandardICC(cs)
+                                        || ((cs instanceof ICC_ColorSpace)
                                             && (jfif.iccSegment != null))) {
-                                        iccProfile = 
+                                        iccProfile =
                                             ((ICC_ColorSpace) cs).getProfile();
                                     }
                                 } else if (adobe != null) {
-                                    switch (adobe.transform) { 
+                                    switch (adobe.transform) {
                                     case JPEG.ADOBE_UNKNOWN:
                                         outCsType = JPEG.JCS_RGB;
                                         break;
@@ -755,7 +775,7 @@ public class JPEGImageWriter extends ImageWriter {
                                     if (outCS != JPEG.JCS_UNKNOWN) {
                                         outCsType = outCS;
                                     } else {
-                                        boolean subsampled = 
+                                        boolean subsampled =
                                         isSubsampled(sof.componentSpecs);
                                         if (subsampled) {
                                             outCsType = JPEG.JCS_YCbCr;
@@ -771,7 +791,7 @@ public class JPEGImageWriter extends ImageWriter {
                                     (WARNING_IMAGE_METADATA_JFIF_MISMATCH);
                                 }
                                 if (adobe != null) {
-                                    if (adobe.transform 
+                                    if (adobe.transform
                                         != JPEG.ADOBE_UNKNOWN) {
                                         newAdobeTransform = JPEG.ADOBE_UNKNOWN;
                                         warningOccurred
@@ -786,9 +806,9 @@ public class JPEGImageWriter extends ImageWriter {
                                     if (outCS != JPEG.JCS_UNKNOWN) {
                                         outCsType = outCS;
                                     } else {
-                                        boolean subsampled = 
+                                        boolean subsampled =
                                         isSubsampled(sof.componentSpecs);
-                                        outCsType = subsampled ? 
+                                        outCsType = subsampled ?
                                             JPEG.JCS_YCbCrA : JPEG.JCS_RGBA;
                                     }
                                 }
@@ -799,13 +819,13 @@ public class JPEGImageWriter extends ImageWriter {
                                 if (!alpha) {
                                     if (jfif != null) {
                                         convertTosRGB = true;
-                                        convertOp = 
-                                        new ColorConvertOp(cs, 
-                                                           JPEG.JCS.sRGB, 
+                                        convertOp =
+                                        new ColorConvertOp(cs,
+                                                           JPEG.JCS.sRGB,
                                                            null);
                                         outCsType = JPEG.JCS_YCbCr;
                                     } else if (adobe != null) {
-                                        if (adobe.transform 
+                                        if (adobe.transform
                                             != JPEG.ADOBE_YCC) {
                                             newAdobeTransform = JPEG.ADOBE_YCC;
                                             warningOccurred
@@ -821,9 +841,9 @@ public class JPEGImageWriter extends ImageWriter {
                                         warningOccurred
                                         (WARNING_IMAGE_METADATA_JFIF_MISMATCH);
                                     } else if (adobe != null) {
-                                        if (adobe.transform 
+                                        if (adobe.transform
                                             != JPEG.ADOBE_UNKNOWN) {
-                                            newAdobeTransform 
+                                            newAdobeTransform
                                             = JPEG.ADOBE_UNKNOWN;
                                             warningOccurred
                                             (WARNING_IMAGE_METADATA_ADOBE_MISMATCH);
@@ -904,9 +924,9 @@ public class JPEGImageWriter extends ImageWriter {
             }
         }
 
-        // Set up a boolean to indicate whether we need to call back to 
+        // Set up a boolean to indicate whether we need to call back to
         // write metadata
-        boolean haveMetadata = 
+        boolean haveMetadata =
             ((metadata != null) || writeDefaultJFIF || writeAdobe);
 
         // Now that we have dealt with metadata, finalize our tables set up
@@ -926,7 +946,7 @@ public class JPEGImageWriter extends ImageWriter {
                 (DQTMarkerSegment.class, true);
             dht = (DHTMarkerSegment) metadata.findMarkerSegment
                 (DHTMarkerSegment.class, true);
-            DRIMarkerSegment dri = 
+            DRIMarkerSegment dri =
                 (DRIMarkerSegment) metadata.findMarkerSegment
                 (DRIMarkerSegment.class, true);
             if (dri != null) {
@@ -941,12 +961,12 @@ public class JPEGImageWriter extends ImageWriter {
             }
         }
 
-        // Whether we write tables or not, we need to figure out which ones 
+        // Whether we write tables or not, we need to figure out which ones
         // to use
         if (qTables == null) { // Get them from metadata, or use defaults
             if (dqt != null) {
                 qTables = collectQTablesFromMetadata(metadata);
-            } else if (streamQTables != null) { 
+            } else if (streamQTables != null) {
                 qTables = streamQTables;
             } else if ((jparam != null) && (jparam.areTablesSet())) {
                 qTables = jparam.getQTables();
@@ -962,7 +982,7 @@ public class JPEGImageWriter extends ImageWriter {
             if ((dht != null) && (metadataProgressive == false)) {
                 DCHuffmanTables = collectHTablesFromMetadata(metadata, true);
                 ACHuffmanTables = collectHTablesFromMetadata(metadata, false);
-            } else if (streamDCHuffmanTables != null) { 
+            } else if (streamDCHuffmanTables != null) {
                 DCHuffmanTables = streamDCHuffmanTables;
                 ACHuffmanTables = streamACHuffmanTables;
             } else if ((jparam != null) && (jparam.areTablesSet())) {
@@ -1008,14 +1028,14 @@ public class JPEGImageWriter extends ImageWriter {
 
         // Create an appropriate 1-line databuffer for writing
         int lineSize = sourceWidth*numBandsUsed;
-        
+
         DataBufferByte buffer = new DataBufferByte(lineSize);
 
         // Create a raster from that
         int [] bandOffs = JPEG.bandOffsets[numBandsUsed-1];
-        
-        raster = Raster.createInterleavedRaster(buffer, 
-                                                sourceWidth, 1, 
+
+        raster = Raster.createInterleavedRaster(buffer,
+                                                sourceWidth, 1,
                                                 lineSize,
                                                 numBandsUsed,
                                                 bandOffs,
@@ -1024,7 +1044,7 @@ public class JPEGImageWriter extends ImageWriter {
         // Call the writer, who will call back for every scanline
 
         processImageStarted(currentImage);
-            
+
         boolean aborted = false;
 
         if (debug) {
@@ -1032,8 +1052,11 @@ public class JPEGImageWriter extends ImageWriter {
             System.out.println("outCsType: " + outCsType);
         }
 
+        // Note that getData disables acceleration on buffer, but it is
+        // just a 1-line intermediate data transfer buffer that does not
+        // affect the acceleration of the source image.
         aborted = writeImage(structPointer,
-                             buffer.getData(), 
+                             buffer.getData(),
                              inCsType, outCsType,
                              numBandsUsed,
                              bandSizes,
@@ -1046,7 +1069,7 @@ public class JPEGImageWriter extends ImageWriter {
                              ACHuffmanTables,
                              writeDHT,
                              optimizeHuffman,
-                             (progressiveMode 
+                             (progressiveMode
                               != ImageWriteParam.MODE_DISABLED),
                              numScans,
                              scans,
@@ -1072,7 +1095,7 @@ public class JPEGImageWriter extends ImageWriter {
         currentImage++;  // After a successful write
     }
 
-    public void prepareWriteSequence(IIOMetadata streamMetadata) 
+    public void prepareWriteSequence(IIOMetadata streamMetadata)
         throws IOException {
         setThreadLock();
         try {
@@ -1084,7 +1107,7 @@ public class JPEGImageWriter extends ImageWriter {
         }
     }
 
-    private void prepareWriteSequenceOnThread(IIOMetadata streamMetadata) 
+    private void prepareWriteSequenceOnThread(IIOMetadata streamMetadata)
         throws IOException {
         if (ios == null) {
             throw new IllegalStateException("Output has not been set!");
@@ -1093,7 +1116,7 @@ public class JPEGImageWriter extends ImageWriter {
         /*
          * from jpeg_metadata.html:
          * If no stream metadata is supplied to
-         * <code>ImageWriter.prepareWriteSequence</code>, then no 
+         * <code>ImageWriter.prepareWriteSequence</code>, then no
          * tables-only image is written.  If stream metadata containing
          * no tables is supplied to
          * <code>ImageWriter.prepareWriteSequence</code>, then a tables-only
@@ -1101,7 +1124,7 @@ public class JPEGImageWriter extends ImageWriter {
          */
         if (streamMetadata != null) {
             if (streamMetadata instanceof JPEGMetadata) {
-                // write a complete tables-only image at the beginning of 
+                // write a complete tables-only image at the beginning of
                 // the stream.
                 JPEGMetadata jmeta = (JPEGMetadata) streamMetadata;
                 if (jmeta.isStream == false) {
@@ -1118,24 +1141,24 @@ public class JPEGImageWriter extends ImageWriter {
                 if (sequencePrepared == true) {
                     throw new IIOException("Stream metadata already written!");
                 }
-                
+
                 // Set the tables
                 // If the metadata has no tables, use default tables.
                 streamQTables = collectQTablesFromMetadata(jmeta);
                 if (debug) {
                     System.out.println("after collecting from stream metadata, "
-                                       + "streamQTables.length is " 
+                                       + "streamQTables.length is "
                                        + streamQTables.length);
                 }
                 if (streamQTables == null) {
                     streamQTables = JPEG.getDefaultQTables();
                 }
-                streamDCHuffmanTables = 
+                streamDCHuffmanTables =
                     collectHTablesFromMetadata(jmeta, true);
                 if (streamDCHuffmanTables == null) {
                     streamDCHuffmanTables = JPEG.getDefaultHuffmanTables(true);
                 }
-                streamACHuffmanTables = 
+                streamACHuffmanTables =
                     collectHTablesFromMetadata(jmeta, false);
                 if (streamACHuffmanTables == null) {
                     streamACHuffmanTables = JPEG.getDefaultHuffmanTables(false);
@@ -1143,10 +1166,10 @@ public class JPEGImageWriter extends ImageWriter {
 
                 // Now write them out
                 writeTables(structPointer,
-                            streamQTables, 
-                            streamDCHuffmanTables, 
+                            streamQTables,
+                            streamDCHuffmanTables,
                             streamACHuffmanTables);
-            } else { 
+            } else {
                 throw new IIOException("Stream metadata must be JPEG metadata");
             }
         }
@@ -1240,7 +1263,7 @@ public class JPEGImageWriter extends ImageWriter {
     ///////// Package-access API
 
     /**
-     * Called by the native code or other classes to signal a warning.  
+     * Called by the native code or other classes to signal a warning.
      * The code is used to lookup a localized message to be used when
      * sending warnings to listeners.
      */
@@ -1261,15 +1284,15 @@ public class JPEGImageWriter extends ImageWriter {
 
     /**
      * The library has it's own error facility that emits warning messages.
-     * This routine is called by the native code when it has already 
-     * formatted a string for output.  
+     * This routine is called by the native code when it has already
+     * formatted a string for output.
      * XXX  For truly complete localization of all warning messages,
      * the sun_jpeg_output_message routine in the native code should
      * send only the codes and parameters to a method here in Java,
      * which will then format and send the warnings, using localized
      * strings.  This method will have to deal with all the parameters
      * and formats (%u with possibly large numbers, %02d, %02x, etc.)
-     * that actually occur in the JPEG library.  For now, this prevents 
+     * that actually occur in the JPEG library.  For now, this prevents
      * library warnings from being printed to stderr.
      */
     void warningWithMessage(String msg) {
@@ -1316,7 +1339,7 @@ public class JPEGImageWriter extends ImageWriter {
 
     ///////// Metadata handling
 
-    private void checkSOFBands(SOFMarkerSegment sof, int numBandsUsed) 
+    private void checkSOFBands(SOFMarkerSegment sof, int numBandsUsed)
         throws IIOException {
         // Does the metadata frame header, if any, match numBandsUsed?
         if (sof != null) {
@@ -1333,7 +1356,7 @@ public class JPEGImageWriter extends ImageWriter {
         if (jfif != null) {
             if (!JPEG.isJFIFcompliant(type, input)) {
                 ignoreJFIF = true;  // type overrides metadata
-                warningOccurred(input 
+                warningOccurred(input
                                 ? WARNING_IMAGE_METADATA_JFIF_MISMATCH
                                 : WARNING_DEST_METADATA_JFIF_MISMATCH);
             }
@@ -1346,7 +1369,7 @@ public class JPEGImageWriter extends ImageWriter {
         if (adobe != null) {
             int rightTransform = JPEG.transformForType(type, input);
             if (adobe.transform != rightTransform) {
-                warningOccurred(input 
+                warningOccurred(input
                                 ? WARNING_IMAGE_METADATA_ADOBE_MISMATCH
                                 : WARNING_DEST_METADATA_ADOBE_MISMATCH);
                 if (rightTransform == JPEG.ADOBE_IMPOSSIBLE) {
@@ -1359,12 +1382,12 @@ public class JPEGImageWriter extends ImageWriter {
     }
 
     /**
-     * Collect all the scan info from the given metadata, and 
+     * Collect all the scan info from the given metadata, and
      * organize it into the scan info array required by the
      * IJG libray.  It is much simpler to parse out this
      * data in Java and then just copy the data in C.
      */
-    private int [] collectScans(JPEGMetadata metadata, 
+    private int [] collectScans(JPEGMetadata metadata,
                                 SOFMarkerSegment sof) {
         List segments = new ArrayList();
         int SCAN_SIZE = 9;
@@ -1408,7 +1431,7 @@ public class JPEGImageWriter extends ImageWriter {
     }
 
     /**
-     * Finds all DQT marker segments and returns all the q 
+     * Finds all DQT marker segments and returns all the q
      * tables as a single array of JPEGQTables.
      */
     private JPEGQTable [] collectQTablesFromMetadata
@@ -1418,7 +1441,7 @@ public class JPEGImageWriter extends ImageWriter {
         while (iter.hasNext()) {
             MarkerSegment seg = (MarkerSegment) iter.next();
             if (seg instanceof DQTMarkerSegment) {
-                DQTMarkerSegment dqt = 
+                DQTMarkerSegment dqt =
                     (DQTMarkerSegment) seg;
                 tables.addAll(dqt.tables);
             }
@@ -1427,7 +1450,7 @@ public class JPEGImageWriter extends ImageWriter {
         if (tables.size() != 0) {
             retval = new JPEGQTable[tables.size()];
             for (int i = 0; i < retval.length; i++) {
-                retval[i] = 
+                retval[i] =
                     new JPEGQTable(((DQTMarkerSegment.Qtable)tables.get(i)).data);
             }
         }
@@ -1435,7 +1458,7 @@ public class JPEGImageWriter extends ImageWriter {
     }
 
     /**
-     * Finds all DHT marker segments and returns all the q 
+     * Finds all DHT marker segments and returns all the q
      * tables as a single array of JPEGQTables.  The metadata
      * must not be for a progressive image, or an exception
      * will be thrown when two Huffman tables with the same
@@ -1448,10 +1471,10 @@ public class JPEGImageWriter extends ImageWriter {
         while (iter.hasNext()) {
             MarkerSegment seg = (MarkerSegment) iter.next();
             if (seg instanceof DHTMarkerSegment) {
-                DHTMarkerSegment dht = 
+                DHTMarkerSegment dht =
                     (DHTMarkerSegment) seg;
                 for (int i = 0; i < dht.tables.size(); i++) {
-                    DHTMarkerSegment.Htable htable = 
+                    DHTMarkerSegment.Htable htable =
                         (DHTMarkerSegment.Htable) dht.tables.get(i);
                     if (htable.tableClass == (wantDC ? 0 : 1)) {
                         tables.add(htable);
@@ -1461,7 +1484,7 @@ public class JPEGImageWriter extends ImageWriter {
         }
         JPEGHuffmanTable [] retval = null;
         if (tables.size() != 0) {
-            DHTMarkerSegment.Htable [] htables = 
+            DHTMarkerSegment.Htable [] htables =
                 new DHTMarkerSegment.Htable[tables.size()];
             tables.toArray(htables);
             retval = new JPEGHuffmanTable[tables.size()];
@@ -1472,13 +1495,13 @@ public class JPEGImageWriter extends ImageWriter {
                         if (retval[i] != null) {
                             throw new IIOException("Metadata has duplicate Htables!");
                         }
-                        retval[i] = new JPEGHuffmanTable(htables[j].numCodes, 
+                        retval[i] = new JPEGHuffmanTable(htables[j].numCodes,
                                                          htables[j].values);
                     }
                 }
             }
         }
-        
+
         return retval;
     }
 
@@ -1493,7 +1516,7 @@ public class JPEGImageWriter extends ImageWriter {
     private int getSrcCSType(RenderedImage rimage) {
         return getSrcCSType(rimage.getColorModel());
     }
-    
+
     private int getSrcCSType(ColorModel cm) {
         int retval = JPEG.JCS_UNKNOWN;
         if (cm != null) {
@@ -1578,7 +1601,7 @@ public class JPEGImageWriter extends ImageWriter {
     private int getDefaultDestCSType(RenderedImage rimage) {
         return getDefaultDestCSType(rimage.getColorModel());
     }
-    
+
     private int getDefaultDestCSType(ColorModel cm) {
         int retval = JPEG.JCS_UNKNOWN;
         if (cm != null) {
@@ -1672,7 +1695,7 @@ public class JPEGImageWriter extends ImageWriter {
 
 
     /**
-     * Writes the metadata out when called by the native code, 
+     * Writes the metadata out when called by the native code,
      * which will have already written the header to the stream
      * and established the library state.  This is simpler than
      * breaking the write call in two.
@@ -1680,8 +1703,8 @@ public class JPEGImageWriter extends ImageWriter {
     private void writeMetadata() throws IOException {
         if (metadata == null) {
             if (writeDefaultJFIF) {
-                JFIFMarkerSegment.writeDefaultJFIF(ios, 
-                                                   thumbnails, 
+                JFIFMarkerSegment.writeDefaultJFIF(ios,
+                                                   thumbnails,
                                                    iccProfile,
                                                    this);
             }
@@ -1689,12 +1712,12 @@ public class JPEGImageWriter extends ImageWriter {
                 AdobeMarkerSegment.writeAdobeSegment(ios, newAdobeTransform);
             }
         } else {
-            metadata.writeToStream(ios, 
-                                   ignoreJFIF, 
+            metadata.writeToStream(ios,
+                                   ignoreJFIF,
                                    forceJFIF,
                                    thumbnails,
                                    iccProfile,
-                                   ignoreAdobe, 
+                                   ignoreAdobe,
                                    newAdobeTransform,
                                    this);
         }
@@ -1719,7 +1742,7 @@ public class JPEGImageWriter extends ImageWriter {
 
         Raster sourceLine = null;
         if (indexed) {
-            sourceLine = srcRas.createChild(sourceXOffset, 
+            sourceLine = srcRas.createChild(sourceXOffset,
                                             sourceYOffset+y,
                                             sourceWidth, 1,
                                             0, 0,
@@ -1733,7 +1756,7 @@ public class JPEGImageWriter extends ImageWriter {
                                                               forceARGB);
             sourceLine = temp.getRaster();
         } else {
-            sourceLine = srcRas.createChild(sourceXOffset, 
+            sourceLine = srcRas.createChild(sourceXOffset,
                                             sourceYOffset+y,
                                             sourceWidth, 1,
                                             0, 0,
@@ -1798,7 +1821,7 @@ public class JPEGImageWriter extends ImageWriter {
             }
         }
     }
-    
+
     /**
      * This method is called from native code in order to write encoder
      * output to the destination.
@@ -1839,12 +1862,12 @@ public class JPEGImageWriter extends ImageWriter {
             theLockCount = 1;
         }
     }
-    
+
     private synchronized void clearThreadLock() {
         Thread currThread = Thread.currentThread();
         if (theThread == null || theThread != currThread) {
             throw new IllegalStateException("Attempt to clear thread lock form wrong thread. " +
-                                            "Locked thread: " + theThread + 
+                                            "Locked thread: " + theThread +
                                             "; current thread: " + currThread);
         }
         theLockCount --;

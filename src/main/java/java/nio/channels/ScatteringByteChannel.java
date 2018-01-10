@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2006, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.nio.channels;
@@ -25,7 +43,6 @@ import java.nio.ByteBuffer;
  *
  * @author Mark Reinhold
  * @author JSR-51 Expert Group
- * @version %I%, %E%
  * @since 1.4
  */
 
@@ -104,7 +121,7 @@ public interface ScatteringByteChannel
      *          If some other I/O error occurs
      */
     public long read(ByteBuffer[] dsts, int offset, int length)
-	throws IOException;
+        throws IOException;
 
     /**
      * Reads a sequence of bytes from this channel into the given buffers.

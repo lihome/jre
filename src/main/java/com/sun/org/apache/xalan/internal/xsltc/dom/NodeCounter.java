@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright 2001-2004 The Apache Software Foundation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +29,6 @@ import com.sun.org.apache.xalan.internal.xsltc.DOM;
 import com.sun.org.apache.xalan.internal.xsltc.Translet;
 import com.sun.org.apache.xml.internal.dtm.DTM;
 import com.sun.org.apache.xml.internal.dtm.DTMAxisIterator;
-import com.sun.org.apache.xml.internal.dtm.Axis;
 
 /**
  * @author Jacek Ambroziak
@@ -56,29 +59,29 @@ public abstract class NodeCounter {
     private int _nSepars  = 0;
     private int _nFormats = 0;
 
-    private final static String[] Thousands = 
+    private final static String[] Thousands =
         {"", "m", "mm", "mmm" };
-    private final static String[] Hundreds = 
+    private final static String[] Hundreds =
     {"", "c", "cc", "ccc", "cd", "d", "dc", "dcc", "dccc", "cm"};
-    private final static String[] Tens = 
+    private final static String[] Tens =
     {"", "x", "xx", "xxx", "xl", "l", "lx", "lxx", "lxxx", "xc"};
-    private final static String[] Ones = 
+    private final static String[] Ones =
     {"", "i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix"};
-  
-    private StringBuffer _tempBuffer = new StringBuffer();
-    
+
+    private StringBuilder _tempBuffer = new StringBuilder();
+
     /**
      * Indicates if this instance of xsl:number has a from pattern.
      */
     protected boolean _hasFrom;
-    
+
     protected NodeCounter(Translet translet,
               DOM document, DTMAxisIterator iterator) {
     _translet = translet;
     _document = document;
     _iterator = iterator;
     }
-    
+
     protected NodeCounter(Translet translet,
               DOM document, DTMAxisIterator iterator, boolean hasFrom) {
         _translet = translet;
@@ -87,14 +90,14 @@ public abstract class NodeCounter {
         _hasFrom = hasFrom;
     }
 
-    /** 
+    /**
      * Set the start node for this counter. The same <tt>NodeCounter</tt>
      * object can be used multiple times by resetting the starting node.
      */
     abstract public NodeCounter setStartNode(int node);
 
-    /** 
-     * If the user specified a value attribute, use this instead of 
+    /**
+     * If the user specified a value attribute, use this instead of
      * counting nodes.
      */
     public NodeCounter setValue(double value) {
@@ -110,18 +113,72 @@ public abstract class NodeCounter {
     _lang = lang;
     _groupSep = groupSep;
     _letterValue = letterValue;
-
-    try {
-        _groupSize = Integer.parseInt(groupSize);
-    }
-    catch (NumberFormatException e) {
-       _groupSize = 0;
-    }
+    _groupSize = parseStringToAnInt(groupSize);
     setTokens(format);
 
  }
-  
-  // format == null assumed here 
+
+    /**
+     * Effectively does the same thing as Integer.parseInt(String s) except
+     * instead of throwing a NumberFormatException, it returns 0.  This method
+     * is used instead of Integer.parseInt() since it does not incur the
+     * overhead of throwing an Exception which is expensive.
+     *
+     * @param s  A String to be parsed into an int.
+     * @return  Either an int represented by the incoming String s, or 0 if
+     *          the parsing is not successful.
+     */
+    private int parseStringToAnInt(String s) {
+        if (s == null)
+            return 0;
+
+        int result = 0;
+        boolean negative = false;
+        int radix = 10, i = 0, max = s.length();
+        int limit, multmin, digit;
+
+        if (max > 0) {
+            if (s.charAt(0) == '-') {
+                negative = true;
+                limit = Integer.MIN_VALUE;
+                i++;
+            } else {
+                limit = -Integer.MAX_VALUE;
+            }
+            multmin = limit / radix;
+            if (i < max) {
+                digit = Character.digit(s.charAt(i++), radix);
+                if (digit < 0)
+                    return 0;
+                else
+                    result = -digit;
+            }
+            while (i < max) {
+                // Accumulating negatively avoids surprises near MAX_VALUE
+                digit = Character.digit(s.charAt(i++), radix);
+                if (digit < 0)
+                    return 0;
+                if (result < multmin)
+                    return 0;
+                result *= radix;
+                if (result < limit + digit)
+                    return 0;
+                result -= digit;
+            }
+        } else {
+            return 0;
+        }
+        if (negative) {
+            if (i > 1)
+                return result;
+            else /* Only got "-" */
+                return 0;
+        } else {
+            return -result;
+        }
+    }
+
+  // format == null assumed here
  private final void setTokens(final String format){
      if( (_format!=null) &&(format.equals(_format)) ){// has already been set
         return;
@@ -137,7 +194,7 @@ public abstract class NodeCounter {
      _separToks.clear() ;
      _formatToks.clear();
 
-         /* 
+         /*
           * Tokenize the format string into alphanumeric and non-alphanumeric
           * tokens as described in M. Kay page 241.
           */
@@ -169,7 +226,7 @@ public abstract class NodeCounter {
              }
 
          _nSepars = _separToks.size();
-         _nFormats = _formatToks.size(); 
+         _nFormats = _formatToks.size();
          if (_nSepars > _nFormats) _separLast = true;
 
          if (_separFirst) _nSepars--;
@@ -179,7 +236,7 @@ public abstract class NodeCounter {
              _nSepars++;
          }
          if (_separFirst) _nSepars ++;
- 
+
  }
     /**
      * Sets formatting fields to their default values.
@@ -190,13 +247,13 @@ public abstract class NodeCounter {
     }
 
     /**
-     * Returns the position of <tt>node</tt> according to the level and 
+     * Returns the position of <tt>node</tt> according to the level and
      * the from and count patterns.
      */
     abstract public String getCounter();
 
     /**
-     * Returns the position of <tt>node</tt> according to the level and 
+     * Returns the position of <tt>node</tt> according to the level and
      * the from and count patterns. This position is converted into a
      * string based on the arguments passed.
      */
@@ -208,7 +265,7 @@ public abstract class NodeCounter {
 
     /**
      * Returns true if <tt>node</tt> matches the count pattern. By
-     * default a node matches the count patterns if it is of the 
+     * default a node matches the count patterns if it is of the
      * same type as the starting node.
      */
     public boolean matchesCount(int node) {
@@ -216,7 +273,7 @@ public abstract class NodeCounter {
     }
 
     /**
-     * Returns true if <tt>node</tt> matches the from pattern. By default, 
+     * Returns true if <tt>node</tt> matches the from pattern. By default,
      * no node matches the from pattern.
      */
     public boolean matchesFrom(int node) {
@@ -236,7 +293,6 @@ public abstract class NodeCounter {
      */
     protected String formatNumbers(int[] values) {
     final int nValues = values.length;
-    final int length = _format.length();
 
     boolean isEmpty = true;
     for (int i = 0; i < nValues; i++)
@@ -248,7 +304,7 @@ public abstract class NodeCounter {
     boolean isFirst = true;
     int t = 0, n = 0, s = 1;
   _tempBuffer.setLength(0);
-    final StringBuffer buffer = _tempBuffer;
+    final StringBuilder buffer = _tempBuffer;
 
     // Append separation token before first digit/letter/numeral
     if (_separFirst) buffer.append((String)_separToks.elementAt(0));
@@ -272,19 +328,19 @@ public abstract class NodeCounter {
     }
 
     /**
-     * Format a single value based on the appropriate formatting token. 
+     * Format a single value based on the appropriate formatting token.
      * This method is based on saxon (Michael Kay) and only implements
      * lang="en".
      */
-    private void formatValue(int value, String format, StringBuffer buffer) {
+    private void formatValue(int value, String format, StringBuilder buffer) {
         char c = format.charAt(0);
 
         if (Character.isDigit(c)) {
             char zero = (char)(c - Character.getNumericValue(c));
 
-            StringBuffer temp = buffer;
+            StringBuilder temp = buffer;
             if (_groupSize > 0) {
-                temp = new StringBuffer();
+                temp = new StringBuilder();
             }
             String s = "";
             int n = value;
@@ -292,12 +348,12 @@ public abstract class NodeCounter {
                 s = (char) ((int) zero + (n % 10)) + s;
                 n = n / 10;
             }
-                
+
             for (int i = 0; i < format.length() - s.length(); i++) {
                 temp.append(zero);
             }
             temp.append(s);
-            
+
             if (_groupSize > 0) {
                 for (int i = 0; i < temp.length(); i++) {
                     if (i != 0 && ((temp.length() - i) % _groupSize) == 0) {
@@ -306,18 +362,18 @@ public abstract class NodeCounter {
                     buffer.append(temp.charAt(i));
                 }
             }
-        } 
+        }
     else if (c == 'i' && !_letterValue.equals("alphabetic")) {
             buffer.append(romanValue(value));
-        } 
+        }
     else if (c == 'I' && !_letterValue.equals("alphabetic")) {
             buffer.append(romanValue(value).toUpperCase());
-        } 
+        }
     else {
         int min = (int) c;
         int max = (int) c;
 
-        // Special case for Greek alphabet 
+        // Special case for Greek alphabet
         if (c >= 0x3b1 && c <= 0x3c9) {
         max = 0x3c9;    // omega
         }
@@ -340,7 +396,7 @@ public abstract class NodeCounter {
         char last = (char)(((value-1) % range) + min);
         if (value > range) {
             return alphaValue((value-1) / range, min, max) + last;
-        } 
+        }
     else {
             return "" + last;
         }
@@ -358,4 +414,3 @@ public abstract class NodeCounter {
     }
 
 }
-

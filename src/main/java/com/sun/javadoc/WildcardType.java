@@ -1,9 +1,26 @@
 /*
- * %W% %E%
+ * Copyright (c) 2003, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
- * ORACLE PROPRIETARY/CONFIDENTIAL.  Use is subject to license terms.
- * 
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package com.sun.javadoc;
@@ -11,7 +28,7 @@ package com.sun.javadoc;
 
 /**
  * Represents a wildcard type argument.
- * Examples include:	<pre>
+ * Examples include:    <pre>
  * {@code <?>}
  * {@code <? extends E>}
  * {@code <? super T>}
@@ -20,7 +37,6 @@ package com.sun.javadoc;
  * or explicit <i>super</i> bounds or neither, but not both.
  *
  * @author Scott Seligman
- * @version %I% %E%
  * @since 1.5
  */
 public interface WildcardType extends Type {

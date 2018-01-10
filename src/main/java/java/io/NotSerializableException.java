@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2005, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.io;
@@ -13,26 +31,25 @@ package java.io;
  * this exception. The argument should be the name of the class.
  *
  * @author  unascribed
- * @version %I%, %G%
  * @since   JDK1.1
  */
 public class NotSerializableException extends ObjectStreamException {
 
     private static final long serialVersionUID = 2906642554793891381L;
 
-    /** 
-     * Constructs a NotSerializableException object with message string. 
+    /**
+     * Constructs a NotSerializableException object with message string.
      *
      * @param classname Class of the instance being serialized/deserialized.
      */
     public NotSerializableException(String classname) {
-	super(classname);
+        super(classname);
     }
 
     /**
      *  Constructs a NotSerializableException object.
      */
     public NotSerializableException() {
-	super();
+        super();
     }
 }

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright 2001-2004 The Apache Software Foundation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -86,7 +90,7 @@ public class ErrorMessages_sk extends ListResourceBundle {
  */
 
     // These message should be read from a locale-specific resource bundle
-    /** Get the lookup table for error messages.   
+    /** Get the lookup table for error messages.
      *
      * @return The message lookup table.
      */
@@ -444,6 +448,12 @@ public class ErrorMessages_sk extends ListResourceBundle {
          */
         {ErrorMsg.MISSING_XSLT_TARGET_ERR,
         "Nebolo mo\u017en\u00e9 n\u00e1js\u0165 cie\u013e \u0161t\u00fdlu dokumentu ''{0}''."},
+
+        /*
+         * Note to translators:  access to the stylesheet target is denied
+         */
+        {ErrorMsg.ACCESSING_XSLT_TARGET_ERR,
+        "Could not read stylesheet target ''{0}'', because ''{1}'' access is not allowed."},
 
         /*
          * Note to translators:  This message represents an internal error in
@@ -843,7 +853,11 @@ public class ErrorMessages_sk extends ListResourceBundle {
          * stylesheet (see above).
          */
         {ErrorMsg.RUNTIME_ERROR_KEY,
-        "Chyby transletu:"}
+        "Chyby transletu:"},
+
+        {ErrorMsg.JAXP_SECUREPROCESSING_FEATURE,
+        "FEATURE_SECURE_PROCESSING: Cannot set the feature to false when security manager is present."}
     };
+
     }
 }

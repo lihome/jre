@@ -1,18 +1,35 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1999, 2004, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.awt;
 
 /**
- * Thrown by method createFont in the <code>Font</code> class to indicate 
- * that the specified font is bad. 
+ * Thrown by method createFont in the <code>Font</code> class to indicate
+ * that the specified font is bad.
  *
  * @author  Parry Kejriwal
- * @version %I%, %G%
  * @see     java.awt.Font
  * @since   1.3
  */

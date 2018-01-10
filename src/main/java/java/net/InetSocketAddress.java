@@ -1,6 +1,26 @@
 /*
- * Copyright (c) 2006, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2012, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 package java.net;
 
@@ -25,8 +45,8 @@ import java.io.ObjectStreamField;
  * The <i>wildcard</i> is a special local IP address. It usually means "any"
  * and can only be used for <code>bind</code> operations.
  *
- * @see	java.net.Socket
- * @see	java.net.ServerSocket
+ * @see java.net.Socket
+ * @see java.net.ServerSocket
  * @since 1.4
  */
 public class InetSocketAddress
@@ -128,7 +148,7 @@ public class InetSocketAddress
         if (hostname == null)
             throw new IllegalArgumentException("hostname can't be null");
         return hostname;
-     }
+    }
 
     /**
      * Creates a socket address where the IP address is the wildcard address
@@ -138,12 +158,12 @@ public class InetSocketAddress
      * A port number of <code>zero</code> will let the system pick up an
      * ephemeral port in a <code>bind</code> operation.
      * <p>
-     * @param	port	The port number
+     * @param   port    The port number
      * @throws IllegalArgumentException if the port parameter is outside the specified
-     * range of valid port values. 
+     * range of valid port values.
      */
     public InetSocketAddress(int port) {
-	this(InetAddress.anyLocalAddress(), port);
+        this(InetAddress.anyLocalAddress(), port);
     }
 
     /**
@@ -156,13 +176,13 @@ public class InetSocketAddress
      * <P>
      * A <code>null</code> address will assign the <i>wildcard</i> address.
      * <p>
-     * @param	addr	The IP address
-     * @param	port	The port number
+     * @param   addr    The IP address
+     * @param   port    The port number
      * @throws IllegalArgumentException if the port parameter is outside the specified
      * range of valid port values.
      */
     public InetSocketAddress(InetAddress addr, int port) {
-	    holder = new InetSocketAddressHolder(
+        holder = new InetSocketAddressHolder(
                         null,
                         addr == null ? InetAddress.anyLocalAddress() : addr,
                         checkPort(port));
@@ -183,14 +203,14 @@ public class InetSocketAddress
      * A port number of <code>zero</code> will let the system pick up an
      * ephemeral port in a <code>bind</code> operation.
      * <P>
-     * @param	hostname the Host name
-     * @param	port	The port number
+     * @param   hostname the Host name
+     * @param   port    The port number
      * @throws IllegalArgumentException if the port parameter is outside the range
      * of valid port values, or if the hostname parameter is <TT>null</TT>.
      * @throws SecurityException if a security manager is present and
-     *				 permission to resolve the host name is
-     *				 denied.
-     * @see	#isUnresolved()
+     *                           permission to resolve the host name is
+     *                           denied.
+     * @see     #isUnresolved()
      */
     public InetSocketAddress(String hostname, int port) {
         checkHost(hostname);
@@ -220,12 +240,12 @@ public class InetSocketAddress
      * A port number of <code>zero</code> will let the system pick up an
      * ephemeral port in a <code>bind</code> operation.
      * <P>
-     * @param	host    the Host name
-     * @param	port	The port number
+     * @param   host    the Host name
+     * @param   port    The port number
      * @throws IllegalArgumentException if the port parameter is outside
      *                  the range of valid port values, or if the hostname
      *                  parameter is <TT>null</TT>.
-     * @see	#isUnresolved()
+     * @see     #isUnresolved()
      * @return  a <code>InetSocketAddress</code> representing the unresolved
      *          socket address
      * @since 1.5
@@ -248,12 +268,12 @@ public class InetSocketAddress
         throws IOException
     {
         // Don't call defaultWriteObject()
-        ObjectOutputStream.PutField pfields = out.putFields();
-        pfields.put("hostname", holder.hostname);
-        pfields.put("addr", holder.addr);
-        pfields.put("port", holder.port);
-        out.writeFields();
-    }
+         ObjectOutputStream.PutField pfields = out.putFields();
+         pfields.put("hostname", holder.hostname);
+         pfields.put("addr", holder.addr);
+         pfields.put("port", holder.port);
+         out.writeFields();
+     }
 
     private void readObject(ObjectInputStream in)
         throws IOException, ClassNotFoundException
@@ -264,11 +284,11 @@ public class InetSocketAddress
         final InetAddress oisAddr = (InetAddress)oisFields.get("addr", null);
         final int oisPort = oisFields.get("port", -1);
 
- 	// Check that our invariants are satisfied
-    checkPort(oisPort);
-    if (oisHostname == null && oisAddr == null)
-        throw new InvalidObjectException("hostname and addr " +
-                                         "can't both be null");
+        // Check that our invariants are satisfied
+        checkPort(oisPort);
+        if (oisHostname == null && oisAddr == null)
+            throw new InvalidObjectException("hostname and addr " +
+                                             "can't both be null");
 
         InetSocketAddressHolder h = new InetSocketAddressHolder(oisHostname,
                                                                 oisAddr,
@@ -290,7 +310,7 @@ public class InetSocketAddress
             FIELDS_OFFSET = unsafe.objectFieldOffset(
                     InetSocketAddress.class.getDeclaredField("holder"));
             UNSAFE = unsafe;
-        } catch (NoSuchFieldException e) {
+        } catch (ReflectiveOperationException e) {
             throw new Error(e);
         }
     }
@@ -305,7 +325,7 @@ public class InetSocketAddress
     }
 
     /**
-     * 
+     *
      * Gets the <code>InetAddress</code>.
      *
      * @return the InetAdress or <code>null</code> if it is unresolved.
@@ -316,8 +336,10 @@ public class InetSocketAddress
 
     /**
      * Gets the <code>hostname</code>.
+     * Note: This method may trigger a name service reverse lookup if the
+     * address was created with a literal IP address.
      *
-     * @return	the hostname part of the address.
+     * @return  the hostname part of the address.
      */
     public final String getHostName() {
         return holder.getHostName();
@@ -325,13 +347,13 @@ public class InetSocketAddress
 
     /**
      * Returns the hostname, or the String form of the address if it
-     * doesn't have a hostname (it was created using a litteral).
-     * This has the benefit of <b>not</b> attemptimg a reverse lookup.
+     * doesn't have a hostname (it was created using a literal).
+     * This has the benefit of <b>not</b> attempting a reverse lookup.
      *
      * @return the hostname, or String representation of the address.
-     * @since 1.6
+     * @since 1.7
      */
-    final String getHostString() {
+    public final String getHostString() {
         return holder.getHostString();
     }
 
@@ -339,7 +361,7 @@ public class InetSocketAddress
      * Checks whether the address has been resolved or not.
      *
      * @return <code>true</code> if the hostname couldn't be resolved into
-     *		an <code>InetAddress</code>.
+     *          an <code>InetAddress</code>.
      */
     public final boolean isUnresolved() {
         return holder.isUnresolved();
@@ -370,11 +392,15 @@ public class InetSocketAddress
      * If both addresses are unresolved, then the hostname & the port number
      * are compared.
      *
+     * Note: Hostnames are case insensitive. e.g. "FooBar" and "foobar" are
+     * considered equal.
+     *
      * @param   obj   the object to compare against.
      * @return  <code>true</code> if the objects are the same;
      *          <code>false</code> otherwise.
      * @see java.net.InetAddress#equals(java.lang.Object)
      */
+    @Override
     public final boolean equals(Object obj) {
         if (obj == null || !(obj instanceof InetSocketAddress))
             return false;

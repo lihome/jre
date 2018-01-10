@@ -1,10 +1,28 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2003, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
- 
+
 package sunw.util;
 
 /**
@@ -37,7 +55,7 @@ public class EventObject extends java.util.EventObject {
     private static final long serialVersionUID = 6723767567830330255L;
 
     public EventObject(Object source) {
-	super(source);
+        super(source);
     }
 
 }

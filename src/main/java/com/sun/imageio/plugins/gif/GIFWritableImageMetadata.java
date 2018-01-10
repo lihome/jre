@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, 2008, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package com.sun.imageio.plugins.gif;
@@ -80,7 +98,7 @@ class GIFWritableImageMetadata extends GIFImageMetadata {
         try {
             return data.getBytes("ISO-8859-1");
         } catch (UnsupportedEncodingException e) {
-            return (new String("")).getBytes();
+            return "".getBytes();
         }
     }
 

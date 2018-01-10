@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 1999, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.swing.event;
@@ -20,12 +38,11 @@ import java.util.EventListener;
  * @see javax.swing.tree.TreeSelectionModel
  * @see javax.swing.JTree
  *
- * @version %I% %G%
  * @author Scott Violet
  */
 public interface TreeSelectionListener extends EventListener
 {
-    /** 
+    /**
       * Called whenever the value of the selection changes.
       * @param e the event that characterizes the change.
       */

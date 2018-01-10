@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2004, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 package java.rmi.server;
 
@@ -13,22 +31,21 @@ package java.rmi.server;
  * exactly the same set of remote interfaces defined by the actual
  * implementation of the remote object.
  *
- * @version %I%, %G%
  * @author  Ann Wollrath
  * @since   JDK1.1
  */
 abstract public class RemoteStub extends RemoteObject {
-    
+
     /** indicate compatibility with JDK 1.1.x version of class */
     private static final long serialVersionUID = -1585587260594494182L;
-    
+
     /**
      * Constructs a <code>RemoteStub</code>.
      */
     protected RemoteStub() {
-    	super();
+        super();
     }
-    
+
     /**
      * Constructs a <code>RemoteStub</code>, with the specified remote
      * reference.
@@ -37,7 +54,7 @@ abstract public class RemoteStub extends RemoteObject {
      * @since JDK1.1
      */
     protected RemoteStub(RemoteRef ref) {
-	super(ref);
+        super(ref);
     }
 
     /**
@@ -52,6 +69,6 @@ abstract public class RemoteStub extends RemoteObject {
      */
     @Deprecated
     protected static void setRef(RemoteStub stub, RemoteRef ref) {
-	throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();
     }
 }

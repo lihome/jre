@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2001, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.swing.plaf.basic;
@@ -29,21 +47,20 @@ import java.io.Serializable;
  * has been added to the <code>java.beans</code> package.
  * Please see {@link java.beans.XMLEncoder}.
  *
- * @version %I% %G%
  * @author Jeff Dinkins
  */
 public class BasicCheckBoxUI extends BasicRadioButtonUI {
 
     private static final Object BASIC_CHECK_BOX_UI_KEY = new Object();
 
-    private final static String propertyPrefix = "CheckBox" + "."; 
+    private final static String propertyPrefix = "CheckBox" + ".";
 
     // ********************************
-    //            Create PLAF 
+    //            Create PLAF
     // ********************************
     public static ComponentUI createUI(JComponent b) {
         AppContext appContext = AppContext.getAppContext();
-        BasicCheckBoxUI checkboxUI = 
+        BasicCheckBoxUI checkboxUI =
                 (BasicCheckBoxUI) appContext.get(BASIC_CHECK_BOX_UI_KEY);
         if (checkboxUI == null) {
             checkboxUI = new BasicCheckBoxUI();
@@ -53,7 +70,7 @@ public class BasicCheckBoxUI extends BasicRadioButtonUI {
     }
 
     public String getPropertyPrefix() {
-	return propertyPrefix;
+        return propertyPrefix;
     }
 
 }

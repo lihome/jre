@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright 1999-2004 The Apache Software Foundation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,21 +18,24 @@
  * limitations under the License.
  */
 /*
- * $Id: XMLReaderManager.java,v 1.7 2007/04/03 21:21:21 joehw Exp $
+ * $Id: XMLReaderManager.java,v 1.2.4.1 2005/09/15 08:16:02 suresh_emailid Exp $
  */
 package com.sun.org.apache.xml.internal.utils;
 
+import com.sun.org.apache.xalan.internal.XalanConstants;
 import com.sun.org.apache.xalan.internal.utils.FactoryImpl;
 import com.sun.org.apache.xalan.internal.utils.SecuritySupport;
-import java.util.Hashtable;
+import com.sun.org.apache.xalan.internal.utils.XMLSecurityManager;
+import java.util.HashMap;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
-
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
-import org.xml.sax.SAXException;
 
 /**
  * Creates XMLReader objects and caches them for re-use.
@@ -56,9 +63,18 @@ public class XMLReaderManager {
     /**
      * Keeps track of whether an XMLReader object is in use.
      */
-    private Hashtable m_inUse;
+    private HashMap m_inUse;
 
     private boolean m_useServicesMechanism = true;
+
+    private boolean _secureProcessing;
+     /**
+     * protocols allowed for external DTD references in source file and/or stylesheet.
+     */
+    private String _accessExternalDTD = XalanConstants.EXTERNAL_ACCESS_DEFAULT;
+
+    private XMLSecurityManager _xmlSecurityManager;
+
     /**
      * Hidden constructor
      */
@@ -72,6 +88,7 @@ public class XMLReaderManager {
         m_singletonManager.setServicesMechnism(useServicesMechanism);
         return m_singletonManager;
     }
+
     /**
      * Retrieves a cached XMLReader for this thread, or creates a new
      * XMLReader, if the existing reader is in use.  When the caller no
@@ -80,7 +97,6 @@ public class XMLReaderManager {
      */
     public synchronized XMLReader getXMLReader() throws SAXException {
         XMLReader reader;
-        boolean readerInUse;
 
         if (m_readers == null) {
             // When the m_readers.get() method is called for the first time
@@ -89,11 +105,11 @@ public class XMLReaderManager {
         }
 
         if (m_inUse == null) {
-            m_inUse = new Hashtable();
+            m_inUse = new HashMap();
         }
 
         // If the cached reader for this thread is in use, construct a new
-        // one; otherwise, return the cached reader unless it isn't an 
+        // one; otherwise, return the cached reader unless it isn't an
         // instance of the class set in the 'org.xml.sax.driver' property
         reader = (XMLReader) m_readers.get();
         boolean threadHasReader = (reader != null);
@@ -109,7 +125,12 @@ public class XMLReaderManager {
                     // TransformerFactory creates a reader via the
                     // XMLReaderFactory if setXMLReader is not used
                     reader = XMLReaderFactory.createXMLReader();
-
+                    try {
+                        reader.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, _secureProcessing);
+                    } catch (SAXNotRecognizedException e) {
+                        System.err.println("Warning:  " + reader.getClass().getName() + ": "
+                                + e.getMessage());
+                    }
                 } catch (Exception e) {
                    try {
                         // If unable to create an instance, let's try to use
@@ -145,7 +166,30 @@ public class XMLReaderManager {
                 m_readers.set(reader);
                 m_inUse.put(reader, Boolean.TRUE);
             }
-        } 
+        }
+
+        try {
+            //reader is cached, but this property might have been reset
+            reader.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, _accessExternalDTD);
+        } catch (SAXException se) {
+            System.err.println("Warning:  " + reader.getClass().getName() + ": "
+                        + se.getMessage());
+        }
+
+        try {
+            if (_xmlSecurityManager != null) {
+                for (XMLSecurityManager.Limit limit : XMLSecurityManager.Limit.values()) {
+                    reader.setProperty(limit.apiProperty(),
+                            _xmlSecurityManager.getLimitValueAsString(limit));
+                }
+                if (_xmlSecurityManager.printEntityCountInfo()) {
+                    reader.setProperty(XalanConstants.JDK_ENTITY_COUNT_INFO, XalanConstants.JDK_YES);
+                }
+            }
+        } catch (SAXException se) {
+            System.err.println("Warning:  " + reader.getClass().getName() + ": "
+                        + se.getMessage());
+        }
 
         return reader;
     }
@@ -177,4 +221,35 @@ public class XMLReaderManager {
         m_useServicesMechanism = flag;
     }
 
+    /**
+     * Set feature
+     */
+    public void setFeature(String name, boolean value) {
+        if (name.equals(XMLConstants.FEATURE_SECURE_PROCESSING)) {
+            _secureProcessing = value;
+        }
+    }
+
+    /**
+     * Get property value
+     */
+    public Object getProperty(String name) {
+        if (name.equals(XMLConstants.ACCESS_EXTERNAL_DTD)) {
+            return _accessExternalDTD;
+        } else if (name.equals(XalanConstants.SECURITY_MANAGER)) {
+            return _xmlSecurityManager;
+        }
+        return null;
+    }
+
+    /**
+     * Set property.
+     */
+    public void setProperty(String name, Object value) {
+        if (name.equals(XMLConstants.ACCESS_EXTERNAL_DTD)) {
+            _accessExternalDTD = (String)value;
+        } else if (name.equals(XalanConstants.SECURITY_MANAGER)) {
+            _xmlSecurityManager = (XMLSecurityManager)value;
+        }
+    }
 }

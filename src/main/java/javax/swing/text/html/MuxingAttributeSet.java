@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2001, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 package javax.swing.text.html;
 
@@ -14,7 +32,6 @@ import java.util.*;
  * An implementation of <code>AttributeSet</code> that can multiplex
  * across a set of <code>AttributeSet</code>s.
  *
- * @version %I% %G%
  */
 class MuxingAttributeSet implements AttributeSet, Serializable {
     /**

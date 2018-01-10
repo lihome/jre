@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2010, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.util;
@@ -117,7 +135,6 @@ import java.io.*;
  * @param <V> the type of mapped values
  *
  * @author  Josh Bloch
- * @version %I%, %G%
  * @see     Object#hashCode()
  * @see     Collection
  * @see     Map
@@ -169,7 +186,7 @@ public class LinkedHashMap<K,V>
      * @throws IllegalArgumentException if the initial capacity is negative
      */
     public LinkedHashMap(int initialCapacity) {
-	super(initialCapacity);
+        super(initialCapacity);
         accessOrder = false;
     }
 
@@ -178,7 +195,7 @@ public class LinkedHashMap<K,V>
      * with the default initial capacity (16) and load factor (0.75).
      */
     public LinkedHashMap() {
-	super();
+        super();
         accessOrder = false;
     }
 
@@ -208,7 +225,7 @@ public class LinkedHashMap<K,V>
      *         or the load factor is nonpositive
      */
     public LinkedHashMap(int initialCapacity,
-			 float loadFactor,
+                         float loadFactor,
                          boolean accessOrder) {
         super(initialCapacity, loadFactor);
         this.accessOrder = accessOrder;
@@ -219,8 +236,9 @@ public class LinkedHashMap<K,V>
      * readObject) before any entries are inserted into the map.  Initializes
      * the chain.
      */
+    @Override
     void init() {
-        header = new Entry<K,V>(-1, null, null, null);
+        header = new Entry<>(-1, null, null, null);
         header.before = header.after = header;
     }
 
@@ -229,9 +247,12 @@ public class LinkedHashMap<K,V>
      * by superclass resize.  It is overridden for performance, as it is
      * faster to iterate using our linked list.
      */
-    void transfer(HashMap.Entry[] newTable) {
+    @Override
+    void transfer(HashMap.Entry[] newTable, boolean rehash) {
         int newCapacity = newTable.length;
         for (Entry<K,V> e = header.after; e != header; e = e.after) {
+            if (rehash)
+                e.hash = (e.key == null) ? 0 : hash(e.key);
             int index = indexFor(e.hash, newCapacity);
             e.next = newTable[index];
             newTable[index] = e;
@@ -300,7 +321,7 @@ public class LinkedHashMap<K,V>
         // These fields comprise the doubly linked list used for iteration.
         Entry<K,V> before, after;
 
-	Entry(int hash, K key, V value, HashMap.Entry<K,V> next) {
+        Entry(int hash, K key, V value, HashMap.Entry<K,V> next) {
             super(hash, key, value, next);
         }
 
@@ -343,53 +364,53 @@ public class LinkedHashMap<K,V>
     }
 
     private abstract class LinkedHashIterator<T> implements Iterator<T> {
-	Entry<K,V> nextEntry    = header.after;
-	Entry<K,V> lastReturned = null;
+        Entry<K,V> nextEntry    = header.after;
+        Entry<K,V> lastReturned = null;
 
-	/**
-	 * The modCount value that the iterator believes that the backing
-	 * List should have.  If this expectation is violated, the iterator
-	 * has detected concurrent modification.
-	 */
-	int expectedModCount = modCount;
+        /**
+         * The modCount value that the iterator believes that the backing
+         * List should have.  If this expectation is violated, the iterator
+         * has detected concurrent modification.
+         */
+        int expectedModCount = modCount;
 
-	public boolean hasNext() {
+        public boolean hasNext() {
             return nextEntry != header;
-	}
+        }
 
-	public void remove() {
-	    if (lastReturned == null)
-		throw new IllegalStateException();
-	    if (modCount != expectedModCount)
-		throw new ConcurrentModificationException();
+        public void remove() {
+            if (lastReturned == null)
+                throw new IllegalStateException();
+            if (modCount != expectedModCount)
+                throw new ConcurrentModificationException();
 
             LinkedHashMap.this.remove(lastReturned.key);
             lastReturned = null;
             expectedModCount = modCount;
-	}
+        }
 
-	Entry<K,V> nextEntry() {
-	    if (modCount != expectedModCount)
-		throw new ConcurrentModificationException();
+        Entry<K,V> nextEntry() {
+            if (modCount != expectedModCount)
+                throw new ConcurrentModificationException();
             if (nextEntry == header)
                 throw new NoSuchElementException();
 
             Entry<K,V> e = lastReturned = nextEntry;
             nextEntry = e.after;
             return e;
-	}
+        }
     }
 
     private class KeyIterator extends LinkedHashIterator<K> {
-	public K next() { return nextEntry().getKey(); }
+        public K next() { return nextEntry().getKey(); }
     }
 
     private class ValueIterator extends LinkedHashIterator<V> {
-	public V next() { return nextEntry().value; }
+        public V next() { return nextEntry().value; }
     }
 
     private class EntryIterator extends LinkedHashIterator<Map.Entry<K,V>> {
-	public Map.Entry<K,V> next() { return nextEntry(); }
+        public Map.Entry<K,V> next() { return nextEntry(); }
     }
 
     // These Overrides alter the behavior of superclass view iterator() methods
@@ -403,15 +424,12 @@ public class LinkedHashMap<K,V>
      * removes the eldest entry if appropriate.
      */
     void addEntry(int hash, K key, V value, int bucketIndex) {
-        createEntry(hash, key, value, bucketIndex);
+        super.addEntry(hash, key, value, bucketIndex);
 
-        // Remove eldest entry if instructed, else grow capacity if appropriate
+        // Remove eldest entry if instructed
         Entry<K,V> eldest = header.after;
         if (removeEldestEntry(eldest)) {
             removeEntryForKey(eldest.key);
-        } else {
-            if (size >= threshold)
-                resize(2 * table.length);
         }
     }
 
@@ -421,7 +439,7 @@ public class LinkedHashMap<K,V>
      */
     void createEntry(int hash, K key, V value, int bucketIndex) {
         HashMap.Entry<K,V> old = table[bucketIndex];
-	Entry<K,V> e = new Entry<K,V>(hash, key, value, old);
+        Entry<K,V> e = new Entry<>(hash, key, value, old);
         table[bucketIndex] = e;
         e.addBefore(header);
         size++;

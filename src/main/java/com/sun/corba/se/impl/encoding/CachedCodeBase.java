@@ -1,10 +1,27 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2001, 2012, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
-
 package com.sun.corba.se.impl.encoding;
 
 import java.util.Hashtable;
@@ -41,14 +58,13 @@ public class CachedCodeBase extends _CodeBaseImplBase
     private CorbaConnection conn;
 
     private static Object iorMapLock = new Object();
-    private static Hashtable<IOR,CodeBase> iorMap = 
-        new Hashtable<IOR,CodeBase>();
+    private static Hashtable<IOR,CodeBase> iorMap = new Hashtable<>();
 
     public static synchronized void cleanCache( ORB orb ) {
         synchronized (iorMapLock) {
             for (IOR ior : iorMap.keySet()) {
                 if (ior.getORB() == orb) {
-                    iorMap.remove( ior ) ;
+                    iorMap.remove(ior);
                 }
             }
         }
@@ -61,7 +77,7 @@ public class CachedCodeBase extends _CodeBaseImplBase
     public com.sun.org.omg.CORBA.Repository get_ir () {
         return null;
     }
-        
+
     public synchronized String implementation (String repId) {
         String urlResult = null;
 
@@ -108,7 +124,7 @@ public class CachedCodeBase extends _CodeBaseImplBase
     }
 
     public synchronized FullValueDescription[] metas (String[] repIds) {
-        FullValueDescription[] results 
+        FullValueDescription[] results
             = new FullValueDescription[repIds.length];
 
         for (int i = 0; i < results.length; i++)
@@ -167,16 +183,16 @@ public class CachedCodeBase extends _CodeBaseImplBase
                 return true;
 
             // Do we have a reference initialized by another connection?
-            delegate = CachedCodeBase.iorMap.get( conn.getCodeBaseIOR());
+            delegate = CachedCodeBase.iorMap.get(conn.getCodeBaseIOR());
 
             if (delegate != null)
                 return true;
-            
+
             // Connect the delegate and update the cache
             delegate = CodeBaseHelper.narrow(getObjectFromIOR());
-            
+
             // Save it for the benefit of other connections
-	    CachedCodeBase.iorMap.put(conn.getCodeBaseIOR(), delegate);
+            CachedCodeBase.iorMap.put(conn.getCodeBaseIOR(), delegate);
         }
 
         // It's now safe to use the delegate
@@ -185,9 +201,8 @@ public class CachedCodeBase extends _CodeBaseImplBase
 
     private final org.omg.CORBA.Object getObjectFromIOR() {
         return CDRInputStream_1_0.internalIORToObject(
-	    conn.getCodeBaseIOR(), null /*stubFactory*/, conn.getBroker());
+            conn.getCodeBaseIOR(), null /*stubFactory*/, conn.getBroker());
     }
 }
 
 // End of file.
-

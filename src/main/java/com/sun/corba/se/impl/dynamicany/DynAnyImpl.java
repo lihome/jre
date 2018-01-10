@@ -1,6 +1,26 @@
 /*
  * Copyright (c) 2000, 2011, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package com.sun.corba.se.impl.dynamicany;
@@ -53,14 +73,14 @@ abstract class DynAnyImpl extends org.omg.CORBA.LocalObject implements DynAny
     //
 
     protected DynAnyImpl() {
-	wrapper = ORBUtilSystemException.get( 
+        wrapper = ORBUtilSystemException.get(
             CORBALogDomains.RPC_PRESENTATION ) ;
     }
 
     protected DynAnyImpl(ORB orb, Any any, boolean copyValue) {
         this.orb = orb;
-	wrapper = ORBUtilSystemException.get( orb,
-	    CORBALogDomains.RPC_PRESENTATION ) ;
+        wrapper = ORBUtilSystemException.get( orb,
+            CORBALogDomains.RPC_PRESENTATION ) ;
         if (copyValue)
             this.any = DynAnyUtil.copy(any, orb);
         else
@@ -71,15 +91,15 @@ abstract class DynAnyImpl extends org.omg.CORBA.LocalObject implements DynAny
 
     protected DynAnyImpl(ORB orb, TypeCode typeCode) {
         this.orb = orb;
-	wrapper = ORBUtilSystemException.get( orb,
-	    CORBALogDomains.RPC_PRESENTATION ) ;
+        wrapper = ORBUtilSystemException.get( orb,
+            CORBALogDomains.RPC_PRESENTATION ) ;
         this.any = DynAnyUtil.createDefaultAnyOfType(typeCode, orb);
     }
 
     protected DynAnyFactory factory() {
         try {
-            return (DynAnyFactory)orb.resolve_initial_references( 
-		ORBConstants.DYN_ANY_FACTORY_NAME );
+            return (DynAnyFactory)orb.resolve_initial_references(
+                ORBConstants.DYN_ANY_FACTORY_NAME );
         } catch (InvalidName in) {
             throw new RuntimeException("Unable to find DynAnyFactory");
         }
@@ -122,7 +142,7 @@ abstract class DynAnyImpl extends org.omg.CORBA.LocalObject implements DynAny
 
     public org.omg.CORBA.TypeCode type() {
         if (status == STATUS_DESTROYED) {
-	    throw wrapper.dynAnyDestroyed() ;
+            throw wrapper.dynAnyDestroyed() ;
         }
         return any.type();
     }
@@ -132,7 +152,7 @@ abstract class DynAnyImpl extends org.omg.CORBA.LocalObject implements DynAny
         throws org.omg.DynamicAny.DynAnyPackage.TypeMismatch
     {
         if (status == STATUS_DESTROYED) {
-	    throw wrapper.dynAnyDestroyed() ;
+            throw wrapper.dynAnyDestroyed() ;
         }
         if ((any != null) && (! any.type().equal(dyn_any.type()))) {
             throw new TypeMismatch();
@@ -146,7 +166,7 @@ abstract class DynAnyImpl extends org.omg.CORBA.LocalObject implements DynAny
                org.omg.DynamicAny.DynAnyPackage.InvalidValue
     {
         if (status == STATUS_DESTROYED) {
-	    throw wrapper.dynAnyDestroyed() ;
+            throw wrapper.dynAnyDestroyed() ;
         }
         if ((any != null) && (! any.type().equal(value.type()))) {
             throw new TypeMismatch();

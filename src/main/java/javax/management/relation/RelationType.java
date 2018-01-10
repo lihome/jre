@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- * 
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2005, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.management.relation;
@@ -52,6 +70,6 @@ public interface RelationType extends Serializable {
      * relation type.
      */
     public RoleInfo getRoleInfo(String roleInfoName)
-	throws IllegalArgumentException,
-	       RoleInfoNotFoundException;
+        throws IllegalArgumentException,
+               RoleInfoNotFoundException;
 }

@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 1999, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 /*
  * File: ./org/omg/CORBA/IRObject.java
@@ -18,7 +36,7 @@ from which all other Interface Repository interfaces are derived,
 even the Repository itself.
 */
 
-public interface IRObject extends IRObjectOperations, org.omg.CORBA.Object, 
+public interface IRObject extends IRObjectOperations, org.omg.CORBA.Object,
     org.omg.CORBA.portable.IDLEntity
 {
 }

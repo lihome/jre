@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 package javax.swing;
 
@@ -22,7 +40,6 @@ import sun.security.action.GetPropertyAction;
  * is a top level Swing component (JFrame, JWindow, JDialog, JApplet), this
  * will forward the request to the RepaintManager for eventual painting.
  *
- * @version %I%, %G%
  */
 class SwingPaintEventDispatcher extends sun.awt.PaintEventDispatcher {
     private static final boolean SHOW_FROM_DOUBLE_BUFFER;

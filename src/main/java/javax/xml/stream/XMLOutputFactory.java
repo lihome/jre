@@ -1,3 +1,31 @@
+/*
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+
+/*
+ * Copyright (c) 2009 by Oracle Corporation. All Rights Reserved.
+ */
+
 package javax.xml.stream;
 
 import javax.xml.transform.Result;
@@ -87,6 +115,9 @@ public abstract class XMLOutputFactory {
   public static final String IS_REPAIRING_NAMESPACES=
     "javax.xml.stream.isRepairingNamespaces";
 
+  static final String JAXPFACTORYID = "javax.xml.stream.XMLOutputFactory";
+  static final String DEFAULIMPL = "com.sun.xml.internal.stream.XMLOutputFactoryImpl";
+
   protected XMLOutputFactory(){}
 
   /**
@@ -96,8 +127,7 @@ public abstract class XMLOutputFactory {
   public static XMLOutputFactory newInstance()
     throws FactoryConfigurationError
   {
-    return (XMLOutputFactory) FactoryFinder.find("javax.xml.stream.XMLOutputFactory",
-                                                 "com.sun.xml.internal.stream.XMLOutputFactoryImpl");
+    return (XMLOutputFactory) FactoryFinder.find(JAXPFACTORYID, DEFAULIMPL, true);
   }
 
   /**
@@ -115,11 +145,11 @@ public abstract class XMLOutputFactory {
    *     in the file META-INF/services/javax.xml.stream.XMLOutputFactory in jars
    *     available to the runtime.
    *   Platform default XMLOutputFactory instance.
-   *  
-   * Once an application has obtained a reference to a XMLOutputFactory it
-   * can use the factory to configure and obtain stream instances. 
    *
-   * Note that this is a new method that replaces the deprecated newInstance() method. 
+   * Once an application has obtained a reference to a XMLOutputFactory it
+   * can use the factory to configure and obtain stream instances.
+   *
+   * Note that this is a new method that replaces the deprecated newInstance() method.
    *   No changes in behavior are defined by this replacement method relative to the
    *   deprecated method.
    *
@@ -128,8 +158,7 @@ public abstract class XMLOutputFactory {
   public static XMLOutputFactory newFactory()
     throws FactoryConfigurationError
   {
-    return (XMLOutputFactory) FactoryFinder.find("javax.xml.stream.XMLOutputFactory",
-                                                 "com.sun.xml.internal.stream.XMLOutputFactoryImpl");
+    return (XMLOutputFactory) FactoryFinder.find(JAXPFACTORYID, DEFAULIMPL, true);
   }
 
   /**
@@ -151,7 +180,8 @@ public abstract class XMLOutputFactory {
           throws FactoryConfigurationError {
       try {
           //do not fallback if given classloader can't find the class, throw exception
-          return (XMLInputFactory) FactoryFinder.newInstance(factoryId, classLoader, false);
+          return (XMLInputFactory) FactoryFinder.find(factoryId, classLoader,
+                  null, factoryId.equals(JAXPFACTORYID) ? true : false);
       } catch (FactoryFinder.ConfigurationError e) {
           throw new FactoryConfigurationError(e.getException(),
                   e.getMessage());
@@ -159,12 +189,12 @@ public abstract class XMLOutputFactory {
   }
 
   /**
-   * Create a new instance of the factory. 
-   * If the classLoader argument is null, then the ContextClassLoader is used. 
-   * 
+   * Create a new instance of the factory.
+   * If the classLoader argument is null, then the ContextClassLoader is used.
+   *
    * Note that this is a new method that replaces the deprecated
-   *   newInstance(String factoryId, ClassLoader classLoader) method. 
-   *  
+   *   newInstance(String factoryId, ClassLoader classLoader) method.
+   *
    *   No changes in behavior are defined by this replacement method relative
    *   to the deprecated method.
    *
@@ -180,7 +210,8 @@ public abstract class XMLOutputFactory {
           throws FactoryConfigurationError {
       try {
           //do not fallback if given classloader can't find the class, throw exception
-          return (XMLOutputFactory) FactoryFinder.newInstance(factoryId, classLoader, false);
+          return (XMLOutputFactory) FactoryFinder.find(factoryId, classLoader,
+                  null, factoryId.equals(JAXPFACTORYID) ? true : false);
       } catch (FactoryFinder.ConfigurationError e) {
           throw new FactoryConfigurationError(e.getException(),
                   e.getMessage());

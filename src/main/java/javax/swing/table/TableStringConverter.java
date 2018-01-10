@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 package javax.swing.table;
 
@@ -11,7 +29,6 @@ package javax.swing.table;
  * strings.  This is useful in filtering and searching when the model returns
  * objects that do not have meaningful <code>toString</code> implementations.
  *
- * @version %I% %G%
  * @since 1.6
  */
 public abstract class TableStringConverter {

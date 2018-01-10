@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2001, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.awt.dnd;
@@ -16,7 +34,6 @@ import java.io.Serializable;
  * Tests if an object can truly be serialized by serializing it to a null
  * OutputStream.
  *
- * @version %I%, %G%
  * @since 1.4
  */
 final class SerializationTester {
@@ -40,7 +57,7 @@ final class SerializationTester {
         } catch (IOException e) {
             return false;
         } finally {
-            // Fix for 4503661. 
+            // Fix for 4503661.
             // Reset the stream so that it doesn't keep a reference to the
             // written object.
             try {

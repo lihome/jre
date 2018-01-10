@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.util.prefs;
@@ -11,7 +29,6 @@ package java.util.prefs;
  * A listener for receiving preference node change events.
  *
  * @author  Josh Bloch
- * @version %I%, %G%
  * @see     Preferences
  * @see     NodeChangeEvent
  * @see     PreferenceChangeListener

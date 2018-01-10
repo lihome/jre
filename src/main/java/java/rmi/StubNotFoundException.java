@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2003, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.rmi;
@@ -13,11 +31,10 @@ package java.rmi;
  * A <code>StubNotFoundException</code> may also be
  * thrown when an activatable object is registered via the
  * <code>java.rmi.activation.Activatable.register</code> method.
- * 
- * @version %I%, %G%
+ *
  * @author  Roger Riggs
  * @since   JDK1.1
- * @see	    java.rmi.server.UnicastRemoteObject
+ * @see     java.rmi.server.UnicastRemoteObject
  * @see     java.rmi.activation.Activatable
  */
 public class StubNotFoundException extends RemoteException {
@@ -33,7 +50,7 @@ public class StubNotFoundException extends RemoteException {
      * @since JDK1.1
      */
     public StubNotFoundException(String s) {
-	super(s);
+        super(s);
     }
 
     /**
@@ -45,6 +62,6 @@ public class StubNotFoundException extends RemoteException {
      * @since JDK1.1
      */
     public StubNotFoundException(String s, Exception ex) {
-	super(s, ex);
+        super(s, ex);
     }
 }

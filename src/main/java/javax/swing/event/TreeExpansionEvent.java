@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2001, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.swing.event;
@@ -14,7 +32,7 @@ import javax.swing.tree.TreePath;
  * An event used to identify a single path in a tree.  The source
  * returned by <b>getSource</b> will be an instance of JTree.
  * <p>
- * For further documentation and examples see 
+ * For further documentation and examples see
  * the following sections in <em>The Java Tutorial</em>:
  * <a href="http://java.sun.com/docs/books/tutorial/uiswing/events/treeexpansionlistener.html">How to Write a Tree Expansion Listener</a> and
  * <a href="http://java.sun.com/docs/books/tutorial/uiswing/events/treewillexpandlistener.html">How to Write a Tree-Will-Expand Listener</a>.
@@ -29,7 +47,6 @@ import javax.swing.tree.TreePath;
  * Please see {@link java.beans.XMLEncoder}.
  *
  * @author Scott Violet
- * @version %I% %G%
  */
 public class TreeExpansionEvent extends EventObject
 {
@@ -47,8 +64,8 @@ public class TreeExpansionEvent extends EventObject
      *                node
      */
     public TreeExpansionEvent(Object source, TreePath path) {
-	super(source);
-	this.path = path;
+        super(source);
+        this.path = path;
     }
 
     /**

@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1998, 2005, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.swing.plaf.metal;
@@ -27,7 +45,6 @@ import javax.swing.plaf.basic.BasicComboBoxEditor;
  * has been added to the <code>java.beans</code> package.
  * Please see {@link java.beans.XMLEncoder}.
  *
- * @version %I% %G%
  * @author Steve Wilson
  */
 public class MetalComboBoxEditor extends BasicComboBoxEditor {
@@ -63,11 +80,10 @@ public class MetalComboBoxEditor extends BasicComboBoxEditor {
     }
 
    /**
-    * The default editor border <code>Insets</code>. This field 
+    * The default editor border <code>Insets</code>. This field
     * might not be used.
     */
     protected static Insets editorBorderInsets = new Insets( 2, 2, 2, 0 );
-    private static final Insets SAFE_EDITOR_BORDER_INSETS = new Insets( 2, 2, 2, 0 );
 
     class EditorBorder extends AbstractBorder {
         public void paintBorder(Component c, Graphics g, int x, int y, int w, int h) {
@@ -95,12 +111,9 @@ public class MetalComboBoxEditor extends BasicComboBoxEditor {
             g.translate( -x, -y );
         }
 
-        public Insets getBorderInsets( Component c ) {
-            if (System.getSecurityManager() != null) {
-                return SAFE_EDITOR_BORDER_INSETS;
-            } else {
-                return editorBorderInsets;
-            }
+        public Insets getBorderInsets(Component c, Insets insets) {
+            insets.set(2, 2, 2, 0);
+            return insets;
         }
     }
 
@@ -124,4 +137,3 @@ public class MetalComboBoxEditor extends BasicComboBoxEditor {
     implements javax.swing.plaf.UIResource {
     }
 }
-

@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2001, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 package java.awt;
 
@@ -28,7 +46,6 @@ import java.awt.event.KeyEvent;
  * usually unnecessary and not recommended.)
  *
  * @author David Mendenhall
- * @version %I%, %G%
  *
  * @see KeyboardFocusManager#addKeyEventDispatcher
  * @see KeyboardFocusManager#removeKeyEventDispatcher

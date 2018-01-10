@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2003, 2005, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.swing.plaf.synth;
@@ -16,7 +34,6 @@ import sun.swing.DefaultLookup;
 /**
  * Synth's SplitPaneDivider.
  *
- * @version %I%, %G%
  * @author Scott Violet
  */
 class SynthSplitPaneDivider extends BasicSplitPaneDivider {

@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, 2006, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 package javax.swing.table;
 
@@ -64,7 +82,7 @@ import javax.swing.SortOrder;
  *     <code>Comparator</code> returned by <code>Collator.getInstance()</code>.
  * <li>Otherwise use the <code>Comparator</code> returned by
  *     <code>Collator.getInstance()</code> on the results from
- *     calling <code>toString</code> on the objects. 
+ *     calling <code>toString</code> on the objects.
  * </ol>
  * <p>
  * In addition to sorting <code>TableRowSorter</code> provides the ability
@@ -102,7 +120,6 @@ import javax.swing.SortOrder;
  *
  * @param <M> the type of the model, which must be an implementation of
  *            <code>TableModel</code>
- * @version %I% %G%
  * @see javax.swing.JTable
  * @see javax.swing.RowFilter
  * @see javax.swing.table.DefaultTableModel
@@ -182,7 +199,7 @@ public class TableRowSorter<M extends TableModel> extends DefaultRowSorter<M, In
     }
 
     /**
-     * Returns the <code>Comparator</code> for the specified 
+     * Returns the <code>Comparator</code> for the specified
      * column.  If a <code>Comparator</code> has not been specified using
      * the <code>setComparator</code> method a <code>Comparator</code>
      * will be returned based on the column class

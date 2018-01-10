@@ -1,8 +1,36 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, 2011 Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+
+/*
+ *
+ *
+ *
+ *
+ *
+ * Written by Doug Lea with assistance from members of JCP JSR-166
+ * Expert Group and released to the public domain, as explained at
+ * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
 package java.util.concurrent.atomic;
@@ -57,7 +85,9 @@ public class AtomicReferenceArray<E> implements java.io.Serializable {
     }
 
     /**
-     * Creates a new AtomicReferenceArray of given length.
+     * Creates a new AtomicReferenceArray of the given length, with all
+     * elements initially null.
+     *
      * @param length the length of the array
      */
     public AtomicReferenceArray(int length) {
@@ -175,7 +205,7 @@ public class AtomicReferenceArray<E> implements java.io.Serializable {
 
     /**
      * Returns the String representation of the current values of array.
-     * @return the String representation of the current values of array.
+     * @return the String representation of the current values of array
      */
     public String toString() {
         int iMax = array.length - 1;

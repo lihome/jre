@@ -1,8 +1,26 @@
 /*
- * %W% %E%
+ * Copyright (c) 2005, 2006, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
- * ORACLE PROPRIETARY/CONFIDENTIAL.  Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.annotation.processing;
@@ -36,11 +54,10 @@ import java.io.File;
  * (Since the facility objects manage shared state, the implementation
  * of a wrapper class must know whether or not the same base facility
  * object has been wrapped before.)
- * 
+ *
  * @author Joseph D. Darcy
  * @author Scott Seligman
  * @author Peter von der Ah&eacute;
- * @version %I% %E%
  * @since 1.6
  */
 public interface ProcessingEnvironment {

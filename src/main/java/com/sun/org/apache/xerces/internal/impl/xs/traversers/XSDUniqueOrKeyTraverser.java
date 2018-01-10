@@ -1,12 +1,16 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright 2001, 2002,2004 The Apache Software Foundation.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,10 +32,10 @@ import org.w3c.dom.Element;
  * This class contains code that is used to traverse both <key>s and
  * <unique>s.
  *
- * @xerces.internal 
+ * @xerces.internal
  *
  * @author Neil Graham, IBM
- * @version $Id: XSDUniqueOrKeyTraverser.java,v 1.4 2007/07/19 04:38:48 ofung Exp $
+ * @version $Id: XSDUniqueOrKeyTraverser.java,v 1.7 2010-11-01 04:40:02 joehw Exp $
  */
 class XSDUniqueOrKeyTraverser extends XSDAbstractIDConstraintTraverser {
 
@@ -67,11 +71,30 @@ class XSDUniqueOrKeyTraverser extends XSDAbstractIDConstraintTraverser {
         // duplication (or if there is that restriction is involved
         // and there's identity).
 
-        // get selector and fields
-        traverseIdentityConstraint(uniqueOrKey, uElem, schemaDoc, attrValues);
+        // If errors occurred in traversing the identity constraint, then don't
+        // add it to the schema, to avoid errors when processing the instance.
+        if (traverseIdentityConstraint(uniqueOrKey, uElem, schemaDoc, attrValues)) {
+            // and stuff this in the grammar
+            if (grammar.getIDConstraintDecl(uniqueOrKey.getIdentityConstraintName()) == null) {
+                grammar.addIDConstraintDecl(element, uniqueOrKey);
+            }
 
-        // and stuff this in the grammar
-        grammar.addIDConstraintDecl(element, uniqueOrKey);
+            final String loc = fSchemaHandler.schemaDocument2SystemId(schemaDoc);
+            final IdentityConstraint idc = grammar.getIDConstraintDecl(uniqueOrKey.getIdentityConstraintName(), loc);
+            if (idc == null) {
+                grammar.addIDConstraintDecl(element, uniqueOrKey, loc);
+            }
+
+            // handle duplicates
+            if (fSchemaHandler.fTolerateDuplicates) {
+                if (idc != null) {
+                    if (idc instanceof UniqueOrKey) {
+                        uniqueOrKey = (UniqueOrKey) uniqueOrKey;
+                    }
+                }
+                fSchemaHandler.addIDConstraintDecl(uniqueOrKey);
+            }
+        }
 
         // and fix up attributeChecker
         fAttrChecker.returnAttrArray(attrValues, schemaDoc);

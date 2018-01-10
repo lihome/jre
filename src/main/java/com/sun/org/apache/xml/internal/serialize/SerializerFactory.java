@@ -1,12 +1,16 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright 1999-2002,2004 The Apache Software Foundation.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,7 +32,7 @@ import java.util.StringTokenizer;
 /**
  *
  *
- * @version $Revision: 1.4 $ $Date: 2007/07/19 04:39:19 $
+ * @version $Revision: 1.6 $ $Date: 2010-11-01 04:40:36 $
  * @author <a href="mailto:Scott_Boag/CAM/Lotus@lotus.com">Scott Boag</a>
  * @author <a href="mailto:arkin@intalio.com">Assaf Arkin</a>
  */
@@ -67,8 +71,7 @@ public abstract class SerializerFactory
             while ( token.hasMoreTokens() ) {
                 className = token.nextToken();
                 try {
-                    factory = (SerializerFactory) ObjectFactory.newInstance( className,
-                        SerializerFactory.class.getClassLoader(), true);
+                    factory = (SerializerFactory) ObjectFactory.newInstance( className, true);
                     if ( _factories.containsKey( factory.getSupportedMethod() ) )
                         _factories.put( factory.getSupportedMethod(), factory );
                 } catch ( Exception except ) { }
@@ -144,5 +147,3 @@ public abstract class SerializerFactory
 
 
 }
-
-

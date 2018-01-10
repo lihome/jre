@@ -1,3 +1,28 @@
+/*
+ * Copyright (c) 2001, 2006, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+
 // NewInstance.java - create a new instance of a class by name.
 // http://www.saxproject.org
 // Written by Edwin Goei, edwingo@apache.org
@@ -33,7 +58,6 @@ import java.lang.reflect.InvocationTargetException;
  */
 class NewInstance {
     private static final String DEFAULT_PACKAGE = "com.sun.org.apache.xerces.internal";
-
     /**
      * Creates a new instance of the specified class name
      *

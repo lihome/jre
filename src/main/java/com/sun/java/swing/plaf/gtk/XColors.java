@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2002, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package com.sun.java.swing.plaf.gtk;
@@ -13,10 +31,9 @@ import javax.swing.plaf.ColorUIResource;
 
 /**
  * @author  Shannon Hickey
- * @version %I% %G%
  */
 class XColors {
-    
+
     private static class XColor implements Comparable {
         String name;
 
@@ -34,28 +51,28 @@ class XColors {
         Color toColor() {
             return new ColorUIResource(red, green, blue);
         }
-        
+
         public int compareTo(Object o) {
             XColor other = (XColor)o;
-            
+
             return name.compareTo(other.name);
         }
     }
-    
+
     private static XColor key = new XColor("", -1, -1, -1);
-    
+
     static Color lookupColor(String name) {
         key.name = name.toLowerCase();
 
         int pos = Arrays.binarySearch(colors, key);
-        
+
         if (pos < 0) {
             return null;
         }
-        
+
         return colors[pos].toColor();
     }
-    
+
     private static final XColor[] colors = {
         new XColor("alice blue", 240, 248, 255),
         new XColor("aliceblue", 240, 248, 255),

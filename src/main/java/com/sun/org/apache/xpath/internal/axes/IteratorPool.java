@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright 1999-2004 The Apache Software Foundation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +22,7 @@
  */
 package com.sun.org.apache.xpath.internal.axes;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import com.sun.org.apache.xml.internal.dtm.DTMIterator;
 import com.sun.org.apache.xml.internal.utils.WrappedRuntimeException;
@@ -27,17 +31,19 @@ import com.sun.org.apache.xml.internal.utils.WrappedRuntimeException;
  * Pool of object of a given type to pick from to help memory usage
  * @xsl.usage internal
  */
-public class IteratorPool implements java.io.Serializable
+public final class IteratorPool implements java.io.Serializable
 {
     static final long serialVersionUID = -460927331149566998L;
 
-  /** Type of objects in this pool.
-   *  @serial          */
+  /**
+   * Type of objects in this pool.
+   */
   private final DTMIterator m_orig;
 
-  /** Vector of given objects this points to.
-   *  @serial          */
-  private final Vector m_freeStack;
+  /**
+   * Stack of given objects this points to.
+   */
+  private final ArrayList m_freeStack;
 
   /**
    * Constructor IteratorPool
@@ -47,11 +53,11 @@ public class IteratorPool implements java.io.Serializable
   public IteratorPool(DTMIterator original)
   {
     m_orig = original;
-    m_freeStack = new Vector();
+    m_freeStack = new ArrayList();
   }
-  
+
   /**
-   * Get an instance of the given object in this pool 
+   * Get an instance of the given object in this pool
    *
    * @return An instance of the given object
    */
@@ -68,16 +74,13 @@ public class IteratorPool implements java.io.Serializable
     else
     {
       // Remove object from end of free pool.
-      DTMIterator result = (DTMIterator)m_freeStack.lastElement();
-
-      m_freeStack.setSize(m_freeStack.size() - 1);
-
+      DTMIterator result = (DTMIterator)m_freeStack.remove(m_freeStack.size() - 1);
       return result;
     }
   }
-  
+
   /**
-   * Get an instance of the given object in this pool 
+   * Get an instance of the given object in this pool
    *
    * @return An instance of the given object
    */
@@ -100,22 +103,19 @@ public class IteratorPool implements java.io.Serializable
     else
     {
       // Remove object from end of free pool.
-      DTMIterator result = (DTMIterator)m_freeStack.lastElement();
-
-      m_freeStack.setSize(m_freeStack.size() - 1);
-
+      DTMIterator result = (DTMIterator)m_freeStack.remove(m_freeStack.size() - 1);
       return result;
     }
   }
 
   /**
-   * Add an instance of the given object to the pool  
+   * Add an instance of the given object to the pool
    *
    *
    * @param obj Object to add.
    */
   public synchronized void freeInstance(DTMIterator obj)
   {
-    m_freeStack.addElement(obj);
+    m_freeStack.add(obj);
   }
 }

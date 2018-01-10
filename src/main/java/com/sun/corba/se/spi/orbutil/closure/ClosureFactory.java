@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2003, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package com.sun.corba.se.spi.orbutil.closure ;
@@ -15,11 +33,11 @@ public abstract class ClosureFactory {
 
     public static Closure makeConstant( Object value )
     {
-	return new Constant( value ) ;
+        return new Constant( value ) ;
     }
 
     public static Closure makeFuture( Closure value )
     {
-	return new Future( value ) ;
+        return new Future( value ) ;
     }
 }

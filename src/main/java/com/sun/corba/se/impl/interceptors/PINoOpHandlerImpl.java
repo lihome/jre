@@ -1,14 +1,32 @@
 /*
- * %W% %E%
- * 
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2003, 2012, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package com.sun.corba.se.impl.interceptors;
 
 import java.io.IOException;
-             
+
 import org.omg.CORBA.Any;
 import org.omg.CORBA.NVList;
 
@@ -40,13 +58,13 @@ import com.sun.corba.se.impl.corba.RequestImpl;
 
 import com.sun.corba.se.impl.protocol.giopmsgheaders.ReplyMessage;
 
-/** 
+/**
  * This is No-Op implementation of PIHandler. It is used in ORBConfigurator
- * to initialize a piHandler before the Persistent Server Activation. This 
- * PIHandler implementation will be replaced by the real PIHandler in 
+ * to initialize a piHandler before the Persistent Server Activation. This
+ * PIHandler implementation will be replaced by the real PIHandler in
  * ORB.postInit( ) call.
  */
-public class PINoOpHandlerImpl implements PIHandler 
+public class PINoOpHandlerImpl implements PIHandler
 {
     public PINoOpHandlerImpl( ) {
     }
@@ -60,74 +78,74 @@ public class PINoOpHandlerImpl implements PIHandler
     public void destroyInterceptors() {
     }
 
-    public void objectAdapterCreated( ObjectAdapter oa ) 
+    public void objectAdapterCreated( ObjectAdapter oa )
     {
     }
 
     public void adapterManagerStateChanged( int managerId,
-	short newState )
+        short newState )
     {
     }
 
-    public void adapterStateChanged( ObjectReferenceTemplate[] 
-	templates, short newState )
+    public void adapterStateChanged( ObjectReferenceTemplate[]
+        templates, short newState )
     {
     }
 
 
     public void disableInterceptorsThisThread() {
     }
-    
+
     public void enableInterceptorsThisThread() {
     }
-    
-    public void invokeClientPIStartingPoint() 
+
+    public void invokeClientPIStartingPoint()
         throws RemarshalException
     {
     }
-    
+
     public Exception invokeClientPIEndingPoint(
         int replyStatus, Exception exception )
     {
         return null;
     }
-    
+
     public Exception makeCompletedClientRequest(
         int replyStatus, Exception exception ) {
         return null;
     }
-    
+
     public void initiateClientPIRequest( boolean diiRequest ) {
     }
-    
+
     public void cleanupClientPIRequest() {
     }
 
-    public void setClientPIInfo(CorbaMessageMediator messageMediator) 
+    public void setClientPIInfo(CorbaMessageMediator messageMediator)
     {
     }
 
-    public void setClientPIInfo( RequestImpl requestImpl ) 
+    public void setClientPIInfo( RequestImpl requestImpl )
     {
     }
-    
+
     final public void sendCancelRequestIfFinalFragmentNotSent()
     {
     }
-    
-    
-    public void invokeServerPIStartingPoint() 
+
+
+    public void invokeServerPIStartingPoint()
     {
     }
 
-    public void invokeServerPIIntermediatePoint() 
+    public void invokeServerPIIntermediatePoint()
     {
     }
-    
-    public void invokeServerPIEndingPoint( ReplyMessage replyMessage ) 
+
+    public void invokeServerPIEndingPoint( ReplyMessage replyMessage )
     {
     }
-    
+
     public void setServerPIInfo( Exception exception ) {
     }
 
@@ -144,20 +162,20 @@ public class PINoOpHandlerImpl implements PIHandler
     }
 
     public void initializeServerPIInfo( CorbaMessageMediator request,
-	ObjectAdapter oa, byte[] objectId, ObjectKeyTemplate oktemp ) 
+        ObjectAdapter oa, byte[] objectId, ObjectKeyTemplate oktemp )
     {
     }
-    
-    public void setServerPIInfo( java.lang.Object servant, 
-				          String targetMostDerivedInterface ) 
+
+    public void setServerPIInfo( java.lang.Object servant,
+                                          String targetMostDerivedInterface )
     {
     }
 
     public void cleanupServerPIRequest() {
     }
-    
-    public void register_interceptor( Interceptor interceptor, int type ) 
-	throws DuplicateName
+
+    public void register_interceptor( Interceptor interceptor, int type )
+        throws DuplicateName
     {
     }
 
@@ -173,7 +191,7 @@ public class PINoOpHandlerImpl implements PIHandler
 
     public void registerPolicyFactory( int type, PolicyFactory factory ) {
     }
-    
+
     public int allocateServerRequestId ()
     {
         return 0;

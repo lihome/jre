@@ -1,54 +1,15 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
+ * Copyright 2002-2004 The Apache Software Foundation.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The contents of this file are subject to the terms of either the GNU
- * General Public License Version 2 only ("GPL") or the Common Development
- * and Distribution License("CDDL") (collectively, the "License").  You
- * may not use this file except in compliance with the License.  You can
- * obtain a copy of the License at
- * https://glassfish.dev.java.net/public/CDDL+GPL_1_1.html
- * or packager/legal/LICENSE.txt.  See the License for the specific
- * language governing permissions and limitations under the License.
- *
- * When distributing the software, include this License Header Notice in each
- * file and include the License file at packager/legal/LICENSE.txt.
- *
- * GPL Classpath Exception:
- * Oracle designates this particular file as subject to the "Classpath"
- * exception as provided by Oracle in the GPL Version 2 section of the License
- * file that accompanied this code.
- *
- * Modifications:
- * If applicable, add the following below the License Header, with the fields
- * enclosed by brackets [] replaced by your own identifying information:
- * "Portions Copyright [year] [name of copyright owner]"
- *
- * Contributor(s):
- * If you wish your version of this file to be governed by only the CDDL or
- * only the GPL Version 2, indicate your decision by adding "[Contributor]
- * elects to include this software in this distribution under the [CDDL or GPL
- * Version 2] license."  If you don't indicate a single choice of license, a
- * recipient has the option to distribute your version of this file under
- * either the CDDL, the GPL Version 2 or to extend the choice of license to
- * its licensees as provided above.  However, if you add GPL Version 2 code
- * and therefore, elected the GPL Version 2 license, then the option applies
- * only if the new code is made subject to such option by the copyright
- * holder.
- *
- *
- * This file incorporates work covered by the following copyright and
- * permission notice:
- *
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -56,13 +17,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/*
+ * $Id: SecuritySupport.java,v 1.1.2.1 2005/08/01 02:08:48 jeffsuttor Exp $
+ */
 
 package com.sun.org.apache.xalan.internal.utils;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -72,11 +38,12 @@ import java.util.ListResourceBundle;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.util.Properties;
 
 /**
- * This class is duplicated for each subpackage so keep it in sync.
- * It is package private and therefore is not exposed as part of any API.
- * 
+ * This class is duplicated for each subpackage so keep it in sync. It is
+ * package private and therefore is not exposed as part of any API.
+ *
  * @xerces.internal
  */
 public final class SecuritySupport {
@@ -90,7 +57,7 @@ public final class SecuritySupport {
         return securitySupport;
     }
 
-    static ClassLoader getContextClassLoader() {
+    public static ClassLoader getContextClassLoader() {
         return (ClassLoader) AccessController.doPrivileged(new PrivilegedAction() {
             public Object run() {
                 ClassLoader cl = null;
@@ -157,7 +124,7 @@ public final class SecuritySupport {
                 }
             });
         } catch (PrivilegedActionException e) {
-            throw (FileNotFoundException) e.getException();
+            throw (FileNotFoundException)e.getException();
         }
     }
 
@@ -166,7 +133,7 @@ public final class SecuritySupport {
      * default or bootclassloader when Security Manager is in place
      */
     public static InputStream getResourceAsStream(final String name) {
-        if (System.getSecurityManager() != null) {
+        if (System.getSecurityManager()!=null) {
             return getResourceAsStream(null, name);
         } else {
             return getResourceAsStream(ObjectFactory.findClassLoader(), name);
@@ -179,7 +146,7 @@ public final class SecuritySupport {
             public Object run() {
                 InputStream ris;
                 if (cl == null) {
-                    ris = Object.class.getResourceAsStream("/" + name);
+                    ris = Object.class.getResourceAsStream("/"+name);
                 } else {
                     ris = cl.getResourceAsStream(name);
                 }
@@ -236,7 +203,143 @@ public final class SecuritySupport {
                 })).longValue();
     }
 
-
-    private SecuritySupport() {
+    /**
+     * Strip off path from an URI
+     *
+     * @param uri an URI with full path
+     * @return the file name only
+     */
+    public static String sanitizePath(String uri) {
+        if (uri == null) {
+            return "";
+        }
+        int i = uri.lastIndexOf("/");
+        if (i > 0) {
+            return uri.substring(i+1, uri.length());
+        }
+        return "";
     }
+
+    /**
+     * Check the protocol used in the systemId against allowed protocols
+     *
+     * @param systemId the Id of the URI
+     * @param allowedProtocols a list of allowed protocols separated by comma
+     * @param accessAny keyword to indicate allowing any protocol
+     * @return the name of the protocol if rejected, null otherwise
+     */
+    public static String checkAccess(String systemId, String allowedProtocols, String accessAny) throws IOException {
+        if (systemId == null || (allowedProtocols != null &&
+                allowedProtocols.equalsIgnoreCase(accessAny))) {
+            return null;
+        }
+
+        String protocol;
+        if (systemId.indexOf(":")==-1) {
+            protocol = "file";
+        } else {
+            URL url = new URL(systemId);
+            protocol = url.getProtocol();
+            if (protocol.equalsIgnoreCase("jar")) {
+                String path = url.getPath();
+                protocol = path.substring(0, path.indexOf(":"));
+            }
+        }
+
+        if (isProtocolAllowed(protocol, allowedProtocols)) {
+            //access allowed
+            return null;
+        } else {
+            return protocol;
+        }
+    }
+
+    /**
+     * Check if the protocol is in the allowed list of protocols. The check
+     * is case-insensitive while ignoring whitespaces.
+     *
+     * @param protocol a protocol
+     * @param allowedProtocols a list of allowed protocols
+     * @return true if the protocol is in the list
+     */
+    private static boolean isProtocolAllowed(String protocol, String allowedProtocols) {
+         if (allowedProtocols == null) {
+             return false;
+         }
+         String temp[] = allowedProtocols.split(",");
+         for (String t : temp) {
+             t = t.trim();
+             if (t.equalsIgnoreCase(protocol)) {
+                 return true;
+             }
+         }
+         return false;
+     }
+
+    /**
+     * Read JAXP system property in this order: system property,
+     * $java.home/lib/jaxp.properties if the system property is not specified
+     *
+     * @param propertyId the Id of the property
+     * @return the value of the property
+     */
+    public static String getJAXPSystemProperty(String sysPropertyId) {
+        String accessExternal = getSystemProperty(sysPropertyId);
+        if (accessExternal == null) {
+            accessExternal = readJAXPProperty(sysPropertyId);
+        }
+        return accessExternal;
+    }
+
+    /**
+     * Read from $java.home/lib/jaxp.properties for the specified property
+     * The program
+     *
+     * @param propertyId the Id of the property
+     * @return the value of the property
+     */
+    static String readJAXPProperty(String propertyId) {
+        String value = null;
+        InputStream is = null;
+        try {
+            if (firstTime) {
+                synchronized (cacheProps) {
+                    if (firstTime) {
+                        String configFile = getSystemProperty("java.home") + File.separator +
+                            "lib" + File.separator + "jaxp.properties";
+                        File f = new File(configFile);
+                        if (getFileExists(f)) {
+                            is = getFileInputStream(f);
+                            cacheProps.load(is);
+                        }
+                        firstTime = false;
+                    }
+                }
+            }
+            value = cacheProps.getProperty(propertyId);
+
+        }
+        catch (Exception ex) {}
+        finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException ex) {}
+            }
+        }
+
+        return value;
+    }
+
+    /**
+     * Cache for properties in java.home/lib/jaxp.properties
+     */
+    static final Properties cacheProps = new Properties();
+
+    /**
+     * Flag indicating if the program has tried reading java.home/lib/jaxp.properties
+     */
+    static volatile boolean firstTime = true;
+
+    private SecuritySupport () {}
 }

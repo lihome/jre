@@ -1,16 +1,31 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 /*
- * @(#)JavaCMMException.java    @(#)JavaCMMException.java	1.2    11/04/97
-
     Created by gbp, October 25, 1997
 
- * 
+ *
  */
 /**********************************************************************
  **********************************************************************

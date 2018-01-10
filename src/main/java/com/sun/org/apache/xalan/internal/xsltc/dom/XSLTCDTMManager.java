@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright 1999-2004 The Apache Software Foundation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -50,7 +54,7 @@ import org.xml.sax.XMLReader;
  */
 public class XSLTCDTMManager extends DTMManagerDefault
 {
-	
+
     /** The default class name to use as the manager. */
     private static final String DEFAULT_CLASS_NAME =
         "com.sun.org.apache.xalan.internal.xsltc.dom.XSLTCDTMManager";
@@ -60,7 +64,7 @@ public class XSLTCDTMManager extends DTMManagerDefault
 
     /** Set this to true if you want a dump of the DTM after creation */
     private static final boolean DUMPTREE = false;
-  
+
     /** Set this to true if you want basic diagnostics */
     private static final boolean DEBUG = false;
 
@@ -71,7 +75,7 @@ public class XSLTCDTMManager extends DTMManagerDefault
     public XSLTCDTMManager()
     {
         super();
-    } 
+    }
 
     /**
      * Obtain a new instance of a <code>DTMManager</code>.
@@ -81,7 +85,7 @@ public class XSLTCDTMManager extends DTMManagerDefault
     public static XSLTCDTMManager newInstance()
     {
         return new XSLTCDTMManager();
-    } 
+    }
 
     /**
      * Look up the class that provides the XSLTC DTM Manager service.
@@ -147,7 +151,7 @@ public class XSLTCDTMManager extends DTMManagerDefault
                       boolean doIndexing)
     {
         return getDTM(source, unique, whiteSpaceFilter, incremental,
-		      doIndexing, false, 0, true, false);
+                      doIndexing, false, 0, true, false);
     }
 
     /**
@@ -169,7 +173,7 @@ public class XSLTCDTMManager extends DTMManagerDefault
      * @param doIndexing true if the caller considers it worth it to use
      *                   indexing schemes.
      * @param buildIdIndex true if the id index table should be built.
-     * 
+     *
      * @return a non-null DTM reference.
      */
     public DTM getDTM(Source source, boolean unique,
@@ -177,9 +181,9 @@ public class XSLTCDTMManager extends DTMManagerDefault
                       boolean doIndexing, boolean buildIdIndex)
     {
         return getDTM(source, unique, whiteSpaceFilter, incremental,
-		      doIndexing, false, 0, buildIdIndex, false);
+                      doIndexing, false, 0, buildIdIndex, false);
     }
-  
+
     /**
      * Get an instance of a DTM, loaded with the content from the
      * specified source.  If the unique flag is true, a new instance will
@@ -201,18 +205,18 @@ public class XSLTCDTMManager extends DTMManagerDefault
      * @param buildIdIndex true if the id index table should be built.
      * @param newNameTable true if we want to use a separate ExpandedNameTable
      *                     for this DTM.
-     * 
+     *
      * @return a non-null DTM reference.
      */
   public DTM getDTM(Source source, boolean unique,
-		    DTMWSFilter whiteSpaceFilter, boolean incremental,
-		    boolean doIndexing, boolean buildIdIndex,
-		    boolean newNameTable)
+                    DTMWSFilter whiteSpaceFilter, boolean incremental,
+                    boolean doIndexing, boolean buildIdIndex,
+                    boolean newNameTable)
   {
     return getDTM(source, unique, whiteSpaceFilter, incremental,
-		  doIndexing, false, 0, buildIdIndex, newNameTable);
+                  doIndexing, false, 0, buildIdIndex, newNameTable);
   }
-  
+
   /**
      * Get an instance of a DTM, loaded with the content from the
      * specified source.  If the unique flag is true, a new instance will
@@ -249,7 +253,7 @@ public class XSLTCDTMManager extends DTMManagerDefault
                     doIndexing, hasUserReader, size,
                     buildIdIndex, false);
   }
-  
+
   /**
      * Get an instance of a DTM, loaded with the content from the
      * specified source.  If the unique flag is true, a new instance will
@@ -280,23 +284,23 @@ public class XSLTCDTMManager extends DTMManagerDefault
      * @return a non-null DTM reference.
      */
   public DTM getDTM(Source source, boolean unique,
-		    DTMWSFilter whiteSpaceFilter, boolean incremental,
-		    boolean doIndexing, boolean hasUserReader, int size,
-		    boolean buildIdIndex, boolean newNameTable)
+                    DTMWSFilter whiteSpaceFilter, boolean incremental,
+                    boolean doIndexing, boolean hasUserReader, int size,
+                    boolean buildIdIndex, boolean newNameTable)
   {
         if(DEBUG && null != source) {
             System.out.println("Starting "+
-			 (unique ? "UNIQUE" : "shared")+
-			 " source: "+source.getSystemId());
+                         (unique ? "UNIQUE" : "shared")+
+                         " source: "+source.getSystemId());
         }
 
         int dtmPos = getFirstFreeDTMID();
         int documentID = dtmPos << IDENT_DTM_NODE_BITS;
-        
+
         if ((null != source) && source instanceof StAXSource) {
             final StAXSource staxSource = (StAXSource)source;
             StAXEvent2SAX staxevent2sax = null;
-            StAXStream2SAX staxStream2SAX = null; 
+            StAXStream2SAX staxStream2SAX = null;
             if (staxSource.getXMLEventReader() != null) {
                 final XMLEventReader xmlEventReader = staxSource.getXMLEventReader();
                 staxevent2sax = new StAXEvent2SAX(xmlEventReader);
@@ -304,26 +308,26 @@ public class XSLTCDTMManager extends DTMManagerDefault
                 final XMLStreamReader xmlStreamReader = staxSource.getXMLStreamReader();
                 staxStream2SAX = new StAXStream2SAX(xmlStreamReader);
             }
-      
+
             SAXImpl dtm;
 
             if (size <= 0) {
                 dtm = new SAXImpl(this, source, documentID,
-                                  whiteSpaceFilter, null, doIndexing, 
+                                  whiteSpaceFilter, null, doIndexing,
                                   DTMDefaultBase.DEFAULT_BLOCKSIZE,
                                   buildIdIndex, newNameTable);
             } else {
                 dtm = new SAXImpl(this, source, documentID,
-                                  whiteSpaceFilter, null, doIndexing, 
+                                  whiteSpaceFilter, null, doIndexing,
                                   size, buildIdIndex, newNameTable);
             }
-      
+
             dtm.setDocumentURI(source.getSystemId());
 
             addDTM(dtm, dtmPos, 0);
 
             try {
-                if (staxevent2sax != null) {    
+                if (staxevent2sax != null) {
                     staxevent2sax.setContentHandler(dtm);
                     staxevent2sax.parse();
                 }
@@ -331,7 +335,7 @@ public class XSLTCDTMManager extends DTMManagerDefault
                     staxStream2SAX.setContentHandler(dtm);
                     staxStream2SAX.parse();
                 }
-                
+
             }
             catch (RuntimeException re) {
                 throw re;
@@ -339,32 +343,32 @@ public class XSLTCDTMManager extends DTMManagerDefault
             catch (Exception e) {
                 throw new com.sun.org.apache.xml.internal.utils.WrappedRuntimeException(e);
             }
-      
+
             return dtm;
         }else if ((null != source) && source instanceof DOMSource) {
             final DOMSource domsrc = (DOMSource) source;
             final org.w3c.dom.Node node = domsrc.getNode();
             final DOM2SAX dom2sax = new DOM2SAX(node);
-      
+
             SAXImpl dtm;
 
             if (size <= 0) {
                 dtm = new SAXImpl(this, source, documentID,
-                                  whiteSpaceFilter, null, doIndexing, 
+                                  whiteSpaceFilter, null, doIndexing,
                                   DTMDefaultBase.DEFAULT_BLOCKSIZE,
                                   buildIdIndex, newNameTable);
             } else {
                 dtm = new SAXImpl(this, source, documentID,
-                                  whiteSpaceFilter, null, doIndexing, 
+                                  whiteSpaceFilter, null, doIndexing,
                                   size, buildIdIndex, newNameTable);
             }
-      
+
             dtm.setDocumentURI(source.getSystemId());
 
             addDTM(dtm, dtmPos, 0);
-      
+
             dom2sax.setContentHandler(dtm);
-      
+
             try {
                 dom2sax.parse();
             }
@@ -374,7 +378,7 @@ public class XSLTCDTMManager extends DTMManagerDefault
             catch (Exception e) {
                 throw new com.sun.org.apache.xml.internal.utils.WrappedRuntimeException(e);
             }
-      
+
             return dtm;
         }
         else
@@ -416,12 +420,12 @@ public class XSLTCDTMManager extends DTMManagerDefault
                 SAXImpl dtm;
                 if (size <= 0) {
                     dtm = new SAXImpl(this, source, documentID, whiteSpaceFilter,
-			              null, doIndexing, 
-			              DTMDefaultBase.DEFAULT_BLOCKSIZE,
-			              buildIdIndex, newNameTable);
+                                      null, doIndexing,
+                                      DTMDefaultBase.DEFAULT_BLOCKSIZE,
+                                      buildIdIndex, newNameTable);
                 } else {
                     dtm = new SAXImpl(this, source, documentID, whiteSpaceFilter,
-			    null, doIndexing, size, buildIdIndex, newNameTable);
+                            null, doIndexing, size, buildIdIndex, newNameTable);
                 }
 
                 // Go ahead and add the DTM to the lookup table.  This needs to be
@@ -435,11 +439,11 @@ public class XSLTCDTMManager extends DTMManagerDefault
                 }
 
                 reader.setContentHandler(dtm.getBuilder());
-                
+
                 if (!hasUserReader || null == reader.getDTDHandler()) {
                     reader.setDTDHandler(dtm);
                 }
-                
+
                 if(!hasUserReader || null == reader.getErrorHandler()) {
                     reader.setErrorHandler(dtm);
                 }

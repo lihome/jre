@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright 1999-2004 The Apache Software Foundation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -111,29 +115,29 @@ public class XString extends XObject implements XMLString
    */
   public double toDouble()
   {
-    /* XMLCharacterRecognizer.isWhiteSpace(char c) methods treats the following 
+    /* XMLCharacterRecognizer.isWhiteSpace(char c) methods treats the following
      * characters as white space characters.
      * ht - horizontal tab, nl - newline , cr - carriage return and sp - space
      * trim() methods by default also takes care of these white space characters
      * So trim() method is used to remove leading and trailing white spaces.
      */
-	XMLString s = trim();
-	double result = Double.NaN;
-	for (int i = 0; i < s.length(); i++)
-	{
-		char c = s.charAt(i);
+        XMLString s = trim();
+        double result = Double.NaN;
+        for (int i = 0; i < s.length(); i++)
+        {
+                char c = s.charAt(i);
     if (c != '-' && c != '.' && ( c < 0X30 || c > 0x39)) {
             // The character is not a '-' or a '.' or a digit
             // then return NaN because something is wrong.
-			return result;
+                        return result;
         }
-	}
-	try
-	{
-		result = Double.parseDouble(s.toString());
-	} catch (NumberFormatException e){}
+        }
+        try
+        {
+                result = Double.parseDouble(s.toString());
+        } catch (NumberFormatException e){}
 
-	return result;
+        return result;
 }
 
   /**
@@ -289,32 +293,48 @@ public class XString extends XObject implements XMLString
   public boolean equals(XObject obj2)
   {
 
-    // In order to handle the 'all' semantics of 
-    // nodeset comparisons, we always call the 
+    // In order to handle the 'all' semantics of
+    // nodeset comparisons, we always call the
     // nodeset function.
     int t = obj2.getType();
     try
     {
-	    if (XObject.CLASS_NODESET == t)
-	      return obj2.equals(this);
-	    // If at least one object to be compared is a boolean, then each object 
-	    // to be compared is converted to a boolean as if by applying the 
-	    // boolean function. 
-	    else if(XObject.CLASS_BOOLEAN == t)
-	    	return obj2.bool() == bool();
-	    // Otherwise, if at least one object to be compared is a number, then each object 
-	    // to be compared is converted to a number as if by applying the number function. 
-	    else if(XObject.CLASS_NUMBER == t)
-	    	return obj2.num() == num();
+            if (XObject.CLASS_NODESET == t)
+              return obj2.equals(this);
+            // If at least one object to be compared is a boolean, then each object
+            // to be compared is converted to a boolean as if by applying the
+            // boolean function.
+            else if(XObject.CLASS_BOOLEAN == t)
+                return obj2.bool() == bool();
+            // Otherwise, if at least one object to be compared is a number, then each object
+            // to be compared is converted to a number as if by applying the number function.
+            else if(XObject.CLASS_NUMBER == t)
+                return obj2.num() == num();
     }
     catch(javax.xml.transform.TransformerException te)
     {
-    	throw new com.sun.org.apache.xml.internal.utils.WrappedRuntimeException(te);
+        throw new com.sun.org.apache.xml.internal.utils.WrappedRuntimeException(te);
     }
 
-    // Otherwise, both objects to be compared are converted to strings as 
-    // if by applying the string function. 
+    // Otherwise, both objects to be compared are converted to strings as
+    // if by applying the string function.
     return xstr().equals(obj2.xstr());
+  }
+
+   /**
+   * Compares this string to the specified <code>String</code>.
+   * The result is <code>true</code> if and only if the argument is not
+   * <code>null</code> and is a <code>String</code> object that represents
+   * the same sequence of characters as this object.
+   *
+   * @param   obj2   the object to compare this <code>String</code> against.
+   * @return  <code>true</code> if the <code>String</code>s are equal;
+   *          <code>false</code> otherwise.
+   * @see     java.lang.String#compareTo(java.lang.String)
+   * @see     java.lang.String#equalsIgnoreCase(java.lang.String)
+   */
+  public boolean equals(String obj2) {
+    return str().equals(obj2);
   }
 
   /**
@@ -332,11 +352,14 @@ public class XString extends XObject implements XMLString
    */
   public boolean equals(XMLString obj2)
   {
-
-    if (!obj2.hasString())
-      return obj2.equals(this);
-    else
-      return str().equals(obj2.toString());
+    if (obj2 != null) {
+      if (!obj2.hasString()) {
+        return obj2.equals(str());
+      } else {
+        return str().equals(obj2.toString());
+      }
+    }
+    return false;
   }
 
   /**
@@ -358,13 +381,13 @@ public class XString extends XObject implements XMLString
     if (null == obj2)
       return false;
 
-      // In order to handle the 'all' semantics of 
-      // nodeset comparisons, we always call the 
+      // In order to handle the 'all' semantics of
+      // nodeset comparisons, we always call the
       // nodeset function.
     else if (obj2 instanceof XNodeSet)
       return obj2.equals(this);
     else if(obj2 instanceof XNumber)
-    	return obj2.equals(this);
+        return obj2.equals(this);
     else
       return str().equals(obj2.toString());
   }
@@ -452,10 +475,10 @@ public class XString extends XObject implements XMLString
     // versions of Java, hence we can't yet shell out to it. We can implement
     // it as character-by-character compare, but doing so efficiently
     // is likely to be (ahem) interesting.
-    //  
+    //
     // However, since nobody is actually _using_ this method yet:
     //    return str().compareToIgnoreCase(str.toString());
-    
+
     throw new com.sun.org.apache.xml.internal.utils.WrappedRuntimeException(
       new java.lang.NoSuchMethodException(
         "Java 1.2 method, not yet implemented"));
@@ -1089,13 +1112,13 @@ public class XString extends XObject implements XMLString
 
     return edit ? xsf.newstr(new String(buf, start, d - start)) : this;
   }
-  
+
   /**
    * @see com.sun.org.apache.xpath.internal.XPathVisitable#callVisitors(ExpressionOwner, XPathVisitor)
    */
   public void callVisitors(ExpressionOwner owner, XPathVisitor visitor)
   {
-  	visitor.visitStringLiteral(owner, this);
+        visitor.visitStringLiteral(owner, this);
   }
 
 }

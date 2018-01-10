@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2003, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package com.sun.corba.se.spi.extension ;
@@ -19,38 +37,38 @@ public class ZeroPortPolicy extends LocalObject implements Policy
 
     private boolean flag = true ;
 
-    private ZeroPortPolicy( boolean type ) 
+    private ZeroPortPolicy( boolean type )
     {
-	this.flag = type ;
+        this.flag = type ;
     }
 
     public String toString()
     {
-	return "ZeroPortPolicy[" + flag + "]" ;
+        return "ZeroPortPolicy[" + flag + "]" ;
     }
 
     public boolean forceZeroPort()
     {
-	return flag ;
+        return flag ;
     }
 
     public synchronized static ZeroPortPolicy getPolicy()
     {
-	return policy ;
+        return policy ;
     }
 
     public int policy_type ()
     {
-	return ORBConstants.ZERO_PORT_POLICY ;
+        return ORBConstants.ZERO_PORT_POLICY ;
     }
 
     public org.omg.CORBA.Policy copy ()
     {
-	return this ;
+        return this ;
     }
 
     public void destroy ()
     {
-	// NO-OP
+        // NO-OP
     }
 }

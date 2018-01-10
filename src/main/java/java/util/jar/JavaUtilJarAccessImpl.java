@@ -1,19 +1,35 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, 2009, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2002, 2011, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.util.jar;
 
 import java.io.IOException;
 import java.net.URL;
+import java.security.CodeSource;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.jar.JarEntry;
-import java.security.CodeSource;
-import java.security.cert.Certificate;
 import sun.misc.JavaUtilJarAccess;
 
 class JavaUtilJarAccessImpl implements JavaUtilJarAccess {
@@ -34,14 +50,14 @@ class JavaUtilJarAccessImpl implements JavaUtilJarAccess {
     }
 
     public Enumeration<JarEntry> entries2(JarFile jar) {
-	return jar.entries2();
+        return jar.entries2();
     }
 
     public void setEagerValidation(JarFile jar, boolean eager) {
-	jar.setEagerValidation(eager);
+        jar.setEagerValidation(eager);
     }
 
     public List getManifestDigests(JarFile jar) {
-	return jar.getManifestDigests();
+        return jar.getManifestDigests();
     }
 }

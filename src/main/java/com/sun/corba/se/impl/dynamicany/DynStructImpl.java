@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2003, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package com.sun.corba.se.impl.dynamicany;
@@ -53,7 +71,7 @@ public class DynStructImpl extends DynAnyComplexImpl implements DynStruct
 
     public org.omg.DynamicAny.NameValuePair[] get_members () {
         if (status == STATUS_DESTROYED) {
-	    throw wrapper.dynAnyDestroyed() ;
+            throw wrapper.dynAnyDestroyed() ;
         }
         checkInitComponents();
         return nameValuePairs;
@@ -61,7 +79,7 @@ public class DynStructImpl extends DynAnyComplexImpl implements DynStruct
 
     public org.omg.DynamicAny.NameDynAnyPair[] get_members_as_dyn_any () {
         if (status == STATUS_DESTROYED) {
-	    throw wrapper.dynAnyDestroyed() ;
+            throw wrapper.dynAnyDestroyed() ;
         }
         checkInitComponents();
         return nameDynAnyPairs;

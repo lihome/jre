@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1999, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 
@@ -21,16 +39,15 @@ import javax.naming.NamingException;
   *
   * @author Rosanna Lee
   * @author Scott Seligman
-  * @version %I% %E%
   * @since 1.3
   */
 public class InvalidSearchControlsException extends NamingException {
     /**
      * Constructs a new instance of InvalidSearchControlsException.
-     * All fields are set to null. 
+     * All fields are set to null.
      */
     public InvalidSearchControlsException() {
-	super();
+        super();
     }
 
     /**
@@ -40,7 +57,7 @@ public class InvalidSearchControlsException extends NamingException {
      * @see java.lang.Throwable#getMessage
      */
     public InvalidSearchControlsException(String msg) {
-	super(msg);
+        super(msg);
     }
 
     /**

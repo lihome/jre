@@ -1,3 +1,31 @@
+/*
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+
+/*
+ * Copyright (c) 2009 by Oracle Corporation. All Rights Reserved.
+ */
+
 package javax.xml.stream.events;
 
 import java.util.Iterator;

@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 1999, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 /*
@@ -164,14 +182,14 @@ class TextJustifier {
                         float d;
                         if (hitLimit) {
                             // factor in sign
-                            d = grow ? gi.growLeftLimit : -gi.shrinkLeftLimit; 
+                            d = grow ? gi.growLeftLimit : -gi.shrinkLeftLimit;
                             if (absorbing) {
                                 // sign factored in already
-                               d += gi.weight * weightedAbsorb; 
+                               d += gi.weight * weightedAbsorb;
                             }
                         } else {
                             // sign factored in already
-                            d = gi.weight * weightedDelta; 
+                            d = gi.weight * weightedDelta;
                         }
 
                         deltas[n] += d;

@@ -1,11 +1,29 @@
 /*
- * %W% %E%
- * 
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1999, 2003, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
-package javax.management; 
+package javax.management;
 
 //RI import
 import javax.management.OperationsException;
@@ -16,8 +34,8 @@ import javax.management.OperationsException;
  *
  * @since 1.5
  */
-public class ServiceNotFoundException extends OperationsException   { 
-    
+public class ServiceNotFoundException extends OperationsException   {
+
     /* Serial version */
     private static final long serialVersionUID = -3990675661956646827L;
 
@@ -25,16 +43,16 @@ public class ServiceNotFoundException extends OperationsException   {
      * Default constructor.
      */
     public ServiceNotFoundException() {
-	super();
+        super();
     }
-    
+
     /**
      * Constructor that allows a specific error message to be specified.
      *
      * @param message the detail message.
      */
     public ServiceNotFoundException(String message) {
-	super(message);
+        super(message);
     }
 
  }

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright 1999-2004 The Apache Software Foundation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -171,15 +175,7 @@ public class XMLErrorResources_cs extends ListResourceBundle
    */
 
   // Error messages...
-
-  /**
-   * Get the lookup table for error messages
-   *
-   * @return The association list.
-   */
-  public Object[][] getContents()
-  {
-    return new Object[][] {
+  private static final Object[][] _contents = new Object[][] {
 
   /** Error message ID that has a null message, but takes in a single object.    */
     {"ER0000" , "{0}" },
@@ -433,6 +429,15 @@ public class XMLErrorResources_cs extends ListResourceBundle
 
 
   };
+
+  /**
+   * Get the lookup table for error messages
+   *
+   * @return The association list.
+   */
+  public Object[][] getContents()
+  {
+    return _contents;
   }
 
 }

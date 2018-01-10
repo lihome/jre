@@ -1,19 +1,33 @@
 /*
  * Copyright (c) 2004, 2013, Oracle and/or its affiliates. All rights reserved.
- * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms. 
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
-/*
- * $Id: SOAPConnectionFactory.java,v 1.5 2005/04/05 21:03:23 mk125090 Exp $
- * $Revision: 1.5 $
- * $Date: 2005/04/05 21:03:23 $
- */
-
 
 package javax.xml.soap;
 
 /**
  * A factory for creating <code>SOAPConnection</code> objects. Implementation of this class
- * is optional. If <code>SOAPConnectionFactory.newInstance()</code> throws an 
+ * is optional. If <code>SOAPConnectionFactory.newInstance()</code> throws an
  * UnsupportedOperationException then the implementation does not support the
  * SAAJ communication infrastructure. Otherwise {@link SOAPConnection} objects
  * can be created by calling <code>createConnection()</code> on the newly
@@ -70,4 +84,3 @@ public abstract class SOAPConnectionFactory {
     public abstract SOAPConnection createConnection()
         throws SOAPException;
 }
-

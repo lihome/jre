@@ -1,3 +1,28 @@
+/*
+ * Copyright (c) 2000, 2005, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+
 // XMLReaderFactory.java - factory for creating a new reader.
 // http://www.saxproject.org
 // Written by David Megginson
@@ -60,8 +85,8 @@ final public class XMLReaderFactory
     private static final String property = "org.xml.sax.driver";
     private static SecuritySupport ss = new SecuritySupport();
 
+    private static String _clsFromJar = null;
     private static boolean _jarread = false;
-
     /**
      * Attempt to create an XMLReader from system defaults.
      * In environments which can support it, the name of the XMLReader
@@ -105,24 +130,24 @@ final public class XMLReaderFactory
      * @see #createXMLReader(java.lang.String)
      */
     public static XMLReader createXMLReader ()
-	throws SAXException
+        throws SAXException
     {
-	String		className = null;
-	ClassLoader	cl = ss.getContextClassLoader();
-	
-	// 1. try the JVM-instance-wide system property
-        try { 
-            className = ss.getSystemProperty(property); 
+        String          className = null;
+        ClassLoader     cl = ss.getContextClassLoader();
+
+        // 1. try the JVM-instance-wide system property
+        try {
+            className = ss.getSystemProperty(property);
         }
         catch (RuntimeException e) { /* continue searching */ }
 
-	// 2. if that fails, try META-INF/services/
+        // 2. if that fails, try META-INF/services/
         if (className == null) {
             if (!_jarread) {
                 _jarread = true;
-                            String      service = "META-INF/services/" + property;
-                            InputStream in;
-                            BufferedReader      reader;
+                String      service = "META-INF/services/" + property;
+                InputStream in;
+                BufferedReader      reader;
 
                 try {
                     if (cl != null) {
@@ -138,40 +163,40 @@ final public class XMLReaderFactory
                         in = ss.getResourceAsStream(cl, service);
                     }
 
-                            if (in != null) {
-                                reader = new BufferedReader (
-                                        new InputStreamReader (in, "UTF8"));
-                        className = reader.readLine ();
-                                in.close ();
-                            }
-                        } catch (Exception e) {
-                        }
+                    if (in != null) {
+                        reader = new BufferedReader (new InputStreamReader (in, "UTF8"));
+                        _clsFromJar = reader.readLine ();
+                        in.close ();
                     }
+                } catch (Exception e) {
+                }
             }
+            className = _clsFromJar;
+        }
 
-	// 3. Distro-specific fallback
-	if (className == null) {
+        // 3. Distro-specific fallback
+        if (className == null) {
 // BEGIN DISTRIBUTION-SPECIFIC
 
-	    // EXAMPLE:
-	    // className = "com.example.sax.XmlReader";
-	    // or a $JAVA_HOME/jre/lib/*properties setting...
+            // EXAMPLE:
+            // className = "com.example.sax.XmlReader";
+            // or a $JAVA_HOME/jre/lib/*properties setting...
             className = "com.sun.org.apache.xerces.internal.parsers.SAXParser";
 
 // END DISTRIBUTION-SPECIFIC
-	}
-	
-	// do we know the XMLReader implementation class yet?
-	if (className != null)
-	    return loadClass (cl, className);
+        }
 
-	// 4. panic -- adapt any SAX1 parser
-	try {
-	    return new ParserAdapter (ParserFactory.makeParser ());
-	} catch (Exception e) {
-	    throw new SAXException ("Can't create default XMLReader; "
-		    + "is system property org.xml.sax.driver set?");
-	}
+        // do we know the XMLReader implementation class yet?
+        if (className != null)
+            return loadClass (cl, className);
+
+        // 4. panic -- adapt any SAX1 parser
+        try {
+            return new ParserAdapter (ParserFactory.makeParser ());
+        } catch (Exception e) {
+            throw new SAXException ("Can't create default XMLReader; "
+                    + "is system property org.xml.sax.driver set?");
+        }
     }
 
 
@@ -191,29 +216,29 @@ final public class XMLReaderFactory
      * @see #createXMLReader()
      */
     public static XMLReader createXMLReader (String className)
-	throws SAXException
+        throws SAXException
     {
-	return loadClass (ss.getContextClassLoader(), className);
+        return loadClass (ss.getContextClassLoader(), className);
     }
 
     private static XMLReader loadClass (ClassLoader loader, String className)
     throws SAXException
     {
-	try {
-	    return (XMLReader) NewInstance.newInstance (loader, className);
-	} catch (ClassNotFoundException e1) {
-	    throw new SAXException("SAX2 driver class " + className +
-				   " not found", e1);
-	} catch (IllegalAccessException e2) {
-	    throw new SAXException("SAX2 driver class " + className +
-				   " found but cannot be loaded", e2);
-	} catch (InstantiationException e3) {
-	    throw new SAXException("SAX2 driver class " + className +
-	   " loaded but cannot be instantiated (no empty public constructor?)",
-				   e3);
-	} catch (ClassCastException e4) {
-	    throw new SAXException("SAX2 driver class " + className +
-				   " does not implement XMLReader", e4);
-	}
+        try {
+            return (XMLReader) NewInstance.newInstance (loader, className);
+        } catch (ClassNotFoundException e1) {
+            throw new SAXException("SAX2 driver class " + className +
+                                   " not found", e1);
+        } catch (IllegalAccessException e2) {
+            throw new SAXException("SAX2 driver class " + className +
+                                   " found but cannot be loaded", e2);
+        } catch (InstantiationException e3) {
+            throw new SAXException("SAX2 driver class " + className +
+           " loaded but cannot be instantiated (no empty public constructor?)",
+                                   e3);
+        } catch (ClassCastException e4) {
+            throw new SAXException("SAX2 driver class " + className +
+                                   " does not implement XMLReader", e4);
+        }
     }
 }

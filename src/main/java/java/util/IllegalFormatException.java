@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2003, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.util;
@@ -13,7 +31,6 @@ package java.util;
  * explicit subtypes of this exception which correspond to specific errors
  * should be instantiated.
  *
- * @version 	%I%, %G%
  * @since 1.5
  */
 public class IllegalFormatException extends IllegalArgumentException {

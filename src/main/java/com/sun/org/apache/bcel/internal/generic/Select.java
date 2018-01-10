@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
 package com.sun.org.apache.bcel.internal.generic;
 
 /* ====================================================================
@@ -56,10 +60,9 @@ package com.sun.org.apache.bcel.internal.generic;
 import java.io.*;
 import com.sun.org.apache.bcel.internal.util.ByteSequence;
 
-/** 
+/**
  * Select - Abstract super class for LOOKUPSWITCH and TABLESWITCH instructions.
  *
- * @version $Id: Select.java,v 1.1.2.1 2005/07/31 23:45:26 jeffsuttor Exp $
  * @author  <A HREF="mailto:markus.dahm@berlin.de">M. Dahm</A>
  * @see LOOKUPSWITCH
  * @see TABLESWITCH
@@ -74,7 +77,7 @@ public abstract class Select extends BranchInstruction
   protected int                 fixed_length; // fixed length defined by subclasses
   protected int                 match_length; // number of cases
   protected int                 padding = 0;  // number of pad bytes for alignment
-  
+
   /**
    * Empty constructor needed for the Class.newInstance() statement in
    * Instruction.readInstruction(). Not to be used otherwise.
@@ -90,12 +93,13 @@ public abstract class Select extends BranchInstruction
    * @param target default instruction target
    */
   Select(short opcode, int[] match, InstructionHandle[] targets,
-	 InstructionHandle target) {
+         InstructionHandle target) {
     super(opcode, target);
 
     this.targets = targets;
-    for(int i=0; i < targets.length; i++)
-      notifyTarget(null, targets[i], this);
+    for(int i=0; i < targets.length; i++) {
+      BranchInstruction.notifyTargetChanged(targets[i], this);
+    }
 
     this.match = match;
 
@@ -118,6 +122,7 @@ public abstract class Select extends BranchInstruction
    * @param max_offset the maximum offset that may be caused by these instructions
    * @return additional offset caused by possible change of this instruction's length
    */
+  @Override
   protected int updatePosition(int offset, int max_offset) {
     position += offset; // Additional offset caused by preceding SWITCHs, GOTOs, etc.
 
@@ -135,6 +140,7 @@ public abstract class Select extends BranchInstruction
    * Dump instruction as byte code to stream out.
    * @param out Output stream
    */
+  @Override
   public void dump(DataOutputStream out) throws IOException {
     out.writeByte(opcode);
 
@@ -148,6 +154,7 @@ public abstract class Select extends BranchInstruction
   /**
    * Read needed data (e.g. index) from file.
    */
+  @Override
   protected void initFromFile(ByteSequence bytes, boolean wide) throws IOException
   {
     padding = (4 - (bytes.getIndex() % 4)) % 4; // Compute number of pad bytes
@@ -155,7 +162,7 @@ public abstract class Select extends BranchInstruction
     for(int i=0; i < padding; i++) {
       bytes.readByte();
     }
-    
+
     // Default branch target common for both cases (TABLESWITCH, LOOKUPSWITCH)
     index = bytes.readInt();
   }
@@ -163,37 +170,41 @@ public abstract class Select extends BranchInstruction
   /**
    * @return mnemonic for instruction
    */
+  @Override
   public String toString(boolean verbose) {
-    StringBuffer buf = new StringBuffer(super.toString(verbose));
+    final StringBuilder buf = new StringBuilder(super.toString(verbose));
 
     if(verbose) {
       for(int i=0; i < match_length; i++) {
-	String s = "null";
-	
-	if(targets[i] != null)
-	  s = targets[i].getInstruction().toString();
-	
-	buf.append("(" + match[i] + ", " + s + " = {" + indices[i] + "})");
+        String s = "null";
+
+        if(targets[i] != null)
+          s = targets[i].getInstruction().toString();
+
+          buf.append("(").append(match[i]).append(", ")
+             .append(s).append(" = {").append(indices[i]).append("})");
       }
     }
     else
       buf.append(" ...");
-    
+
     return buf.toString();
   }
 
   /**
    * Set branch target for `i'th case
    */
-  public void setTarget(int i, InstructionHandle target) {
-    notifyTarget(targets[i], target, this);
+  public final void setTarget(int i, InstructionHandle target) {
+    notifyTargetChanging(targets[i], this);
     targets[i] = target;
+    notifyTargetChanged(targets[i], this);
   }
 
   /**
    * @param old_ih old target
    * @param new_ih new target
    */
+  @Override
   public void updateTarget(InstructionHandle old_ih, InstructionHandle new_ih) {
     boolean targeted = false;
 
@@ -204,11 +215,11 @@ public abstract class Select extends BranchInstruction
 
     for(int i=0; i < targets.length; i++) {
       if(targets[i] == old_ih) {
-	targeted = true;
-	setTarget(i, new_ih);
+        targeted = true;
+        setTarget(i, new_ih);
       }
     }
-    
+
     if(!targeted)
       throw new ClassGenException("Not targeting " + old_ih);
   }
@@ -216,13 +227,14 @@ public abstract class Select extends BranchInstruction
   /**
    * @return true, if ih is target of this instruction
    */
+  @Override
   public boolean containsTarget(InstructionHandle ih) {
     if(target == ih)
       return true;
 
     for(int i=0; i < targets.length; i++)
       if(targets[i] == ih)
-	return true;
+        return true;
 
     return false;
   }
@@ -230,6 +242,7 @@ public abstract class Select extends BranchInstruction
   /**
    * Inform targets that they're not targeted anymore.
    */
+  @Override
   void dispose() {
     super.dispose();
 

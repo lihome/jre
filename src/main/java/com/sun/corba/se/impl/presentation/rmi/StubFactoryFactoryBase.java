@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2004, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package com.sun.corba.se.impl.presentation.rmi;
@@ -19,8 +37,8 @@ public abstract class StubFactoryFactoryBase implements
      *
      * @param fullName fully qualified name remote class
      */
-    public String getStubName(String fullName) 
+    public String getStubName(String fullName)
     {
-	return Utility.stubName( fullName ) ;
+        return Utility.stubName( fullName ) ;
     }
 }

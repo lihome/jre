@@ -1,14 +1,32 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2003, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package com.sun.corba.se.spi.copyobject ;
 
 /** Manager of ObjectCopier implementations used to support javax.rmi.CORBA.Util.copyObject(s).
- * This provides simple methods for registering all supported ObjectCopier factories. 
+ * This provides simple methods for registering all supported ObjectCopier factories.
  * A default copier is also supported, for use in contexts where no specific copier id
  * is available.
  */

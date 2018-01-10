@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2002, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 package com.sun.corba.se.impl.activation;
 
@@ -11,7 +29,6 @@ import org.omg.CORBA.ORB;
 import java.io.PrintStream;
 
 /**
- * @version     %I%, %D%
  * @author      Rohit Garg
  * @since       JDK1.2
  */

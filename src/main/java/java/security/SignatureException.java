@@ -1,17 +1,34 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2003, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.security;
 
 /**
- * This is the generic Signature exception. 
- * 
- * @version %I% %G%
- * @author Benjamin Renaud 
+ * This is the generic Signature exception.
+ *
+ * @author Benjamin Renaud
  */
 
 public class SignatureException extends GeneralSecurityException {
@@ -24,7 +41,7 @@ public class SignatureException extends GeneralSecurityException {
      * exception.
      */
     public SignatureException() {
-	super();
+        super();
     }
 
     /**
@@ -32,10 +49,10 @@ public class SignatureException extends GeneralSecurityException {
      * message.  A detail message is a String that describes this
      * particular exception.
      *
-     * @param msg the detail message.  
+     * @param msg the detail message.
      */
     public SignatureException(String msg) {
-	super(msg);
+        super(msg);
     }
 
     /**

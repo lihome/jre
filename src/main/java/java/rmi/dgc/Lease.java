@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 1998, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 package java.rmi.dgc;
 
@@ -35,8 +53,8 @@ public final class Lease implements java.io.Serializable {
      */
     public Lease(VMID id, long duration)
     {
-	vmid = id;
-	value = duration;
+        vmid = id;
+        value = duration;
     }
 
     /**
@@ -45,7 +63,7 @@ public final class Lease implements java.io.Serializable {
      */
     public VMID getVMID()
     {
-	return vmid;
+        return vmid;
     }
 
     /**
@@ -54,6 +72,6 @@ public final class Lease implements java.io.Serializable {
      */
     public long getValue()
     {
-	return value;
+        return value;
     }
 }

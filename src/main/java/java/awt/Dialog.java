@@ -1,30 +1,45 @@
 /*
- * Copyright (c) 2008, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1995, 2010, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 package java.awt;
 
 import java.awt.peer.DialogPeer;
 import java.awt.event.*;
-import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 import java.io.IOException;
-import javax.accessibility.*;
-import java.util.Vector;
-import java.util.LinkedList;
 import java.util.Iterator;
-import sun.awt.AppContext;
-import sun.awt.AWTAccessor;
-import sun.awt.SunToolkit;
-import sun.awt.PeerEvent;
-import java.lang.ref.WeakReference;
-import sun.security.util.SecurityConstants;
 import java.util.concurrent.atomic.AtomicLong;
 import java.security.AccessController;
-import java.security.AccessControlException;
 import java.security.PrivilegedAction;
-
+import javax.accessibility.*;
+import sun.awt.AppContext;
+import sun.awt.SunToolkit;
+import sun.awt.PeerEvent;
 import sun.awt.util.IdentityArrayList;
+import sun.awt.util.IdentityLinkedList;
+import sun.security.util.SecurityConstants;
+import java.security.AccessControlException;
 
 /**
  * A Dialog is a top-level window with a title and a border
@@ -75,16 +90,15 @@ import sun.awt.util.IdentityArrayList;
  * @see WindowEvent
  * @see Window#addWindowListener
  *
- * @version	%I%, %G%
- * @author	Sami Shaio
- * @author	Arthur van Hoff
+ * @author      Sami Shaio
+ * @author      Arthur van Hoff
  * @since       JDK1.0
  */
 public class Dialog extends Window {
 
     static {
         /* ensure that the necessary native libraries are loaded */
-	Toolkit.loadLibraries();
+        Toolkit.loadLibraries();
         if (!GraphicsEnvironment.isHeadless()) {
             initIDs();
         }
@@ -266,8 +280,8 @@ public class Dialog extends Window {
      */
     String title;
 
-    private transient boolean keepBlocking = false;
     private transient ModalEventFilter modalFilter;
+    private transient volatile SecondaryLoop secondaryLoop;
 
     /*
      * Indicates that this dialog is being hidden. This flag is set to true at
@@ -554,7 +568,7 @@ public class Dialog extends Window {
      * @since 1.6
      */
     public Dialog(Window owner) {
-        this(owner, null, ModalityType.MODELESS);
+        this(owner, "", ModalityType.MODELESS);
     }
 
     /**
@@ -613,7 +627,7 @@ public class Dialog extends Window {
      * @since 1.6
      */
     public Dialog(Window owner, ModalityType modalityType) {
-        this(owner, null, modalityType);
+        this(owner, "", modalityType);
     }
 
     /**
@@ -659,7 +673,7 @@ public class Dialog extends Window {
 
         this.title = title;
         setModalityType(modalityType);
-        SunToolkit.checkAndSetPolicy(this, false);
+        SunToolkit.checkAndSetPolicy(this);
         initialized = true;
     }
 
@@ -711,7 +725,7 @@ public class Dialog extends Window {
 
         this.title = title;
         setModalityType(modalityType);
-        SunToolkit.checkAndSetPolicy(this, false);
+        SunToolkit.checkAndSetPolicy(this);
         initialized = true;
     }
 
@@ -720,9 +734,9 @@ public class Dialog extends Window {
      * name is null.
      */
     String constructComponentName() {
-        synchronized (getClass()) {
-	    return base + nameCounter++;
-	}
+        synchronized (Dialog.class) {
+            return base + nameCounter++;
+        }
     }
 
     /**
@@ -735,16 +749,16 @@ public class Dialog extends Window {
      * @see #removeNotify
      */
     public void addNotify() {
-	synchronized (getTreeLock()) {
-	    if (parent != null && parent.getPeer() == null) {
+        synchronized (getTreeLock()) {
+            if (parent != null && parent.getPeer() == null) {
                 parent.addNotify();
-	    }
+            }
 
-	    if (peer == null) {
-	        peer = getToolkit().createDialog(this);
-	    }
-	    super.addNotify();
-	}
+            if (peer == null) {
+                peer = getToolkit().createDialog(this);
+            }
+            super.addNotify();
+        }
     }
 
     /**
@@ -842,7 +856,9 @@ public class Dialog extends Window {
         if (modalityType == type) {
             return;
         }
+
         checkModalityPermission(type);
+
         modalityType = type;
         modal = (modalityType != ModalityType.MODELESS);
     }
@@ -855,13 +871,13 @@ public class Dialog extends Window {
      * @see       java.awt.Dialog#setTitle
      */
     public String getTitle() {
-	return title;
+        return title;
     }
 
     /**
      * Sets the title of the Dialog.
      * @param title the title displayed in the dialog's border;
-	 * a null value results in an empty title
+         * a null value results in an empty title
      * @see #getTitle
      */
     public void setTitle(String title) {
@@ -883,11 +899,13 @@ public class Dialog extends Window {
     private boolean conditionalShow(Component toFocus, AtomicLong time) {
         boolean retval;
 
+        closeSplashScreen();
+
         synchronized (getTreeLock()) {
             if (peer == null) {
                 addNotify();
             }
-            validate();
+            validateUnconditionally();
             if (visible) {
                 toFront();
                 retval = false;
@@ -904,11 +922,11 @@ public class Dialog extends Window {
                     modalShow();
                 }
 
-                if (toFocus != null && time != null && isFocusable() && 
+                if (toFocus != null && time != null && isFocusable() &&
                     isEnabled() && !isModalBlocked()) {
                     // keep the KeyEvents from being dispatched
                     // until the focus has been transfered
-                    time.set(Toolkit.getEventQueue().getMostRecentKeyEventTime()); 
+                    time.set(Toolkit.getEventQueue().getMostRecentEventTimeEx());
                     KeyboardFocusManager.getCurrentKeyboardFocusManager().
                         enqueueKeyEvents(time.get(), toFocus);
                 }
@@ -917,7 +935,7 @@ public class Dialog extends Window {
                 // does not invoke the super.show(). So wried... :(
                 mixOnShowing();
 
-                peer.show(); // now guaranteed never to block
+                peer.setVisible(true); // now guaranteed never to block
                 if (isModalBlocked()) {
                     modalBlocker.toFront();
                 }
@@ -957,11 +975,11 @@ public class Dialog extends Window {
     /**
      * Shows or hides this {@code Dialog} depending on the value of parameter
      * {@code b}.
-     * @param b if {@code true}, makes the {@code Dialog} visible, 
+     * @param b if {@code true}, makes the {@code Dialog} visible,
      * otherwise hides the {@code Dialog}.
      * If the dialog and/or its owner
-     * are not yet displayable, both are made displayable.  The 
-     * dialog will be validated prior to being made visible.  
+     * are not yet displayable, both are made displayable.  The
+     * dialog will be validated prior to being made visible.
      * If {@code false}, hides the {@code Dialog} and then causes {@code setVisible(true)}
      * to return if it is currently blocked.
      * <p>
@@ -987,23 +1005,17 @@ public class Dialog extends Window {
         super.setVisible(b);
     }
 
-    /**
-    * Stores the app context on which event dispatch thread the dialog
-    * is being shown. Initialized in show(), used in hideAndDisposeHandler()
-    */
-    transient private AppContext showAppContext;
-
    /**
      * Makes the {@code Dialog} visible. If the dialog and/or its owner
-     * are not yet displayable, both are made displayable.  The 
+     * are not yet displayable, both are made displayable.  The
      * dialog will be validated prior to being made visible.
-     * If the dialog is already visible, this will bring the dialog 
+     * If the dialog is already visible, this will bring the dialog
      * to the front.
      * <p>
      * If the dialog is modal and is not already visible, this call
      * will not return until the dialog is hidden by calling hide or
      * dispose. It is permissible to show modal dialogs from the event
-     * dispatching thread because the toolkit will ensure that another 
+     * dispatching thread because the toolkit will ensure that another
      * event pump runs while the one which invoked this method is blocked.
      * @see Component#hide
      * @see Component#isDisplayable
@@ -1015,45 +1027,25 @@ public class Dialog extends Window {
      */
     @Deprecated
     public void show() {
-        if (!initialized) {
-            throw new IllegalStateException("The dialog component " +
-                "has not been initialized properly");
-        }
+        if (!initialized) throw new IllegalStateException(
+            "The dialog component has not been initialized properly");
 
         beforeFirstShow = false;
         if (!isModal()) {
             conditionalShow(null, null);
         } else {
-            // Set this variable before calling conditionalShow(). That
-            // way, if the Dialog is hidden right after being shown, we
-            // won't mistakenly block this thread.
-            keepBlocking = true;
-
-            // Store the app context on which this dialog is being shown.
-            // Event dispatch thread of this app context will be sleeping until
-            // we wake it by any event from hideAndDisposeHandler().
-            showAppContext = AppContext.getAppContext();
+            AppContext showAppContext = AppContext.getAppContext();
 
             AtomicLong time = new AtomicLong();
             Component predictedFocusOwner = null;
             try {
                 predictedFocusOwner = getMostRecentFocusOwner();
                 if (conditionalShow(predictedFocusOwner, time)) {
-                    // We have two mechanisms for blocking: 1. If we're on the
-                    // EventDispatchThread, start a new event pump. 2. If we're
-                    // on any other thread, call wait() on the treelock.
-
                     modalFilter = ModalEventFilter.createFilterForDialog(this);
-
-                    final Runnable pumpEventsForFilter = new Runnable() {
-                        public void run() {
-                            EventDispatchThread dispatchThread =
-                                (EventDispatchThread)Thread.currentThread();
-                            dispatchThread.pumpEventsForFilter(new Conditional() {
-                                public boolean evaluate() {
-                                    return keepBlocking && windowClosingException == null;
-                                }
-                            }, modalFilter);
+                    final Conditional cond = new Conditional() {
+                        @Override
+                        public boolean evaluate() {
+                            return windowClosingException == null;
                         }
                     };
 
@@ -1080,44 +1072,15 @@ public class Dialog extends Window {
 
                     modalityPushed();
                     try {
-                        if (EventQueue.isDispatchThread()) {
-                            /*
-                             * dispose SequencedEvent we are dispatching on current
-                             * AppContext, to prevent us from hang.
-                             *
-                             */
-                            // BugId 4531693 (son@sparc.spb.su)
-                            SequencedEvent currentSequencedEvent = KeyboardFocusManager.
-                                getCurrentKeyboardFocusManager().getCurrentSequencedEvent();
-                            if (currentSequencedEvent != null) {
-                                currentSequencedEvent.dispose();
-                            }
-
-                            /*
-                             * Event processing is done inside doPrivileged block so that
-                             * it wouldn't matter even if user code is on the stack 
-                             * Fix for BugId 6300270
-                             */
-
-                             AccessController.doPrivileged(new PrivilegedAction() {
-                                     public Object run() {
-                                        pumpEventsForFilter.run();
-                                        return null;
-                                     }
-                             });
-                        } else {
-                            synchronized (getTreeLock()) {
-                                Toolkit.getEventQueue().postEvent(new PeerEvent(this,
-                                                                                pumpEventsForFilter,
-                                                                                PeerEvent.PRIORITY_EVENT));
-                                while (keepBlocking && windowClosingException == null) {
-                                    try {
-                                        getTreeLock().wait();
-                                    } catch (InterruptedException e) {
-                                        break;
-                                    }
+                        final EventQueue eventQueue = AccessController.doPrivileged(
+                            new PrivilegedAction<EventQueue>() {
+                                public EventQueue run() {
+                                    return Toolkit.getDefaultToolkit().getSystemEventQueue();
                                 }
-                            }
+                        });
+                        secondaryLoop = eventQueue.createSecondaryLoop(cond, modalFilter, 0);
+                        if (!secondaryLoop.enter()) {
+                            secondaryLoop = null;
                         }
                     } finally {
                         modalityPopped();
@@ -1178,41 +1141,25 @@ public class Dialog extends Window {
             windowClosingException = null;
         }
     }
-    final static class WakingRunnable implements Runnable {
-        public void run() {
-        }
-    }
+
     private void hideAndDisposePreHandler() {
         isInHide = true;
-        if (keepBlocking) {
-            synchronized (getTreeLock()) {
+        synchronized (getTreeLock()) {
+            if (secondaryLoop != null) {
                 modalHide();
-                // dialog can be shown and the disposed before its
+                // dialog can be shown and then disposed before its
                 // modal filter is created
                 if (modalFilter != null) {
                     modalFilter.disable();
                 }
-		modalDialogs.remove(this);
+                modalDialogs.remove(this);
             }
         }
     }
     private void hideAndDisposeHandler() {
-        if (keepBlocking) {
-            synchronized (getTreeLock()) {
-                keepBlocking = false;
-
-                if (showAppContext != null) {
-                    // Wake up event dispatch thread on which the dialog was
-                    // initially shown
-                    SunToolkit.postEvent(showAppContext,
-                                         new PeerEvent(this,
-                                                       new WakingRunnable(),
-                                                       PeerEvent.PRIORITY_EVENT));
-                    showAppContext = null;
-                }
-                EventQueue.invokeLater(new WakingRunnable());
-                getTreeLock().notifyAll();
-            }
+        if (secondaryLoop != null) {
+            secondaryLoop.exit();
+            secondaryLoop = null;
         }
         isInHide = false;
     }
@@ -1272,13 +1219,13 @@ public class Dialog extends Window {
 
     /**
      * Indicates whether this dialog is resizable by the user.
-     * By default, all dialogs are initially resizable. 
+     * By default, all dialogs are initially resizable.
      * @return    <code>true</code> if the user can resize the dialog;
      *            <code>false</code> otherwise.
      * @see       java.awt.Dialog#setResizable
      */
     public boolean isResizable() {
-	return resizable;
+        return resizable;
     }
 
     /**
@@ -1311,14 +1258,31 @@ public class Dialog extends Window {
 
     /**
      * Disables or enables decorations for this dialog.
-     * This method can only be called while the dialog is not displayable.
-     * @param  undecorated <code>true</code> if no dialog decorations are
-     *         to be enabled;
-     *         <code>false</code> if dialog decorations are to be enabled.
-     * @throws <code>IllegalComponentStateException</code> if the dialog
-     *         is displayable.
+     * <p>
+     * This method can only be called while the dialog is not displayable. To
+     * make this dialog decorated, it must be opaque and have the default shape,
+     * otherwise the {@code IllegalComponentStateException} will be thrown.
+     * Refer to {@link Window#setShape}, {@link Window#setOpacity} and {@link
+     * Window#setBackground} for details
+     *
+     * @param  undecorated {@code true} if no dialog decorations are to be
+     *         enabled; {@code false} if dialog decorations are to be enabled
+     *
+     * @throws IllegalComponentStateException if the dialog is displayable
+     * @throws IllegalComponentStateException if {@code undecorated} is
+     *      {@code false}, and this dialog does not have the default shape
+     * @throws IllegalComponentStateException if {@code undecorated} is
+     *      {@code false}, and this dialog opacity is less than {@code 1.0f}
+     * @throws IllegalComponentStateException if {@code undecorated} is
+     *      {@code false}, and the alpha value of this dialog background
+     *      color is less than {@code 1.0f}
+     *
      * @see    #isUndecorated
      * @see    Component#isDisplayable
+     * @see    Window#getShape
+     * @see    Window#getOpacity
+     * @see    Window#getBackground
+     *
      * @since 1.4
      */
     public void setUndecorated(boolean undecorated) {
@@ -1328,13 +1292,15 @@ public class Dialog extends Window {
                 throw new IllegalComponentStateException("The dialog is displayable.");
             }
             if (!undecorated) {
-                //XXX: this needs to be documented in a further release,
-                //or better: we may throw an exception here.
-                if (!AWTAccessor.getWindowAccessor().isOpaque(this)) {
-                    AWTAccessor.getWindowAccessor().setOpaque(this, true);
+                if (getOpacity() < 1.0f) {
+                    throw new IllegalComponentStateException("The dialog is not opaque");
                 }
-                if (AWTAccessor.getWindowAccessor().getShape(this) != null) {
-                    AWTAccessor.getWindowAccessor().setShape(this, null);
+                if (getShape() != null) {
+                    throw new IllegalComponentStateException("The dialog does not have a default shape");
+                }
+                Color bg = getBackground();
+                if ((bg != null) && (bg.getAlpha() < 255)) {
+                    throw new IllegalComponentStateException("The dialog background color is not opaque");
                 }
             }
             this.undecorated = undecorated;
@@ -1350,7 +1316,46 @@ public class Dialog extends Window {
      * @since 1.4
      */
     public boolean isUndecorated() {
-	return undecorated;
+        return undecorated;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setOpacity(float opacity) {
+        synchronized (getTreeLock()) {
+            if ((opacity < 1.0f) && !isUndecorated()) {
+                throw new IllegalComponentStateException("The dialog is decorated");
+            }
+            super.setOpacity(opacity);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setShape(Shape shape) {
+        synchronized (getTreeLock()) {
+            if ((shape != null) && !isUndecorated()) {
+                throw new IllegalComponentStateException("The dialog is decorated");
+            }
+            super.setShape(shape);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setBackground(Color bgColor) {
+        synchronized (getTreeLock()) {
+            if ((bgColor != null) && (bgColor.getAlpha() < 255) && !isUndecorated()) {
+                throw new IllegalComponentStateException("The dialog is decorated");
+            }
+            super.setBackground(bgColor);
+        }
     }
 
     /**
@@ -1431,7 +1436,7 @@ public class Dialog extends Window {
             k++;
         }
 
-	java.util.List<Window> toBlock = new LinkedList<Window>();
+        java.util.List<Window> toBlock = new IdentityLinkedList<Window>();
         // block all windows from scope of blocking except from blockers' hierarchies
         IdentityArrayList<Window> unblockedWindows = Window.getAllUnblockedWindows();
         for (Window w : unblockedWindows) {
@@ -1572,7 +1577,6 @@ public class Dialog extends Window {
         blockedWindows.addAll(toBlock);
     }
 
-
     /*
      * Removes the given top-level window from the list of blocked
      * windows for this dialog and marks it as unblocked. If the
@@ -1606,7 +1610,7 @@ public class Dialog extends Window {
             SecurityManager sm = System.getSecurityManager();
             if (sm != null) {
                 sm.checkPermission(
-                    SecurityConstants.TOOLKIT_MODALITY_PERMISSION
+                    SecurityConstants.AWT.TOOLKIT_MODALITY_PERMISSION
                 );
             }
         }
@@ -1618,7 +1622,7 @@ public class Dialog extends Window {
         GraphicsEnvironment.checkHeadless();
 
         java.io.ObjectInputStream.GetField fields =
-            s.readFields();
+                    s.readFields();
 
         ModalityType localModalityType = (ModalityType)fields.get("modalityType", null);
 
@@ -1642,9 +1646,10 @@ public class Dialog extends Window {
 
         blockedWindows = new IdentityArrayList();
 
-        SunToolkit.checkAndSetPolicy(this, false);
+        SunToolkit.checkAndSetPolicy(this);
 
         initialized = true;
+
     }
 
     /*

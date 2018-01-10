@@ -1,12 +1,16 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright 1999-2002,2004 The Apache Software Foundation.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -35,7 +39,6 @@ import java.io.IOException;
  * {@link IndentPrinter} supports indentation and line wrapping by
  * extending this class.
  *
- * @version $Revision: 1.4 $ $Date: 2007/07/19 04:39:19 $
  * @author <a href="mailto:arkin@intalio.com">Assaf Arkin</a>
  */
 public class Printer
@@ -129,9 +132,9 @@ public class Printer
         // Can only enter DTD state once. Once we're out of DTD
         // state, can no longer re-enter it.
         if ( _dtdWriter == null ) {
-	    flushLine( false );
+            flushLine( false );
 
-			_dtdWriter = new StringWriter();
+                        _dtdWriter = new StringWriter();
             _docWriter = _writer;
             _writer = _dtdWriter;
         }
@@ -148,9 +151,9 @@ public class Printer
     {
         // Only works if we're going out of DTD mode.
         if ( _writer == _dtdWriter ) {
-	    flushLine( false );
+            flushLine( false );
 
-			_writer = _docWriter;
+                        _writer = _docWriter;
             return _dtdWriter.toString();
         } else
             return null;

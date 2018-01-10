@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2002, 2012, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package com.sun.corba.se.spi.protocol;
@@ -17,14 +35,14 @@ import com.sun.corba.se.spi.oa.ObjectAdapterFactory ;
 
 /**
  * This is a registry of all subcontract ID dependent objects.  This includes:
- * LocalClientRequestDispatcherFactory, ClientRequestDispatcher, ServerRequestDispatcher, and 
- * ObjectAdapterFactory. 
+ * LocalClientRequestDispatcherFactory, ClientRequestDispatcher, ServerRequestDispatcher, and
+ * ObjectAdapterFactory.
  */
 public interface RequestDispatcherRegistry {
 
     /** Register a ClientRequestDispatcher for a particular subcontract ID.
      * The subcontract ID appears in the ObjectKey of an object reference, and is used
-     * to control how a remote method invocation is processed by the ORB for a 
+     * to control how a remote method invocation is processed by the ORB for a
      * particular kind of object reference.
      */
     void registerClientRequestDispatcher( ClientRequestDispatcher csc, int scid) ;
@@ -73,6 +91,5 @@ public interface RequestDispatcherRegistry {
 
     /** Return the set of all ObjectAdapterFactory instances that are registered.
      */
-    Set<ObjectAdapterFactory> getObjectAdapterFactories() ;
+    Set<ObjectAdapterFactory> getObjectAdapterFactories();
 }
-

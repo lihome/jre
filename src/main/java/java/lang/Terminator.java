@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1999, 2001, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.lang;
@@ -16,7 +34,6 @@ import sun.misc.SignalHandler;
  * platform-specific support for termination-triggered shutdowns.
  *
  * @author   Mark Reinhold
- * @version  %I%, %E%
  * @since    1.3
  */
 
@@ -29,28 +46,34 @@ class Terminator {
      */
 
     static void setup() {
-	if (handler != null) return;
-	SignalHandler sh = new SignalHandler() {
-	    public void handle(Signal sig) {
-		Shutdown.exit(sig.getNumber() + 0200);
-	    }
-	};
-	handler = sh;
-	try {
+        if (handler != null) return;
+        SignalHandler sh = new SignalHandler() {
+            public void handle(Signal sig) {
+                Shutdown.exit(sig.getNumber() + 0200);
+            }
+        };
+        handler = sh;
+        // When -Xrs is specified the user is responsible for
+        // ensuring that shutdown hooks are run by calling
+        // System.exit()
+        try {
             Signal.handle(new Signal("HUP"), sh);
+        } catch (IllegalArgumentException e) {
+        }
+        try {
             Signal.handle(new Signal("INT"), sh);
+        } catch (IllegalArgumentException e) {
+        }
+        try {
             Signal.handle(new Signal("TERM"), sh);
         } catch (IllegalArgumentException e) {
-            // When -Xrs is specified the user is responsible for
-            // ensuring that shutdown hooks are run by calling
-            // System.exit()
         }
     }
 
     static void teardown() {
-	/* The current sun.misc.Signal class does not support
-	 * the cancellation of handlers
-	 */
+        /* The current sun.misc.Signal class does not support
+         * the cancellation of handlers
+         */
     }
 
 }

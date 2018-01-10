@@ -1,11 +1,25 @@
 /*
- * %Z%file      %M%
- * %Z%author    Sun Microsystems, Inc.
- * %Z%version   %I%
- * %Z%date      %D%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2007, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  *
  */
 
@@ -17,11 +31,9 @@ package com.sun.jmx.snmp.IPAcl;
 import java.lang.StringBuffer;
 import java.net.UnknownHostException;
 
-/** 
- * @version     %I%     %G% 
- * @author      Sun Microsystems, Inc. 
- */ 
 class JDMIpAddress extends Host {
+  private static final long serialVersionUID = 849729919486384484L;
+
   protected StringBuffer address= new StringBuffer();
 
   JDMIpAddress(int id) {
@@ -39,13 +51,13 @@ class JDMIpAddress extends Host {
   public static Node jjtCreate(Parser p, int id) {
       return new JDMIpAddress(p, id);
   }
-  
-  protected String getHname() { 
-	  return address.toString();
+
+  protected String getHname() {
+          return address.toString();
   }
-  
-  protected PrincipalImpl createAssociatedPrincipal() 
-    throws UnknownHostException { 
+
+  protected PrincipalImpl createAssociatedPrincipal()
+    throws UnknownHostException {
       return new PrincipalImpl(address.toString());
   }
 }

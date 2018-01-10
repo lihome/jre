@@ -1,3 +1,31 @@
+/*
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+
+/*
+ * Copyright (c) 2009 by Oracle Corporation. All Rights Reserved.
+ */
+
 package javax.xml.stream;
 import javax.xml.stream.events.*;
 import javax.xml.namespace.NamespaceContext;
@@ -21,6 +49,10 @@ import java.util.Iterator;
 public abstract class XMLEventFactory {
   protected XMLEventFactory(){}
 
+    static final String JAXPFACTORYID = "javax.xml.stream.XMLEventFactory";
+    static final String DEFAULIMPL = "com.sun.xml.internal.stream.events.XMLEventFactoryImpl";
+
+
   /**
    * Create a new instance of the factory
    * @throws FactoryConfigurationError if an instance of this factory cannot be loaded
@@ -28,9 +60,7 @@ public abstract class XMLEventFactory {
   public static XMLEventFactory newInstance()
     throws FactoryConfigurationError
   {
-    return (XMLEventFactory) FactoryFinder.find(
-      "javax.xml.stream.XMLEventFactory",
-      "com.sun.xml.internal.stream.events.XMLEventFactoryImpl");
+    return (XMLEventFactory) FactoryFinder.find(JAXPFACTORYID, DEFAULIMPL, true);
   }
 
   /**
@@ -61,9 +91,7 @@ public abstract class XMLEventFactory {
   public static XMLEventFactory newFactory()
     throws FactoryConfigurationError
   {
-    return (XMLEventFactory) FactoryFinder.find(
-      "javax.xml.stream.XMLEventFactory",
-      "com.sun.xml.internal.stream.events.XMLEventFactoryImpl");
+    return (XMLEventFactory) FactoryFinder.find(JAXPFACTORYID, DEFAULIMPL, true);
   }
 
   /**
@@ -86,7 +114,8 @@ public abstract class XMLEventFactory {
           throws FactoryConfigurationError {
       try {
           //do not fallback if given classloader can't find the class, throw exception
-          return (XMLEventFactory) FactoryFinder.newInstance(factoryId, classLoader, false);
+            return (XMLEventFactory) FactoryFinder.find(factoryId, classLoader,
+                    null, factoryId.equals(JAXPFACTORYID) ? true : false);
       } catch (FactoryFinder.ConfigurationError e) {
           throw new FactoryConfigurationError(e.getException(),
                   e.getMessage());
@@ -113,7 +142,8 @@ public abstract class XMLEventFactory {
           throws FactoryConfigurationError {
       try {
           //do not fallback if given classloader can't find the class, throw exception
-          return (XMLEventFactory) FactoryFinder.newInstance(factoryId, classLoader, false);
+            return (XMLEventFactory) FactoryFinder.find(factoryId, classLoader,
+                    null, factoryId.equals(JAXPFACTORYID) ? true : false);
       } catch (FactoryFinder.ConfigurationError e) {
           throw new FactoryConfigurationError(e.getException(),
                   e.getMessage());

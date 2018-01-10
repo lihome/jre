@@ -1,8 +1,26 @@
 /*
- * %W% %E% 
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2002, 2003, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package com.sun.corba.se.spi.ior.iiop;
@@ -27,8 +45,8 @@ public interface IIOPProfileTemplate extends TaggedProfileTemplate
     */
     public GIOPVersion getGIOPVersion() ;
 
-    /** Return the IIOP address from the IIOP profile.  This is called the 
-    * primary address here since other addresses may be contained in 
+    /** Return the IIOP address from the IIOP profile.  This is called the
+    * primary address here since other addresses may be contained in
     * components.
     */
     public IIOPAddress getPrimaryAddress()  ;

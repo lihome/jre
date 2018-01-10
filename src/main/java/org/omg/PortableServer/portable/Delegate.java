@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1999, 2003, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 package org.omg.PortableServer.portable;
 
@@ -10,11 +28,11 @@ import org.omg.PortableServer.Servant;
 import org.omg.PortableServer.POA;
 
 /**
- * The portability package contains interfaces and classes 
- * that are designed for and intended to be used by ORB 
- * implementor. It exposes the publicly defined APIs that 
+ * The portability package contains interfaces and classes
+ * that are designed for and intended to be used by ORB
+ * implementor. It exposes the publicly defined APIs that
  * are used to connect stubs and skeletons to the ORB.
- * The Delegate interface provides the ORB vendor specific 
+ * The Delegate interface provides the ORB vendor specific
  * implementation of PortableServer::Servant.
  * Conformant to spec CORBA V2.3.1, ptc/00-01-08.pdf
  */
@@ -95,4 +113,3 @@ public interface Delegate {
 
     org.omg.CORBA.Object get_interface_def(Servant self);
 }
-

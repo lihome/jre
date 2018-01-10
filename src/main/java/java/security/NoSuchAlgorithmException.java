@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2003, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.security;
@@ -10,34 +28,33 @@ package java.security;
 /**
  * This exception is thrown when a particular cryptographic algorithm is
  * requested but is not available in the environment.
- * 
- * @version %I%, %E%
- * @author Benjamin Renaud 
+ *
+ * @author Benjamin Renaud
  */
 
 public class NoSuchAlgorithmException extends GeneralSecurityException {
 
     private static final long serialVersionUID = -7443947487218346562L;
 
-    /** 
+    /**
      * Constructs a NoSuchAlgorithmException with no detail
      * message. A detail message is a String that describes this
      * particular exception.
      */
     public NoSuchAlgorithmException() {
-	super();
+        super();
     }
 
     /**
      * Constructs a NoSuchAlgorithmException with the specified
      * detail message. A detail message is a String that describes
      * this particular exception, which may, for example, specify which
-     * algorithm is not available.  
+     * algorithm is not available.
      *
-     * @param msg the detail message.  
+     * @param msg the detail message.
      */
     public NoSuchAlgorithmException(String msg) {
-	super(msg);
+        super(msg);
     }
 
     /**

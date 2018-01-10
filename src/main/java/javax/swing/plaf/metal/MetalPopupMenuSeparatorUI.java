@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1998, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.swing.plaf.metal;
@@ -17,10 +35,9 @@ import javax.swing.plaf.*;
 
 
 /**
- * A Metal L&F implementation of PopupMenuSeparatorUI.  This implementation 
+ * A Metal L&F implementation of PopupMenuSeparatorUI.  This implementation
  * is a "combined" view/controller.
  *
- * @version %I% %G%
  * @author Jeff Shapiro
  */
 
@@ -45,11 +62,7 @@ public class MetalPopupMenuSeparatorUI extends MetalSeparatorUI
     }
 
     public Dimension getPreferredSize( JComponent c )
-    { 
+    {
         return new Dimension( 0, 4 );
     }
 }
-
-
-
-

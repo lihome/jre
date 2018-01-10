@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright 2001-2004 The Apache Software Foundation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,7 +36,7 @@ import com.sun.org.apache.xalan.internal.utils.ObjectFactory;
 import com.sun.org.apache.xalan.internal.utils.SecuritySupport;
 
 /**
- * Base class for sort records containing application specific sort keys 
+ * Base class for sort records containing application specific sort keys
  */
 public abstract class NodeSortRecord {
     public static final int COMPARE_STRING     = 0;
@@ -80,9 +84,9 @@ public abstract class NodeSortRecord {
      * makeNodeSortRecord method in the NodeSortRecordFactory class. Since we
      * cannot pass any parameters to the constructor in that case we just set
      * the default values here and wait for new values through initialize().
-     */ 
+     */
     public NodeSortRecord(int node) {
-	_node = node;
+        _node = node;
     }
 
     public NodeSortRecord() {
@@ -97,18 +101,18 @@ public abstract class NodeSortRecord {
          SortSettings settings)
         throws TransletException
     {
-	_dom = dom;
-	_node = node;
-	_last = last;
+        _dom = dom;
+        _node = node;
+        _last = last;
         _settings = settings;
 
         int levels = settings.getSortOrders().length;
-	_values = new Object[levels];
-  
+        _values = new Object[levels];
+
         String colFactClassname = null;
         try {
             // -- W. Eliot Kimber (eliot@isogen.com)
-            colFactClassname = 
+            colFactClassname =
                 SecuritySupport.getSystemProperty("com.sun.org.apache.xalan.internal.xsltc.COLLATOR_FACTORY");
         }
         catch (SecurityException e) {
@@ -129,7 +133,7 @@ public abstract class NodeSortRecord {
             }
             _collator = _collators[0];
         } else {
-    	    _collators = settings.getCollators();
+            _collators = settings.getCollators();
             _collator = _collators[0];
         }
     }
@@ -138,14 +142,14 @@ public abstract class NodeSortRecord {
      * Returns the node for this sort object
      */
     public final int getNode() {
-	return _node;
+        return _node;
     }
 
     /**
      *
      */
     public final int compareDocOrder(NodeSortRecord other) {
-	return _node - other._node;
+        return _node - other._node;
     }
 
     /**
@@ -154,45 +158,45 @@ public abstract class NodeSortRecord {
      * our sort key vector.
      */
     private final Comparable stringValue(int level) {
-    	// Get value from our array if possible
-    	if (_scanned <= level) {
+        // Get value from our array if possible
+        if (_scanned <= level) {
             AbstractTranslet translet = _settings.getTranslet();
             Locale[] locales = _settings.getLocales();
             String[] caseOrder = _settings.getCaseOrders();
 
-    	    // Get value from DOM if accessed for the first time
-    	    final String str = extractValueFromDOM(_dom, _node, level,
-    						   translet, _last);
-    	    final Comparable key =
+            // Get value from DOM if accessed for the first time
+            final String str = extractValueFromDOM(_dom, _node, level,
+                                                   translet, _last);
+            final Comparable key =
                 StringComparable.getComparator(str, locales[level],
                                                _collators[level],
                                                caseOrder[level]);
-    	    _values[_scanned++] = key;
-    	    return(key);
-    	}
-    	return((Comparable)_values[level]);
+            _values[_scanned++] = key;
+            return(key);
+        }
+        return((Comparable)_values[level]);
   }
-    
+
     private final Double numericValue(int level) {
-	// Get value from our vector if possible
-	if (_scanned <= level) {
+        // Get value from our vector if possible
+        if (_scanned <= level) {
             AbstractTranslet translet = _settings.getTranslet();
 
-	    // Get value from DOM if accessed for the first time
-	    final String str = extractValueFromDOM(_dom, _node, level,
-						   translet, _last);
-	    Double num;
-	    try {
-		num = new Double(str);
-	    }
-	    // Treat number as NaN if it cannot be parsed as a double
-	    catch (NumberFormatException e) {
-		num = new Double(Double.NEGATIVE_INFINITY);
-	    }
-	    _values[_scanned++] = num;
-	    return(num);
-	}
-	return((Double)_values[level]);
+            // Get value from DOM if accessed for the first time
+            final String str = extractValueFromDOM(_dom, _node, level,
+                                                   translet, _last);
+            Double num;
+            try {
+                num = new Double(str);
+            }
+            // Treat number as NaN if it cannot be parsed as a double
+            catch (NumberFormatException e) {
+                num = new Double(Double.NEGATIVE_INFINITY);
+            }
+            _values[_scanned++] = num;
+            return(num);
+        }
+        return((Double)_values[level]);
     }
 
     /**
@@ -203,31 +207,31 @@ public abstract class NodeSortRecord {
      * !!!!MUST OPTIMISE - THIS IS REALLY, REALLY SLOW!!!!
      */
     public int compareTo(NodeSortRecord other) {
-	int cmp, level;
+        int cmp, level;
         int[] sortOrder = _settings.getSortOrders();
         int levels = _settings.getSortOrders().length;
         int[] compareTypes = _settings.getTypes();
 
-	for (level = 0; level < levels; level++) {
-	    // Compare the two nodes either as numeric or text values
-	    if (compareTypes[level] == COMPARE_NUMERIC) {
-		final Double our = numericValue(level);
-		final Double their = other.numericValue(level);
-		cmp = our.compareTo(their);
-	    }
-	    else {
-		final Comparable our = stringValue(level);
-		final Comparable their = other.stringValue(level);
-		cmp = our.compareTo(their);
-	    }
-	    
-	    // Return inverse compare value if inverse sort order
-	    if (cmp != 0) {
-		return sortOrder[level] == COMPARE_DESCENDING ? 0 - cmp : cmp;
-	    }
-	}
-	// Compare based on document order if all sort keys are equal
-	return(_node - other._node);
+        for (level = 0; level < levels; level++) {
+            // Compare the two nodes either as numeric or text values
+            if (compareTypes[level] == COMPARE_NUMERIC) {
+                final Double our = numericValue(level);
+                final Double their = other.numericValue(level);
+                cmp = our.compareTo(their);
+            }
+            else {
+                final Comparable our = stringValue(level);
+                final Comparable their = other.stringValue(level);
+                cmp = our.compareTo(their);
+            }
+
+            // Return inverse compare value if inverse sort order
+            if (cmp != 0) {
+                return sortOrder[level] == COMPARE_DESCENDING ? 0 - cmp : cmp;
+            }
+        }
+        // Compare based on document order if all sort keys are equal
+        return(_node - other._node);
     }
 
     /**
@@ -235,14 +239,14 @@ public abstract class NodeSortRecord {
      * May be overridden by inheriting classes
      */
     public Collator[] getCollator() {
-	return _collators;
+        return _collators;
     }
 
     /**
      * Extract the sort value for a level of this key.
      */
     public abstract String extractValueFromDOM(DOM dom, int current, int level,
-					       AbstractTranslet translet,
-					       int last);
+                                               AbstractTranslet translet,
+                                               int last);
 
 }

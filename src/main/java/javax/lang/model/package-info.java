@@ -1,13 +1,31 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, 2006, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 /**
  * Classes and hierarchies of packages used to model the Java
- * programming language.  
+ * programming language.
  *
  * The members of this package and its subpackages are for use in
  * language modeling and language processing tasks and APIs including,
@@ -22,7 +40,7 @@
  * In Proc. of the ACM Conf. on Object-Oriented Programming, Systems,
  * Languages and Applications, October 2004.
  * </blockquote>
- * 
+ *
  * In particular, the model makes a distinction between static
  * language constructs, like the {@linkplain javax.lang.model.element
  * element} representing {@code java.util.Set}, and the family of
@@ -36,7 +54,6 @@
  * @author Joseph D. Darcy
  * @author Scott Seligman
  * @author Peter von der Ah&eacute;
- * @version %I% %E%
  * @since 1.6
  */
 

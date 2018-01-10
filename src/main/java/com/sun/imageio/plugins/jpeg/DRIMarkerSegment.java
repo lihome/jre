@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2001, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package com.sun.imageio.plugins.jpeg;
@@ -43,9 +61,9 @@ class DRIMarkerSegment extends MarkerSegment {
         return node;
     }
 
-    void updateFromNativeNode(Node node, boolean fromScratch)  
+    void updateFromNativeNode(Node node, boolean fromScratch)
         throws IIOInvalidTreeException {
-        restartInterval = getAttributeValue(node, null, "interval", 
+        restartInterval = getAttributeValue(node, null, "interval",
                                             0, 65535, true);
     }
 
@@ -59,8 +77,7 @@ class DRIMarkerSegment extends MarkerSegment {
 
     void print() {
         printTag("DRI");
-        System.out.println("Interval: " 
+        System.out.println("Interval: "
                            + Integer.toString(restartInterval));
     }
 }
-

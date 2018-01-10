@@ -1,11 +1,25 @@
 /*
- * %Z%file      %M%
- * %Z%author    Sun Microsystems, Inc.
- * %Z%version   %I%
- * %Z%date      %D%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2007, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  *
  */
 
@@ -15,10 +29,6 @@
 package com.sun.jmx.snmp.IPAcl;
 
 
-/** 
- * @version     %I%     %G% 
- * @author      Sun Microsystems, Inc. 
- */ 
 class JDMCommunities extends SimpleNode {
   JDMCommunities(int id) {
     super(id);
@@ -35,9 +45,9 @@ class JDMCommunities extends SimpleNode {
   public static Node jjtCreate(Parser p, int id) {
       return new JDMCommunities(p, id);
   }
-  
+
   public void buildCommunities(AclEntryImpl entry){
-	for (int i =0 ; i < children.length ; i++)
-	  entry.addCommunity(((JDMCommunity)children[i]).getCommunity());
+        for (int i =0 ; i < children.length ; i++)
+          entry.addCommunity(((JDMCommunity)children[i]).getCommunity());
   }
 }

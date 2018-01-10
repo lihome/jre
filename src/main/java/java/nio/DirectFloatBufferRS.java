@@ -1,16 +1,37 @@
 /*
  * Copyright (c) 2000, 2011, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 // -- This file was mechanically generated: Do not edit! -- //
 
 package java.nio;
 
+import java.io.FileDescriptor;
 import sun.misc.Cleaner;
 import sun.misc.Unsafe;
+import sun.misc.VM;
 import sun.nio.ch.DirectBuffer;
-import sun.nio.ch.FileChannelImpl;
 
 
 class DirectFloatBufferRS
@@ -155,11 +176,20 @@ class DirectFloatBufferRS
 
 
 
+
+
+
+
+
+
+
+
+
     // For duplicates and slices
     //
-    DirectFloatBufferRS(DirectBuffer db,	        // package-private
-			       int mark, int pos, int lim, int cap,
-			       int off)
+    DirectFloatBufferRS(DirectBuffer db,         // package-private
+                               int mark, int pos, int lim, int cap,
+                               int off)
     {
 
 
@@ -169,27 +199,27 @@ class DirectFloatBufferRS
 
 
 
-	super(db, mark, pos, lim, cap, off);
+        super(db, mark, pos, lim, cap, off);
 
     }
 
     public FloatBuffer slice() {
-	int pos = this.position();
-	int lim = this.limit();
-	assert (pos <= lim);
-	int rem = (pos <= lim ? lim - pos : 0);
-	int off = (pos << 2);
+        int pos = this.position();
+        int lim = this.limit();
+        assert (pos <= lim);
+        int rem = (pos <= lim ? lim - pos : 0);
+        int off = (pos << 2);
         assert (off >= 0);
-	return new DirectFloatBufferRS(this, -1, 0, rem, rem, off);
+        return new DirectFloatBufferRS(this, -1, 0, rem, rem, off);
     }
 
     public FloatBuffer duplicate() {
-	return new DirectFloatBufferRS(this,
-					      this.markValue(),
-					      this.position(),
-					      this.limit(),
-					      this.capacity(),
-					      0);
+        return new DirectFloatBufferRS(this,
+                                              this.markValue(),
+                                              this.position(),
+                                              this.limit(),
+                                              this.capacity(),
+                                              0);
     }
 
     public FloatBuffer asReadOnlyBuffer() {
@@ -201,7 +231,7 @@ class DirectFloatBufferRS
 
 
 
-	return duplicate();
+        return duplicate();
 
     }
 
@@ -261,7 +291,7 @@ class DirectFloatBufferRS
 
 
 
-	throw new ReadOnlyBufferException();
+        throw new ReadOnlyBufferException();
 
     }
 
@@ -270,7 +300,7 @@ class DirectFloatBufferRS
 
 
 
-	throw new ReadOnlyBufferException();
+        throw new ReadOnlyBufferException();
 
     }
 
@@ -311,7 +341,7 @@ class DirectFloatBufferRS
 
 
 
-	throw new ReadOnlyBufferException();
+        throw new ReadOnlyBufferException();
 
     }
 
@@ -340,10 +370,10 @@ class DirectFloatBufferRS
 
 
 
-	throw new ReadOnlyBufferException();
+        throw new ReadOnlyBufferException();
 
     }
-    
+
     public FloatBuffer compact() {
 
 
@@ -356,19 +386,19 @@ class DirectFloatBufferRS
 
 
 
-	throw new ReadOnlyBufferException();
+
+        throw new ReadOnlyBufferException();
 
     }
 
     public boolean isDirect() {
-	return true;
+        return true;
     }
 
     public boolean isReadOnly() {
-	return true;
+        return true;
     }
 
-
 
 
 
@@ -410,14 +440,15 @@ class DirectFloatBufferRS
 
 
 
-
+
+
 
 
 
     public ByteOrder order() {
 
-	return ((ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN)
-		? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
+        return ((ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN)
+                ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
 
 
 

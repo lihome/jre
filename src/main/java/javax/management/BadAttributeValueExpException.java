@@ -1,11 +1,32 @@
 /*
- * %W% %E%
- * 
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1999, 2003, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.management;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
 
 
 /**
@@ -16,7 +37,7 @@ package javax.management;
  *
  * @since 1.5
  */
-public class BadAttributeValueExpException extends Exception   { 
+public class BadAttributeValueExpException extends Exception   {
 
 
     /* Serial version */
@@ -32,16 +53,37 @@ public class BadAttributeValueExpException extends Exception   {
      *
      * @param val the inappropriate value.
      */
-    public BadAttributeValueExpException (Object val) { 
-	this.val = val;
-    } 
-   
- 
+    public BadAttributeValueExpException (Object val) {
+        this.val = val == null ? null : val.toString();
+    }
+
+
     /**
      * Returns the string representing the object.
      */
-    public String toString()  { 
-	return "BadAttributeValueException: " + val;
-    } 
+    public String toString()  {
+        return "BadAttributeValueException: " + val;
+    }
 
+    private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+        ObjectInputStream.GetField gf = ois.readFields();
+        Object valObj = gf.get("val", null);
+
+        if (valObj == null) {
+            val = null;
+        } else if (valObj instanceof String) {
+            val= valObj;
+        } else if (System.getSecurityManager() == null
+                || valObj instanceof Long
+                || valObj instanceof Integer
+                || valObj instanceof Float
+                || valObj instanceof Double
+                || valObj instanceof Byte
+                || valObj instanceof Short
+                || valObj instanceof Boolean) {
+            val = valObj.toString();
+        } else { // the serialized object is from a version without JDK-8019292 fix
+            val = System.identityHashCode(valObj) + "@" + valObj.getClass().getName();
+        }
+    }
  }

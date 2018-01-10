@@ -1,16 +1,34 @@
 /*
- * %W% %E%
- * 
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2003, 2007, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.management.remote;
 
+import java.io.IOException;
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
-
-import javax.management.Notification;
-import javax.management.ObjectName;
 
 /**
  * <p>Result of a query for buffered notifications.  Notifications in
@@ -37,7 +55,6 @@ import javax.management.ObjectName;
  * notifications between the two might have been lost.</p>
  *
  * @since 1.5
- * @since.unbundled 1.0
  */
 public class NotificationResult implements Serializable {
 
@@ -60,22 +77,12 @@ public class NotificationResult implements Serializable {
      * <code>nextSequenceNumber</code> is negative.
      */
     public NotificationResult(long earliestSequenceNumber,
-			      long nextSequenceNumber,
-			      TargetedNotification[] targetedNotifications) {
-	if (targetedNotifications == null) {
-	    final String msg = "Notifications null";
-	    throw new IllegalArgumentException(msg);
-	}
-
-	if (earliestSequenceNumber < 0 || nextSequenceNumber < 0)
-	    throw new IllegalArgumentException("Bad sequence numbers");
-	/* We used to check nextSequenceNumber >= earliestSequenceNumber
-	   here.  But in fact the opposite can legitimately be true if
-	   notifications have been lost.  */
-
-	this.earliestSequenceNumber = earliestSequenceNumber;
-	this.nextSequenceNumber = nextSequenceNumber;
-	this.targetedNotifications = targetedNotifications;
+                              long nextSequenceNumber,
+                              TargetedNotification[] targetedNotifications) {
+        validate(targetedNotifications, earliestSequenceNumber, nextSequenceNumber);
+        this.earliestSequenceNumber = earliestSequenceNumber;
+        this.nextSequenceNumber = nextSequenceNumber;
+        this.targetedNotifications = (targetedNotifications.length == 0 ? targetedNotifications : targetedNotifications.clone());
     }
 
     /**
@@ -86,7 +93,7 @@ public class NotificationResult implements Serializable {
      * in the buffer.
      */
     public long getEarliestSequenceNumber() {
-	return earliestSequenceNumber;
+        return earliestSequenceNumber;
     }
 
     /**
@@ -97,7 +104,7 @@ public class NotificationResult implements Serializable {
      * for querying.
      */
     public long getNextSequenceNumber() {
-	return nextSequenceNumber;
+        return nextSequenceNumber;
     }
 
     /**
@@ -108,7 +115,7 @@ public class NotificationResult implements Serializable {
      * listeners they correspond to.  This array can be empty.
      */
     public TargetedNotification[] getTargetedNotifications() {
-	return targetedNotifications;
+        return targetedNotifications.length == 0 ? targetedNotifications : targetedNotifications.clone();
     }
 
     /**
@@ -119,12 +126,45 @@ public class NotificationResult implements Serializable {
      * @return a string representation of the object.
      */
     public String toString() {
-	return "NotificationResult: earliest=" + getEarliestSequenceNumber() +
-	    "; next=" + getNextSequenceNumber() + "; nnotifs=" +
-	    getTargetedNotifications().length;
+        return "NotificationResult: earliest=" + getEarliestSequenceNumber() +
+            "; next=" + getNextSequenceNumber() + "; nnotifs=" +
+            getTargetedNotifications().length;
     }
 
-    private final long earliestSequenceNumber;
-    private final long nextSequenceNumber;
-    private final TargetedNotification[] targetedNotifications;
+    private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+        ois.defaultReadObject();
+        try {
+            validate(
+                this.targetedNotifications,
+                this.earliestSequenceNumber,
+                this.nextSequenceNumber
+            );
+
+            this.targetedNotifications = this.targetedNotifications.length == 0 ?
+                                            this.targetedNotifications :
+                                            this.targetedNotifications.clone();
+        } catch (IllegalArgumentException e) {
+            throw new InvalidObjectException(e.getMessage());
+        }
+    }
+
+    private long earliestSequenceNumber;
+    private long nextSequenceNumber;
+    private TargetedNotification[] targetedNotifications;
+
+    private static void validate(TargetedNotification[] targetedNotifications,
+                                 long earliestSequenceNumber,
+                                 long nextSequenceNumber)
+        throws IllegalArgumentException {
+        if (targetedNotifications == null) {
+            final String msg = "Notifications null";
+            throw new IllegalArgumentException(msg);
+        }
+
+        if (earliestSequenceNumber < 0 || nextSequenceNumber < 0)
+            throw new IllegalArgumentException("Bad sequence numbers");
+        /* We used to check nextSequenceNumber >= earliestSequenceNumber
+           here.  But in fact the opposite can legitimately be true if
+           notifications have been lost.  */
+    }
 }

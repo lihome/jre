@@ -1,7 +1,6 @@
 /*
- * %W% %E%
  *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 
@@ -18,7 +17,7 @@
 package com.sun.image.codec.jpeg;
 
 /**
- * Signals that an Image Format exception of some sort has occurred. 
+ * Signals that an Image Format exception of some sort has occurred.
  * <p>
  * Note that the classes in the com.sun.image.codec.jpeg package are not
  * part of the core Java APIs.  They are a part of Sun's JDK and JRE
@@ -36,19 +35,19 @@ package com.sun.image.codec.jpeg;
 public
 class ImageFormatException extends RuntimeException {
     /**
-     * Constructs an <code>ImageFormatException</code> with no detail message. 
+     * Constructs an <code>ImageFormatException</code> with no detail message.
      */
     public ImageFormatException() {
-	super();
+        super();
     }
 
     /**
      * Constructs an <code>ImageFormatException</code> with the specified
-     * detailed message. 
+     * detailed message.
      *
      * @param   s   the message.
      */
     public ImageFormatException(String s) {
-	super(s);
+        super(s);
     }
 }

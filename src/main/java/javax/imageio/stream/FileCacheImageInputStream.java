@@ -1,17 +1,35 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2007, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.imageio.stream;
 
-import java.io.DataInput;
 import java.io.File;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.file.Files;
 import com.sun.imageio.stream.StreamCloser;
 import com.sun.imageio.stream.StreamFinalizer;
 import sun.java2d.Disposer;
@@ -22,7 +40,6 @@ import sun.java2d.DisposerRecord;
  * input from a regular <code>InputStream</code>.  A file is used to
  * cache previously read data.
  *
- * @version 0.5
  */
 public class FileCacheImageInputStream extends ImageInputStreamImpl {
 
@@ -62,7 +79,7 @@ public class FileCacheImageInputStream extends ImageInputStreamImpl {
      * <code>File.createTempFile</code> for details).
      *
      * @param stream an <code>InputStream</code> to read from.
-     * @param cacheDir a <code>File</code> indicating where the 
+     * @param cacheDir a <code>File</code> indicating where the
      * cache file should be created, or <code>null</code> to use the
      * system directory.
      *
@@ -81,8 +98,11 @@ public class FileCacheImageInputStream extends ImageInputStreamImpl {
             throw new IllegalArgumentException("Not a directory!");
         }
         this.stream = stream;
-        this.cacheFile =
-            sun.misc.IOUtils.createTempFile("imageio", ".tmp", cacheDir);
+        if (cacheDir == null)
+            this.cacheFile = Files.createTempFile("imageio", ".tmp").toFile();
+        else
+            this.cacheFile = Files.createTempFile(cacheDir.toPath(), "imageio", ".tmp")
+                                  .toFile();
         this.cache = new RandomAccessFile(cacheFile, "rw");
 
         this.closeAction = StreamCloser.createCloseAction(this);

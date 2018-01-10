@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1995, 2012, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.io;
@@ -20,9 +38,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Applications should not create their own file descriptors.
  *
  * @author  Pavani Diwanji
- * @version %I%, %G%
- * @see	    java.io.FileInputStream
- * @see	    java.io.FileOutputStream
+ * @see     java.io.FileInputStream
+ * @see     java.io.FileOutputStream
  * @since   JDK1.0
  */
 public final class FileDescriptor {
@@ -41,12 +58,12 @@ public final class FileDescriptor {
      * object.
      */
     public /**/ FileDescriptor() {
-	fd = -1;
+        fd = -1;
         useCount = new AtomicInteger();
     }
 
     private /* */ FileDescriptor(int fd) {
-	this.fd = fd;
+        this.fd = fd;
         useCount = new AtomicInteger();
     }
 
@@ -84,7 +101,7 @@ public final class FileDescriptor {
      *          <code>false</code> otherwise.
      */
     public boolean valid() {
-	return fd != -1;
+        return fd != -1;
     }
 
     /**
@@ -110,9 +127,9 @@ public final class FileDescriptor {
      * OutputStream.flush) before that data will be affected by sync.
      *
      * @exception SyncFailedException
-     *	      Thrown when the buffers cannot be flushed,
-     *	      or because the system cannot guarantee that all the
-     *	      buffers have been synchronized with physical media.
+     *        Thrown when the buffers cannot be flushed,
+     *        or because the system cannot guarantee that all the
+     *        buffers have been synchronized with physical media.
      * @since     JDK1.1
      */
     public native void sync() throws SyncFailedException;
@@ -121,7 +138,7 @@ public final class FileDescriptor {
     private static native void initIDs();
 
     static {
-	initIDs();
+        initIDs();
     }
 
     // Set up JavaIOFileDescriptorAccess in SharedSecrets
@@ -156,5 +173,4 @@ public final class FileDescriptor {
     int decrementAndGetUseCount() {
         return useCount.decrementAndGet();
     }
-
 }

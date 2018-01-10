@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2002, 2013, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package com.sun.corba.se.impl.encoding;
@@ -46,6 +64,8 @@ import com.sun.corba.se.impl.encoding.CDRInputStream;
 import com.sun.corba.se.impl.encoding.CDROutputStream;
 import com.sun.corba.se.impl.encoding.MarshalInputStream;
 
+import sun.corba.EncapsInputStreamFactory;
+
 public class TypeCodeInputStream extends EncapsInputStream implements TypeCodeReader
 {
     private Map typeMap = null;
@@ -56,8 +76,8 @@ public class TypeCodeInputStream extends EncapsInputStream implements TypeCodeRe
         super(orb, data, size);
     }
 
-    public TypeCodeInputStream(org.omg.CORBA.ORB orb, 
-                               byte[] data, 
+    public TypeCodeInputStream(org.omg.CORBA.ORB orb,
+                               byte[] data,
                                int size,
                                boolean littleEndian,
                                GIOPVersion version) {
@@ -83,7 +103,7 @@ public class TypeCodeInputStream extends EncapsInputStream implements TypeCodeRe
 
     public TypeCodeImpl getTypeCodeAtPosition(int position) {
         if (typeMap == null)
-	    return null;
+            return null;
         //if (TypeCodeImpl.debug) {
             //System.out.println("Getting tc " + (TypeCode)typeMap.get(new Integer(position)) +
                                //" at position " + position);
@@ -128,30 +148,32 @@ public class TypeCodeInputStream extends EncapsInputStream implements TypeCodeRe
     }
 
     public static TypeCodeInputStream readEncapsulation(InputStream is, org.omg.CORBA.ORB _orb) {
-	// _REVISIT_ Would be nice if we didn't have to copy the buffer!
-	TypeCodeInputStream encap;
+        // _REVISIT_ Would be nice if we didn't have to copy the buffer!
+        TypeCodeInputStream encap;
 
         int encapLength = is.read_long();
 
         // read off part of the buffer corresponding to the encapsulation
-	byte[] encapBuffer = new byte[encapLength];
-	is.read_octet_array(encapBuffer, 0, encapBuffer.length);
+        byte[] encapBuffer = new byte[encapLength];
+        is.read_octet_array(encapBuffer, 0, encapBuffer.length);
 
-	// create an encapsulation using the marshal buffer
+        // create an encapsulation using the marshal buffer
         if (is instanceof CDRInputStream) {
-            encap = new TypeCodeInputStream((ORB)_orb, encapBuffer, encapBuffer.length,
-                                            ((CDRInputStream)is).isLittleEndian(),
-                                            ((CDRInputStream)is).getGIOPVersion());
+            encap = EncapsInputStreamFactory.newTypeCodeInputStream((ORB) _orb,
+                    encapBuffer, encapBuffer.length,
+                    ((CDRInputStream) is).isLittleEndian(),
+                    ((CDRInputStream) is).getGIOPVersion());
         } else {
-            encap = new TypeCodeInputStream((ORB)_orb, encapBuffer, encapBuffer.length);
+            encap = EncapsInputStreamFactory.newTypeCodeInputStream((ORB) _orb,
+                    encapBuffer, encapBuffer.length);
         }
-	encap.setEnclosingInputStream(is);
+        encap.setEnclosingInputStream(is);
         encap.makeEncapsulation();
         //if (TypeCodeImpl.debug) {
             //System.out.println("Created TypeCodeInputStream " + encap + " with parent " + is);
             //encap.printBuffer();
         //}
-	return encap;
+        return encap;
     }
 
     protected void makeEncapsulation() {

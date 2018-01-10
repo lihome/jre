@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1998, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package com.sun.java.swing.plaf.motif;
@@ -19,7 +37,6 @@ import javax.swing.plaf.*;
  * A Motif L&F implementation of PopupMenuSeparatorUI.  This implementation
  * is a "combined" view/controller.
  *
- * @version %I% %G%
  * @author Jeff Shapiro
  */
 
@@ -34,11 +51,11 @@ public class MotifPopupMenuSeparatorUI extends MotifSeparatorUI
     {
         Dimension s = c.getSize();
 
-	g.setColor( c.getForeground() );
-	g.drawLine( 0, 0, s.width, 0 );
+        g.setColor( c.getForeground() );
+        g.drawLine( 0, 0, s.width, 0 );
 
-	g.setColor( c.getBackground() );
-	g.drawLine( 0, 1, s.width, 1 );
+        g.setColor( c.getBackground() );
+        g.drawLine( 0, 1, s.width, 1 );
     }
 
     public Dimension getPreferredSize( JComponent c )

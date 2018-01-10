@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1995, 1999, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.net;
@@ -14,7 +32,6 @@ package java.net;
  * implementations.
  *
  * @author  Arthur van Hoff
- * @version %I%, %G%
  * @see     java.net.Socket
  * @see     java.net.ServerSocket
  * @since   JDK1.0

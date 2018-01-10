@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2003, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.security;
@@ -11,8 +29,7 @@ package java.security;
  * This exception is thrown when a particular security provider is
  * requested but is not available in the environment.
  *
- * @version %I% %E%
- * @author Benjamin Renaud 
+ * @author Benjamin Renaud
  */
 
 public class NoSuchProviderException extends GeneralSecurityException {
@@ -25,17 +42,17 @@ public class NoSuchProviderException extends GeneralSecurityException {
      * exception.
      */
     public NoSuchProviderException() {
-	super();
+        super();
     }
 
     /**
      * Constructs a NoSuchProviderException with the specified detail
      * message. A detail message is a String that describes this
-     * particular exception.  
+     * particular exception.
      *
-     * @param msg the detail message.  
+     * @param msg the detail message.
      */
     public NoSuchProviderException(String msg) {
-	super(msg);
+        super(msg);
     }
 }

@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- * 
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.management.relation;
@@ -10,6 +28,7 @@ package javax.management.relation;
 import javax.management.Notification;
 import javax.management.ObjectName;
 
+import java.io.InvalidObjectException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -19,10 +38,14 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.sun.jmx.mbeanserver.GetPropertyAction;
+import static com.sun.jmx.mbeanserver.Util.cast;
 
 /**
  * A notification of a change in the Relation Service.
@@ -32,9 +55,10 @@ import com.sun.jmx.mbeanserver.GetPropertyAction;
  * the Relation Service.
  *
  * <p>The <b>serialVersionUID</b> of this class is <code>-6871117877523310399L</code>.
- * 
+ *
  * @since 1.5
  */
+@SuppressWarnings("serial")  // serialVersionUID not constant
 public class RelationNotification extends Notification {
 
     // Serialization compatibility stuff:
@@ -43,34 +67,34 @@ public class RelationNotification extends Notification {
     //  - "1.0" for JMX 1.0
     //  - any other value for JMX 1.1 and higher
     //
-    // Serial version for old serial form 
+    // Serial version for old serial form
     private static final long oldSerialVersionUID = -2126464566505527147L;
     //
-    // Serial version for new serial form 
+    // Serial version for new serial form
     private static final long newSerialVersionUID = -6871117877523310399L;
     //
     // Serializable fields in old serial form
-    private static final ObjectStreamField[] oldSerialPersistentFields = 
+    private static final ObjectStreamField[] oldSerialPersistentFields =
     {
-	new ObjectStreamField("myNewRoleValue", ArrayList.class),
-	new ObjectStreamField("myOldRoleValue", ArrayList.class),
-	new ObjectStreamField("myRelId", String.class),
-	new ObjectStreamField("myRelObjName", ObjectName.class),
-	new ObjectStreamField("myRelTypeName", String.class),
-	new ObjectStreamField("myRoleName", String.class),
-	new ObjectStreamField("myUnregMBeanList", ArrayList.class)
+        new ObjectStreamField("myNewRoleValue", ArrayList.class),
+        new ObjectStreamField("myOldRoleValue", ArrayList.class),
+        new ObjectStreamField("myRelId", String.class),
+        new ObjectStreamField("myRelObjName", ObjectName.class),
+        new ObjectStreamField("myRelTypeName", String.class),
+        new ObjectStreamField("myRoleName", String.class),
+        new ObjectStreamField("myUnregMBeanList", ArrayList.class)
     };
     //
     // Serializable fields in new serial form
-    private static final ObjectStreamField[] newSerialPersistentFields = 
+    private static final ObjectStreamField[] newSerialPersistentFields =
     {
-	new ObjectStreamField("newRoleValue", List.class),
-	new ObjectStreamField("oldRoleValue", List.class),
-	new ObjectStreamField("relationId", String.class),
-	new ObjectStreamField("relationObjName", ObjectName.class),
-	new ObjectStreamField("relationTypeName", String.class),
-	new ObjectStreamField("roleName", String.class),
-	new ObjectStreamField("unregisterMBeanList", List.class)
+        new ObjectStreamField("newRoleValue", List.class),
+        new ObjectStreamField("oldRoleValue", List.class),
+        new ObjectStreamField("relationId", String.class),
+        new ObjectStreamField("relationObjName", ObjectName.class),
+        new ObjectStreamField("relationTypeName", String.class),
+        new ObjectStreamField("roleName", String.class),
+        new ObjectStreamField("unregisterMBeanList", List.class)
     };
     //
     // Actual serial version and serial form
@@ -93,22 +117,22 @@ public class RelationNotification extends Notification {
      * ArrayList} of {@link ObjectName}s) (only for role update)
      */
     private static final ObjectStreamField[] serialPersistentFields;
-    private static boolean compat = false;  
+    private static boolean compat = false;
     static {
-	try {
-	    GetPropertyAction act = new GetPropertyAction("jmx.serial.form");
-	    String form = AccessController.doPrivileged(act);
-	    compat = (form != null && form.equals("1.0"));
-	} catch (Exception e) {
-	    // OK : Too bad, no compat with 1.0
-	}
-	if (compat) {
-	    serialPersistentFields = oldSerialPersistentFields;
-	    serialVersionUID = oldSerialVersionUID;
-	} else {
-	    serialPersistentFields = newSerialPersistentFields;
-	    serialVersionUID = newSerialVersionUID;
-	}
+        try {
+            GetPropertyAction act = new GetPropertyAction("jmx.serial.form");
+            String form = AccessController.doPrivileged(act);
+            compat = (form != null && form.equals("1.0"));
+        } catch (Exception e) {
+            // OK : Too bad, no compat with 1.0
+        }
+        if (compat) {
+            serialPersistentFields = oldSerialPersistentFields;
+            serialVersionUID = oldSerialVersionUID;
+        } else {
+            serialPersistentFields = newSerialPersistentFields;
+            serialVersionUID = newSerialVersionUID;
+        }
     }
     //
     // END Serialization compatibility stuff
@@ -173,7 +197,7 @@ public class RelationNotification extends Notification {
      */
     private String roleName = null;
 
-    /** 
+    /**
      * @serial Old role value ({@link ArrayList} of {@link ObjectName}s) (only for role update)
      */
     private List<ObjectName> oldRoleValue = null;
@@ -224,33 +248,26 @@ public class RelationNotification extends Notification {
      * <P>- no relation type name
      */
     public RelationNotification(String notifType,
-				Object sourceObj,
-				long sequence,
-				long timeStamp,
-				String message,
-				String id,
-				String typeName,
-				ObjectName objectName,
-				List<ObjectName> unregMBeanList)
-	throws IllegalArgumentException {
+                                Object sourceObj,
+                                long sequence,
+                                long timeStamp,
+                                String message,
+                                String id,
+                                String typeName,
+                                ObjectName objectName,
+                                List<ObjectName> unregMBeanList)
+        throws IllegalArgumentException {
 
-	super(notifType, sourceObj, sequence, timeStamp, message);
+        super(notifType, sourceObj, sequence, timeStamp, message);
 
-	// Can throw IllegalArgumentException
-	initMembers(1,
-		    notifType,
-		    sourceObj,
-		    sequence,
-		    timeStamp,
-		    message,
-		    id,
-		    typeName,
-		    objectName,
-		    unregMBeanList,
-		    null,
-		    null,
-		    null);
-	return;
+        if (!isValidBasicStrict(notifType,sourceObj,id,typeName) || !isValidCreate(notifType)) {
+            throw new IllegalArgumentException("Invalid parameter.");
+        }
+
+        relationId = id;
+        relationTypeName = typeName;
+        relationObjName = safeGetObjectName(objectName);
+        unregisterMBeanList = safeGetObjectNameList(unregMBeanList);
     }
 
     /**
@@ -278,36 +295,32 @@ public class RelationNotification extends Notification {
      * @exception IllegalArgumentException  if null parameter
      */
     public RelationNotification(String notifType,
-				Object sourceObj,
-				long sequence,
-				long timeStamp,
-				String message,
-				String id,
-				String typeName,
-				ObjectName objectName,
-				String name,
-				List<ObjectName> newValue,
-				List<ObjectName> oldValue
-				)
-	    throws IllegalArgumentException {
+                                Object sourceObj,
+                                long sequence,
+                                long timeStamp,
+                                String message,
+                                String id,
+                                String typeName,
+                                ObjectName objectName,
+                                String name,
+                                List<ObjectName> newValue,
+                                List<ObjectName> oldValue
+                                )
+            throws IllegalArgumentException {
 
-	super(notifType, sourceObj, sequence, timeStamp, message);
+        super(notifType, sourceObj, sequence, timeStamp, message);
 
-	// Can throw IllegalArgumentException
-	initMembers(2,
-		    notifType,
-		    sourceObj,
-		    sequence,
-		    timeStamp,
-		    message,
-		    id,
-		    typeName,
-		    objectName,
-		    null,
-		    name,
-		    newValue,
-		    oldValue);
-	return;
+        if (!isValidBasicStrict(notifType,sourceObj,id,typeName) || !isValidUpdate(notifType,name,newValue,oldValue)) {
+            throw new IllegalArgumentException("Invalid parameter.");
+        }
+
+        relationId = id;
+        relationTypeName = typeName;
+        relationObjName = safeGetObjectName(objectName);
+
+        roleName = name;
+        oldRoleValue = safeGetObjectNameList(oldValue);
+        newRoleValue = safeGetObjectNameList(newValue);
     }
 
     //
@@ -320,7 +333,7 @@ public class RelationNotification extends Notification {
      * @return the relation id.
      */
     public String getRelationId() {
-	return relationId;
+        return relationId;
     }
 
     /**
@@ -329,7 +342,7 @@ public class RelationNotification extends Notification {
      * @return the relation type name.
      */
     public String getRelationTypeName() {
-	return relationTypeName;
+        return relationTypeName;
     }
 
     /**
@@ -339,7 +352,7 @@ public class RelationNotification extends Notification {
      * @return the ObjectName if the relation is an MBean, otherwise null.
      */
     public ObjectName getObjectName() {
-	return relationObjName;
+        return relationObjName;
     }
 
     /**
@@ -349,13 +362,13 @@ public class RelationNotification extends Notification {
      * @return a {@link List} of {@link ObjectName}.
      */
     public List<ObjectName> getMBeansToUnregister() {
-	List<ObjectName> result = null;
-	if (unregisterMBeanList != null) {
-	    result = new ArrayList<ObjectName>(unregisterMBeanList);
-	} else {
-	    result = Collections.emptyList();
-	}
-	return result;
+        List<ObjectName> result;
+        if (unregisterMBeanList != null) {
+            result = new ArrayList<ObjectName>(unregisterMBeanList);
+        } else {
+            result = Collections.emptyList();
+        }
+        return result;
     }
 
     /**
@@ -364,11 +377,11 @@ public class RelationNotification extends Notification {
      * @return the name of the updated role.
      */
     public String getRoleName() {
-	String result = null;
-	if (roleName != null) {
-	    result = roleName;
-	}
-	return result;
+        String result = null;
+        if (roleName != null) {
+            result = roleName;
+        }
+        return result;
     }
 
     /**
@@ -377,13 +390,13 @@ public class RelationNotification extends Notification {
      * @return the old value of the updated role.
      */
     public List<ObjectName> getOldRoleValue() {
-	List<ObjectName> result = null;
-	if (oldRoleValue != null) {
-	    result = new ArrayList<ObjectName>(oldRoleValue);
-	} else {
-	    result = Collections.emptyList();
-	}
-	return result;
+        List<ObjectName> result;
+        if (oldRoleValue != null) {
+            result = new ArrayList<ObjectName>(oldRoleValue);
+        } else {
+            result = Collections.emptyList();
+        }
+        return result;
     }
 
     /**
@@ -392,13 +405,13 @@ public class RelationNotification extends Notification {
      * @return the new value of the updated role.
      */
     public List<ObjectName> getNewRoleValue() {
-	List<ObjectName> result = null;
-	if (newRoleValue != null) {
-	    result = new ArrayList<ObjectName>(newRoleValue);
-	} else {
-	    result = Collections.emptyList();
-	}
-	return result;
+        List<ObjectName> result;
+        if (newRoleValue != null) {
+            result = new ArrayList<ObjectName>(newRoleValue);
+        } else {
+            result = Collections.emptyList();
+        }
+        return result;
     }
 
     //
@@ -443,138 +456,133 @@ public class RelationNotification extends Notification {
     //  - no role name (for role update)
     //  - no role old value (for role update)
     //  - no role new value (for role update)
-    private void initMembers(int notifKind,
-			     String notifType,
-			     Object sourceObj,
-			     long sequence,
-			     long timeStamp,
-			     String message,
-			     String id,
-			     String typeName,
-			     ObjectName objectName,
-			     List<ObjectName> unregMBeanList,
-			     String name,
-			     List<ObjectName> newValue,
-			     List<ObjectName> oldValue)
-	    throws IllegalArgumentException {
 
-	boolean badInitFlg = false;
+    // Despite the fact, that validation in constructor of RelationNotification prohibit
+    // creation of the class instance with null sourceObj its possible to set it to null later
+    // by public setSource() method.
+    // So we should relax validation rules to preserve serialization behavior compatibility.
 
-	if (notifType == null ||	  
-	    sourceObj == null ||
-	    (!(sourceObj instanceof RelationService) &&
-             !(sourceObj instanceof ObjectName)) ||
-	    id == null ||
-	    typeName == null) {
+    private boolean isValidBasicStrict(String notifType, Object sourceObj, String id, String typeName){
+        if (sourceObj == null) {
+            return false;
+        }
+        return isValidBasic(notifType,sourceObj,id,typeName);
+    }
 
-	    badInitFlg = true;
-	}
+    private boolean isValidBasic(String notifType, Object sourceObj, String id, String typeName){
+        if (notifType == null || id == null || typeName == null) {
+            return false;
+        }
 
-	if (notifKind == 1) {
+        if (sourceObj != null && (
+            !(sourceObj instanceof RelationService) &&
+            !(sourceObj instanceof ObjectName))) {
+            return false;
+        }
 
-	    if ((!(notifType.equals(RelationNotification.RELATION_BASIC_CREATION)))
-		&&
-		(!(notifType.equals(RelationNotification.RELATION_MBEAN_CREATION)))
-		&&
-		(!(notifType.equals(RelationNotification.RELATION_BASIC_REMOVAL)))
-		&&
-		(!(notifType.equals(RelationNotification.RELATION_MBEAN_REMOVAL)))
-		) {
+        return true;
+    }
 
-		// Creation/removal
-		badInitFlg = true;
-	    }
+    private boolean isValidCreate(String notifType) {
+        String[] validTypes= {RelationNotification.RELATION_BASIC_CREATION,
+                              RelationNotification.RELATION_MBEAN_CREATION,
+                              RelationNotification.RELATION_BASIC_REMOVAL,
+                              RelationNotification.RELATION_MBEAN_REMOVAL};
 
-	} else if (notifKind == 2) {
+        Set<String> ctSet = new HashSet<String>(Arrays.asList(validTypes));
+        return ctSet.contains(notifType);
+    }
 
-	    if (((!(notifType.equals(RelationNotification.RELATION_BASIC_UPDATE)))
-		 &&
-		 (!(notifType.equals(RelationNotification.RELATION_MBEAN_UPDATE))))
-		|| name == null ||
-		oldValue == null ||
-		newValue == null) {
+    private boolean isValidUpdate(String notifType, String name,
+                                  List<ObjectName> newValue, List<ObjectName> oldValue) {
 
-		// Role update
-		badInitFlg = true;
-	    }
-	}
+        if (!(notifType.equals(RelationNotification.RELATION_BASIC_UPDATE)) &&
+            !(notifType.equals(RelationNotification.RELATION_MBEAN_UPDATE))) {
+            return false;
+        }
 
-	if (badInitFlg) {
-	    String excMsg = "Invalid parameter.";
-	    throw new IllegalArgumentException(excMsg);
-	}
+        if (name == null || oldValue == null || newValue == null) {
+            return false;
+        }
 
-	relationId = id;
-	relationTypeName = typeName;
-	relationObjName = objectName;
-	if (unregMBeanList != null) {
-	    unregisterMBeanList = new ArrayList<ObjectName>(unregMBeanList);
-	}
-	if (name != null) {
-	    roleName = name;
-	}
-	if (oldValue != null) {
-	    oldRoleValue = new ArrayList<ObjectName>(oldValue);
-	}
-	if (newValue != null) {
-	    newRoleValue = new ArrayList<ObjectName>(newValue);
-	}
-	return;
+        return true;
+    }
+
+    private ArrayList<ObjectName> safeGetObjectNameList(List<ObjectName> src){
+        ArrayList<ObjectName> dest = null;
+        if (src != null) {
+            dest = new ArrayList<ObjectName>();
+            for (ObjectName item : src) {
+                // NPE thrown if we attempt to add null object
+                dest.add(ObjectName.getInstance(item));
+            }
+        }
+        return dest;
+    }
+
+    private ObjectName safeGetObjectName(ObjectName src){
+        ObjectName dest = null;
+        if (src != null) {
+            dest = ObjectName.getInstance(src);
+        }
+        return dest;
     }
 
     /**
      * Deserializes a {@link RelationNotification} from an {@link ObjectInputStream}.
      */
     private void readObject(ObjectInputStream in)
-	    throws IOException, ClassNotFoundException {
-      if (compat)
-      {
-        // Read an object serialized in the old serial form
-        //
+            throws IOException, ClassNotFoundException {
+
+        String tmpRelationId, tmpRelationTypeName, tmpRoleName;
+
+        ObjectName tmpRelationObjName;
+        List<ObjectName> tmpNewRoleValue, tmpOldRoleValue, tmpUnregMBeanList;
+
         ObjectInputStream.GetField fields = in.readFields();
-	newRoleValue = (List<ObjectName>) fields.get("myNewRoleValue", null);
-	if (fields.defaulted("myNewRoleValue"))
-        {
-          throw new NullPointerException("newRoleValue");
+
+        if (compat) {
+            tmpRelationId = (String)fields.get("myRelId", null);
+            tmpRelationTypeName = (String)fields.get("myRelTypeName", null);
+            tmpRoleName = (String)fields.get("myRoleName", null);
+
+            tmpRelationObjName = (ObjectName)fields.get("myRelObjName", null);
+            tmpNewRoleValue = cast(fields.get("myNewRoleValue", null));
+            tmpOldRoleValue = cast(fields.get("myOldRoleValue", null));
+            tmpUnregMBeanList = cast(fields.get("myUnregMBeanList", null));
         }
-	oldRoleValue = (List<ObjectName>) fields.get("myOldRoleValue", null);
-	if (fields.defaulted("myOldRoleValue"))
-        {
-          throw new NullPointerException("oldRoleValue");
+        else {
+            tmpRelationId = (String)fields.get("relationId", null);
+            tmpRelationTypeName = (String)fields.get("relationTypeName", null);
+            tmpRoleName = (String)fields.get("roleName", null);
+
+            tmpRelationObjName = (ObjectName)fields.get("relationObjName", null);
+            tmpNewRoleValue = cast(fields.get("newRoleValue", null));
+            tmpOldRoleValue = cast(fields.get("oldRoleValue", null));
+            tmpUnregMBeanList = cast(fields.get("unregisterMBeanList", null));
         }
-	relationId = (String) fields.get("myRelId", null);
-	if (fields.defaulted("myRelId"))
-        {
-          throw new NullPointerException("relationId");
+
+        // Validate fields we just read, throw InvalidObjectException
+        // if something goes wrong
+
+        String notifType = super.getType();
+        if (!isValidBasic(notifType,super.getSource(),tmpRelationId,tmpRelationTypeName)  ||
+            (!isValidCreate(notifType) &&
+             !isValidUpdate(notifType,tmpRoleName,tmpNewRoleValue,tmpOldRoleValue))) {
+
+            super.setSource(null);
+            throw new InvalidObjectException("Invalid object read");
         }
-	relationObjName = (ObjectName) fields.get("myRelObjName", null);
-	if (fields.defaulted("myRelObjName"))
-        {
-          throw new NullPointerException("relationObjName");
-        }
-	relationTypeName = (String) fields.get("myRelTypeName", null);
-	if (fields.defaulted("myRelTypeName"))
-        {
-          throw new NullPointerException("relationTypeName");
-        }
-	roleName = (String) fields.get("myRoleName", null);
-	if (fields.defaulted("myRoleName"))
-        {
-          throw new NullPointerException("roleName");
-        }
-	unregisterMBeanList =
-	    (List<ObjectName>) fields.get("myUnregMBeanList", null);
-	if (fields.defaulted("myUnregMBeanList"))
-        {
-          throw new NullPointerException("unregisterMBeanList");
-        }
-      }
-      else
-      {
-        // Read an object serialized in the new serial form
-        //
-        in.defaultReadObject();
-      }
+
+        // assign deserialized vaules to object fields
+        relationObjName = safeGetObjectName(tmpRelationObjName);
+        newRoleValue = safeGetObjectNameList(tmpNewRoleValue);
+        oldRoleValue = safeGetObjectNameList(tmpOldRoleValue);
+        unregisterMBeanList = safeGetObjectNameList(tmpUnregMBeanList);
+
+        relationId = tmpRelationId;
+        relationTypeName = tmpRelationTypeName;
+        roleName = tmpRoleName;
     }
 
 
@@ -582,20 +590,20 @@ public class RelationNotification extends Notification {
      * Serializes a {@link RelationNotification} to an {@link ObjectOutputStream}.
      */
     private void writeObject(ObjectOutputStream out)
-	    throws IOException {
+            throws IOException {
       if (compat)
       {
         // Serializes this instance in the old serial form
         //
         ObjectOutputStream.PutField fields = out.putFields();
-	fields.put("myNewRoleValue", newRoleValue);
-	fields.put("myOldRoleValue", oldRoleValue);
-	fields.put("myRelId", relationId);
-	fields.put("myRelObjName", relationObjName);
-	fields.put("myRelTypeName", relationTypeName);
-	fields.put("myRoleName",roleName);
-	fields.put("myUnregMBeanList", unregisterMBeanList);
-	out.writeFields();
+        fields.put("myNewRoleValue", newRoleValue);
+        fields.put("myOldRoleValue", oldRoleValue);
+        fields.put("myRelId", relationId);
+        fields.put("myRelObjName", relationObjName);
+        fields.put("myRelTypeName", relationTypeName);
+        fields.put("myRoleName",roleName);
+        fields.put("myUnregMBeanList", unregisterMBeanList);
+        out.writeFields();
       }
       else
       {

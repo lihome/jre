@@ -1,6 +1,26 @@
 /*
- * Copyright (c) 2006, 2011, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2006, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package com.sun.java.swing.plaf.windows;
@@ -12,6 +32,7 @@ import java.awt.KeyEventPostProcessor;
 import java.awt.Window;
 import java.awt.Toolkit;
 
+import sun.awt.AWTAccessor;
 import sun.awt.SunToolkit;
 
 import java.awt.event.ActionEvent;
@@ -44,7 +65,6 @@ import javax.swing.plaf.basic.ComboPopup;
  * Windows implementation of RootPaneUI, there is one shared between all
  * JRootPane instances.
  *
- * @version %I% %G%
  * @author Mark Davidson
  * @since 1.4
  */
@@ -54,7 +74,7 @@ public class WindowsRootPaneUI extends BasicRootPaneUI {
     static final AltProcessor altProcessor = new AltProcessor();
 
     public static ComponentUI createUI(JComponent c) {
-	return windowsRootPaneUI;
+        return windowsRootPaneUI;
     }
 
     static class AltProcessor implements KeyEventPostProcessor {
@@ -78,7 +98,7 @@ public class WindowsRootPaneUI extends BasicRootPaneUI {
                 ev.consume();
             } else {
                 menuCanceledOnPress = false;
-	        WindowsLookAndFeel.setMnemonicHidden(false);
+                WindowsLookAndFeel.setMnemonicHidden(false);
                 WindowsGraphicsUtils.repaintMnemonicsInWindow(winAncestor);
                 JMenuBar mbar = root != null ? root.getJMenuBar() : null;
                 if(mbar == null && winAncestor instanceof JFrame) {
@@ -93,7 +113,7 @@ public class WindowsRootPaneUI extends BasicRootPaneUI {
 
         void altReleased(KeyEvent ev) {
             if (menuCanceledOnPress) {
-	        WindowsLookAndFeel.setMnemonicHidden(true);
+                WindowsLookAndFeel.setMnemonicHidden(true);
                 WindowsGraphicsUtils.repaintMnemonicsInWindow(winAncestor);
                 return;
             }
@@ -109,13 +129,22 @@ public class WindowsRootPaneUI extends BasicRootPaneUI {
                 }
                 JMenu menu = mbar != null ? mbar.getMenu(0) : null;
 
-		// Skip menu activation if the KeyEvent originated before
-		// the latest window deactivation.
-		boolean skip = false;
-		Toolkit tk = Toolkit.getDefaultToolkit();
-		if (tk instanceof SunToolkit) {
-		    skip = ev.getWhen() <= ((SunToolkit)tk).getDeactivationTime(winAncestor);
-		}
+                // It might happen that the altRelease event is processed
+                // with a reasonable delay since it has been generated.
+                // Here we check the last deactivation time of the containing
+                // window. If this time appears to be greater than the altRelease
+                // event time the event is skipped to avoid unexpected menu
+                // activation. See 7121442.
+                // Also we must ensure that original source of key event belongs
+                // to the same window object as winAncestor. See 8001633.
+                boolean skip = false;
+                Toolkit tk = Toolkit.getDefaultToolkit();
+                if (tk instanceof SunToolkit) {
+                    Component originalSource = AWTAccessor.getKeyEventAccessor()
+                            .getOriginalSource(ev);
+                    skip = SunToolkit.getContainingWindow(originalSource) != winAncestor ||
+                            ev.getWhen() <= ((SunToolkit) tk).getWindowDeactivationTime(winAncestor);
+                }
 
                 if (menu != null && !skip) {
                     MenuElement[] path = new MenuElement[2];
@@ -142,7 +171,7 @@ public class WindowsRootPaneUI extends BasicRootPaneUI {
             }
             if (ev.getKeyCode() == KeyEvent.VK_ALT) {
                 root = SwingUtilities.getRootPane(ev.getComponent());
-                winAncestor = (root == null ? null : 
+                winAncestor = (root == null ? null :
                         SwingUtilities.getWindowAncestor(root));
 
                 if (ev.getID() == KeyEvent.KEY_PRESSED) {

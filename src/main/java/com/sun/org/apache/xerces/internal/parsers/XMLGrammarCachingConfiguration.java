@@ -1,12 +1,16 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright 2001-2005 The Apache Software Foundation.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -51,16 +55,16 @@ import com.sun.org.apache.xerces.internal.xni.parser.XMLInputSource;
  * directly.</p>
  * <p>
  * In addition to the features and properties recognized by the base
- * parser configuration, this class recognizes these additional 
+ * parser configuration, this class recognizes these additional
  * features and properties:
  * <ul>
  * </ul>
  *
  * @author Neil Graham, IBM
  *
- * @version $Id: XMLGrammarCachingConfiguration.java,v 1.4 2007/07/19 04:38:55 ofung Exp $
+ * @version $Id: XMLGrammarCachingConfiguration.java,v 1.6 2010-11-01 04:40:10 joehw Exp $
  */
-public class XMLGrammarCachingConfiguration 
+public class XMLGrammarCachingConfiguration
     extends XIncludeAwareParserConfiguration {
 
     //
@@ -74,7 +78,7 @@ public class XMLGrammarCachingConfiguration
     public static final int BIG_PRIME = 2039;
 
     // the static symbol table to be shared amongst parsers
-    protected static final SynchronizedSymbolTable fStaticSymbolTable = 
+    protected static final SynchronizedSymbolTable fStaticSymbolTable =
             new SynchronizedSymbolTable(BIG_PRIME);
 
     // the Grammar Pool to be shared similarly
@@ -87,7 +91,7 @@ public class XMLGrammarCachingConfiguration
 
     // Data
 
-    // variables needed for caching schema grammars.  
+    // variables needed for caching schema grammars.
     protected XMLSchemaLoader fSchemaLoader;
 
     // the DTD grammar loader
@@ -102,8 +106,8 @@ public class XMLGrammarCachingConfiguration
         this(fStaticSymbolTable, fStaticGrammarPool, null);
     } // <init>()
 
-    /** 
-     * Constructs a parser configuration using the specified symbol table. 
+    /**
+     * Constructs a parser configuration using the specified symbol table.
      *
      * @param symbolTable The symbol table to use.
      */
@@ -115,7 +119,7 @@ public class XMLGrammarCachingConfiguration
      * Constructs a parser configuration using the specified symbol table and
      * grammar pool.
      * <p>
-     * <strong>REVISIT:</strong> 
+     * <strong>REVISIT:</strong>
      * Grammar pool will be updated when the new validation engine is
      * implemented.
      *
@@ -131,7 +135,7 @@ public class XMLGrammarCachingConfiguration
      * Constructs a parser configuration using the specified symbol table,
      * grammar pool, and parent settings.
      * <p>
-     * <strong>REVISIT:</strong> 
+     * <strong>REVISIT:</strong>
      * Grammar pool will be updated when the new validation engine is
      * implemented.
      *
@@ -164,7 +168,7 @@ public class XMLGrammarCachingConfiguration
 
     /*
      * lock the XMLGrammarPoolImpl object so that it does not
-     * accept any more grammars from the validators.  
+     * accept any more grammars from the validators.
      */
     public void lockGrammarPool() {
         fGrammarPool.lockPool();
@@ -172,15 +176,15 @@ public class XMLGrammarCachingConfiguration
 
     /*
      * clear the XMLGrammarPoolImpl object so that it does not
-     * contain any more grammars.  
+     * contain any more grammars.
      */
     public void clearGrammarPool() {
         fGrammarPool.clear();
     } // clearGrammarPool()
 
     /*
-     * unlock the XMLGrammarPoolImpl object so that it  
-     * accepts more grammars from the validators.  
+     * unlock the XMLGrammarPoolImpl object so that it
+     * accepts more grammars from the validators.
      */
     public void unlockGrammarPool() {
         fGrammarPool.unlockPool();
@@ -209,7 +213,7 @@ public class XMLGrammarCachingConfiguration
 
     /**
      * Parse a grammar from a location identified by an
-     * XMLInputSource.  
+     * XMLInputSource.
      * This method also adds this grammar to the XMLGrammarPool
      *
      * @param type The type of the grammar to be constructed
@@ -238,55 +242,15 @@ public class XMLGrammarCachingConfiguration
     //
     // Protected methods
     //
-    
-    // features and properties
-
-    /**
-     * Check a feature. If feature is known and supported, this method simply
-     * returns. Otherwise, the appropriate exception is thrown.
-     *
-     * @param featureId The unique identifier (URI) of the feature.
-     *
-     * @throws XMLConfigurationException Thrown for configuration error.
-     *                                   In general, components should
-     *                                   only throw this exception if
-     *                                   it is <strong>really</strong>
-     *                                   a critical error.
-     */
-    protected void checkFeature(String featureId)
-        throws XMLConfigurationException {
-
-        super.checkFeature(featureId);
-
-    } // checkFeature(String)
-
-    /**
-     * Check a property. If the property is known and supported, this method
-     * simply returns. Otherwise, the appropriate exception is thrown.
-     *
-     * @param propertyId The unique identifier (URI) of the property
-     *                   being set.
-     *
-     * @throws XMLConfigurationException Thrown for configuration error.
-     *                                   In general, components should
-     *                                   only throw this exception if
-     *                                   it is <strong>really</strong>
-     *                                   a critical error.
-     */
-    protected void checkProperty(String propertyId)
-        throws XMLConfigurationException {
-        super.checkProperty(propertyId);
-
-    } // checkProperty(String)
 
     // package-protected methods
 
-    /* This method parses an XML Schema document.  
+    /* This method parses an XML Schema document.
      * It requires a GrammarBucket parameter so that DOMASBuilder can
      * extract the info it needs.
      * Therefore, bucket must not be null!
      */
-    SchemaGrammar parseXMLSchema(XMLInputSource is) 
+    SchemaGrammar parseXMLSchema(XMLInputSource is)
                 throws IOException {
         XMLEntityResolver resolver = getEntityResolver();
         if(resolver != null) {
@@ -294,7 +258,7 @@ public class XMLGrammarCachingConfiguration
         }
         if (fErrorReporter.getMessageFormatter(XSMessageFormatter.SCHEMA_DOMAIN) == null) {
             fErrorReporter.putMessageFormatter(XSMessageFormatter.SCHEMA_DOMAIN, new XSMessageFormatter());
-        } 
+        }
         fSchemaLoader.setProperty(ERROR_REPORTER, fErrorReporter);
 
         String propPrefix = Constants.XERCES_PROPERTY_PREFIX;
@@ -315,14 +279,14 @@ public class XMLGrammarCachingConfiguration
             fGrammarPool.cacheGrammars(XMLGrammarDescription.XML_SCHEMA,
                                       new Grammar[]{grammar});
         }
-        
+
         return grammar;
 
     } // parseXMLSchema(XMLInputSource) :  SchemaGrammar
 
     /* This method parses an external DTD entity.
      */
-    DTDGrammar parseDTD(XMLInputSource is) 
+    DTDGrammar parseDTD(XMLInputSource is)
                 throws IOException {
         XMLEntityResolver resolver = getEntityResolver();
         if(resolver != null) {
@@ -339,7 +303,7 @@ public class XMLGrammarCachingConfiguration
             fGrammarPool.cacheGrammars(XMLGrammarDescription.XML_DTD,
                                       new Grammar[]{grammar});
         }
-        
+
         return grammar;
 
     } // parseXMLDTD(XMLInputSource) :  DTDGrammar

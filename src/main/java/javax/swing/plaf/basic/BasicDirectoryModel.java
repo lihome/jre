@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1998, 2009, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.swing.plaf.basic;
@@ -20,17 +38,16 @@ import sun.awt.shell.ShellFolder;
 /**
  * Basic implementation of a file list.
  *
- * @version %i% %g%
  * @author Jeff Dinkins
  */
-public class BasicDirectoryModel extends AbstractListModel implements PropertyChangeListener {
+public class BasicDirectoryModel extends AbstractListModel<Object> implements PropertyChangeListener {
 
     private JFileChooser filechooser = null;
     // PENDING(jeff) pick the size more sensibly
-    private Vector fileCache = new Vector(50);
+    private Vector<File> fileCache = new Vector<File>(50);
     private LoadFilesThread loadThread = null;
-    private Vector files = null;
-    private Vector directories = null;
+    private Vector<File> files = null;
+    private Vector<File> directories = null;
     private int fetchID = 0;
 
     private PropertyChangeSupport changeSupport;
@@ -90,14 +107,14 @@ public class BasicDirectoryModel extends AbstractListModel implements PropertyCh
             if (files != null) {
                 return files;
             }
-            files = new Vector();
-            directories = new Vector();
+            files = new Vector<File>();
+            directories = new Vector<File>();
             directories.addElement(filechooser.getFileSystemView().createFileObject(
                 filechooser.getCurrentDirectory(), "..")
             );
 
             for (int i = 0; i < getSize(); i++) {
-                File f = (File)fileCache.get(i);
+                File f = fileCache.get(i);
                 if (filechooser.isTraversable(f)) {
                     directories.add(f);
                 } else {
@@ -147,7 +164,7 @@ public class BasicDirectoryModel extends AbstractListModel implements PropertyCh
 
 
     public void fireContentsChanged() {
-        // System.out.println("BasicDirectoryModel: firecontentschanged"); 
+        // System.out.println("BasicDirectoryModel: firecontentschanged");
         fireContentsChanged(this, 0, getSize()-1);
     }
 
@@ -180,7 +197,7 @@ public class BasicDirectoryModel extends AbstractListModel implements PropertyCh
     }
 
     protected void sort(Vector<? extends File> v){
-        ShellFolder.sortFiles(v);
+        ShellFolder.sort(v);
     }
 
     // Obsolete - not used
@@ -199,7 +216,7 @@ public class BasicDirectoryModel extends AbstractListModel implements PropertyCh
     class LoadFilesThread extends Thread {
         File currentDirectory = null;
         int fid;
-        Vector runnables = new Vector(10);
+        Vector<DoChangeContents> runnables = new Vector<DoChangeContents>(10);
 
         public LoadFilesThread(File currentDirectory, int fid) {
             super("Basic L&F File Loading Thread");
@@ -215,14 +232,18 @@ public class BasicDirectoryModel extends AbstractListModel implements PropertyCh
         public void run0() {
             FileSystemView fileSystem = filechooser.getFileSystemView();
 
+            if (isInterrupted()) {
+                return;
+            }
+
             File[] list = fileSystem.getFiles(currentDirectory, filechooser.isFileHidingEnabled());
 
             if (isInterrupted()) {
                 return;
             }
 
-            final Vector newFileCache = new Vector();
-            Vector newFiles = new Vector();
+            final Vector<File> newFileCache = new Vector<File>();
+            Vector<File> newFiles = new Vector<File>();
 
             // run through the file list, add directories and selectable files to fileCache
             // Note that this block must be OUTSIDE of Invoker thread because of
@@ -274,7 +295,7 @@ public class BasicDirectoryModel extends AbstractListModel implements PropertyCh
                         }
                         if (start >= 0 && end > start
                             && newFileCache.subList(end, newSize).equals(fileCache.subList(start, oldSize))) {
-                            if(isInterrupted()) {
+                            if (isInterrupted()) {
                                 return null;
                             }
                             return new DoChangeContents(newFileCache.subList(start, end), start, null, 0, fid);
@@ -292,7 +313,7 @@ public class BasicDirectoryModel extends AbstractListModel implements PropertyCh
                         }
                         if (start >= 0 && end > start
                             && fileCache.subList(end, oldSize).equals(newFileCache.subList(start, newSize))) {
-                            if(isInterrupted()) {
+                            if (isInterrupted()) {
                                 return null;
                             }
                             return new DoChangeContents(null, 0, new Vector(fileCache.subList(start, end)), start, fid);
@@ -304,7 +325,6 @@ public class BasicDirectoryModel extends AbstractListModel implements PropertyCh
                         }
                         return new DoChangeContents(newFileCache, 0, fileCache, 0, fid);
                     }
-
                     return null;
                 }
             });
@@ -316,13 +336,13 @@ public class BasicDirectoryModel extends AbstractListModel implements PropertyCh
         }
 
 
-        public void cancelRunnables(Vector runnables) {
-            for(int i = 0; i < runnables.size(); i++) {
-                ((DoChangeContents)runnables.elementAt(i)).cancel();
+        public void cancelRunnables(Vector<DoChangeContents> runnables) {
+            for (DoChangeContents runnable : runnables) {
+                runnable.cancel();
             }
         }
 
-         public void cancelRunnables() {
+        public void cancelRunnables() {
             cancelRunnables(runnables);
         }
    }
@@ -389,7 +409,7 @@ public class BasicDirectoryModel extends AbstractListModel implements PropertyCh
     }
 
     /**
-     * Support for reporting bound property changes for boolean properties. 
+     * Support for reporting bound property changes for boolean properties.
      * This method can be called when a bound property has changed and it will
      * send the appropriate PropertyChangeEvent to any registered
      * PropertyChangeListeners.
@@ -431,15 +451,14 @@ public class BasicDirectoryModel extends AbstractListModel implements PropertyCh
 
 
     class DoChangeContents implements Runnable {
-        private List addFiles;
-        private List remFiles;
+        private List<File> addFiles;
+        private List<File> remFiles;
         private boolean doFire = true;
         private int fid;
         private int addStart = 0;
         private int remStart = 0;
-        private int change;
 
-        public DoChangeContents(List addFiles, int addStart, List remFiles, int remStart, int fid) {
+        public DoChangeContents(List<File> addFiles, int addStart, List<File> remFiles, int remStart, int fid) {
             this.addFiles = addFiles;
             this.addStart = addStart;
             this.remFiles = remFiles;

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright 1999-2004 The Apache Software Foundation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,15 +29,15 @@ import com.sun.org.apache.xalan.internal.utils.ObjectFactory;
 import com.sun.org.apache.xalan.internal.utils.ConfigurationError;
 
 /**
- * Lazy load of functions into the function table as needed, so we don't 
+ * Lazy load of functions into the function table as needed, so we don't
  * have to load all the functions allowed in XPath and XSLT on startup.
  * @xsl.usage advanced
  */
 public class FuncLoader
 {
 
-  /** The function ID, which may correspond to one of the FUNC_XXX values 
-   *  found in {@link com.sun.org.apache.xpath.internal.compiler.FunctionTable}, but may 
+  /** The function ID, which may correspond to one of the FUNC_XXX values
+   *  found in {@link com.sun.org.apache.xpath.internal.compiler.FunctionTable}, but may
    *  be a value installed by an external module.  */
   private int m_funcID;
 
@@ -41,8 +45,8 @@ public class FuncLoader
   private String m_funcName;
 
   /**
-   * Get the local class name of the function class.  If function name does 
-   * not have a '.' in it, it is assumed to be relative to 
+   * Get the local class name of the function class.  If function name does
+   * not have a '.' in it, it is assumed to be relative to
    * 'com.sun.org.apache.xpath.internal.functions'.
    *
    * @return The class name of the {com.sun.org.apache.xpath.internal.functions.Function} class.
@@ -55,12 +59,12 @@ public class FuncLoader
   /**
    * Construct a function loader
    *
-   * @param funcName The class name of the {com.sun.org.apache.xpath.internal.functions.Function} 
-   *             class, which, if it does not have a '.' in it, is assumed to 
-   *             be relative to 'com.sun.org.apache.xpath.internal.functions'. 
-   * @param funcID  The function ID, which may correspond to one of the FUNC_XXX 
-   *    values found in {@link com.sun.org.apache.xpath.internal.compiler.FunctionTable}, but may 
-   *    be a value installed by an external module. 
+   * @param funcName The class name of the {com.sun.org.apache.xpath.internal.functions.Function}
+   *             class, which, if it does not have a '.' in it, is assumed to
+   *             be relative to 'com.sun.org.apache.xpath.internal.functions'.
+   * @param funcID  The function ID, which may correspond to one of the FUNC_XXX
+   *    values found in {@link com.sun.org.apache.xpath.internal.compiler.FunctionTable}, but may
+   *    be a value installed by an external module.
    */
   public FuncLoader(String funcName, int funcID)
   {
@@ -76,7 +80,7 @@ public class FuncLoader
    *
    * @return non-null reference to Function derivative.
    *
-   * @throws javax.xml.transform.TransformerException if ClassNotFoundException, 
+   * @throws javax.xml.transform.TransformerException if ClassNotFoundException,
    *    IllegalAccessException, or InstantiationException is thrown.
    */
   Function getFunction() throws TransformerException
@@ -95,7 +99,7 @@ public class FuncLoader
       }
 
       return (Function) ObjectFactory.newInstance(className, true);
-      
+
     }
     catch (ConfigurationError e)
     {

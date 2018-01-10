@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2008, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2011, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.util.zip;
@@ -11,7 +29,7 @@ package java.util.zip;
  * This class provides support for general purpose decompression using the
  * popular ZLIB compression library. The ZLIB compression library was
  * initially developed as part of the PNG graphics standard and is not
- * protected by patents. It is fully described in the specifications at 
+ * protected by patents. It is fully described in the specifications at
  * the <a href="package-summary.html#package_description">java.util.zip
  * package description</a>.
  *
@@ -48,24 +66,26 @@ package java.util.zip;
  * }
  * </pre></blockquote>
  *
- * @see		Deflater
- * @version 	1.47, 04/07/06
- * @author 	David Connelly
+ * @see         Deflater
+ * @author      David Connelly
  *
  */
 public
 class Inflater {
+
     private final ZStreamRef zsRef;
-    private byte[] buf = emptyBuf;
+    private byte[] buf = defaultBuf;
     private int off, len;
     private boolean finished;
     private boolean needDict;
+    private long bytesRead;
+    private long bytesWritten;
 
-    private static byte[] emptyBuf = new byte[0];
+    private static final byte[] defaultBuf = new byte[0];
 
     static {
-	/* Zip library is loaded from System.initializeSystemClass */
-	initIDs();
+        /* Zip library is loaded from System.initializeSystemClass */
+        initIDs();
     }
 
     /**
@@ -87,7 +107,7 @@ class Inflater {
      * Creates a new decompressor.
      */
     public Inflater() {
-	this(false);
+        this(false);
     }
 
     /**
@@ -121,7 +141,7 @@ class Inflater {
      * @see Inflater#needsInput
      */
     public void setInput(byte[] b) {
-	setInput(b, 0, b.length);
+        setInput(b, 0, b.length);
     }
 
     /**
@@ -136,12 +156,12 @@ class Inflater {
      * @see Inflater#getAdler
      */
     public void setDictionary(byte[] b, int off, int len) {
-	if (b == null) {
-	    throw new NullPointerException();
-	}
-	if (off < 0 || len < 0 || off > b.length - len) {
-	    throw new ArrayIndexOutOfBoundsException();
-	}
+        if (b == null) {
+            throw new NullPointerException();
+        }
+        if (off < 0 || len < 0 || off > b.length - len) {
+            throw new ArrayIndexOutOfBoundsException();
+        }
         synchronized (zsRef) {
             ensureOpen();
             setDictionary(zsRef.address(), b, off, len);
@@ -159,7 +179,7 @@ class Inflater {
      * @see Inflater#getAdler
      */
     public void setDictionary(byte[] b) {
-	setDictionary(b, 0, b.length);
+        setDictionary(b, 0, b.length);
     }
 
     /**
@@ -235,7 +255,11 @@ class Inflater {
         }
         synchronized (zsRef) {
             ensureOpen();
-            return inflateBytes(zsRef.address(), b, off, len);
+            int thisLen = this.len;
+            int n = inflateBytes(zsRef.address(), b, off, len);
+            bytesWritten += n;
+            bytesRead += (thisLen - this.len);
+            return n;
         }
     }
 
@@ -253,7 +277,7 @@ class Inflater {
      * @see Inflater#needsDictionary
      */
     public int inflate(byte[] b) throws DataFormatException {
-	return inflate(b, 0, b.length);
+        return inflate(b, 0, b.length);
     }
 
     /**
@@ -277,7 +301,7 @@ class Inflater {
      * @return the total number of compressed bytes input so far
      */
     public int getTotalIn() {
-	return (int) getBytesRead();
+        return (int) getBytesRead();
     }
 
     /**
@@ -289,7 +313,7 @@ class Inflater {
     public long getBytesRead() {
         synchronized (zsRef) {
             ensureOpen();
-            return getBytesRead(zsRef.address());
+            return bytesRead;
         }
     }
 
@@ -303,7 +327,7 @@ class Inflater {
      * @return the total number of uncompressed bytes output so far
      */
     public int getTotalOut() {
-	return (int) getBytesWritten();
+        return (int) getBytesWritten();
     }
 
     /**
@@ -315,7 +339,7 @@ class Inflater {
     public long getBytesWritten() {
         synchronized (zsRef) {
             ensureOpen();
-            return getBytesWritten(zsRef.address());
+            return bytesWritten;
         }
     }
 
@@ -326,10 +350,11 @@ class Inflater {
         synchronized (zsRef) {
             ensureOpen();
             reset(zsRef.address());
-            buf = emptyBuf;
+            buf = defaultBuf;
             finished = false;
             needDict = false;
             off = len = 0;
+            bytesRead = bytesWritten = 0;
         }
     }
 
@@ -355,7 +380,7 @@ class Inflater {
      * Closes the decompressor when garbage is collected.
      */
     protected void finalize() {
-	end();
+        end();
     }
 
     private void ensureOpen () {
@@ -364,15 +389,19 @@ class Inflater {
             throw new NullPointerException("Inflater has been closed");
     }
 
+    boolean ended() {
+        synchronized (zsRef) {
+            return zsRef.address() == 0;
+        }
+    }
+
     private native static void initIDs();
     private native static long init(boolean nowrap);
     private native static void setDictionary(long addr, byte[] b, int off,
-					     int len);
+                                             int len);
     private native int inflateBytes(long addr, byte[] b, int off, int len)
-	    throws DataFormatException;
+            throws DataFormatException;
     private native static int getAdler(long addr);
-    private native static long getBytesRead(long addr);
-    private native static long getBytesWritten(long addr);
     private native static void reset(long addr);
     private native static void end(long addr);
 }

@@ -1,25 +1,46 @@
 /*
- * %W% %E%
- * 
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2002, 2008, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.management.remote;
 
+import com.sun.jmx.mbeanserver.Util;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Iterator;
+import java.util.ServiceLoader;
 import java.util.StringTokenizer;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
 import com.sun.jmx.remote.util.ClassLogger;
 import com.sun.jmx.remote.util.EnvHelp;
-import com.sun.jmx.remote.util.Service;
+import sun.reflect.misc.ReflectUtil;
+
 
 /**
  * <p>Factory to create JMX API connector clients.  There
@@ -139,7 +160,6 @@ import com.sun.jmx.remote.util.Service;
  * calling thread's context class loader.</p>
  *
  * @since 1.5
- * @since.unbundled 1.0
  */
 public class JMXConnectorFactory {
 
@@ -249,6 +269,14 @@ public class JMXConnectorFactory {
         return conn;
     }
 
+    private static <K,V> Map<K,V> newHashMap() {
+        return new HashMap<K,V>();
+    }
+
+    private static <K> Map<K,Object> newHashMap(Map<K,?> map) {
+        return new HashMap<K,Object>(map);
+    }
+
     /**
      * <p>Creates a connector client for the connector server at the
      * given address.  The resultant client is not connected until its
@@ -281,20 +309,23 @@ public class JMXConnectorFactory {
     public static JMXConnector newJMXConnector(JMXServiceURL serviceURL,
                                                Map<String,?> environment)
             throws IOException {
+
+        final Map<String,Object> envcopy;
         if (environment == null)
-            environment = new HashMap();
+            envcopy = newHashMap();
         else {
             EnvHelp.checkAttributes(environment);
-            environment = new HashMap(environment);
+            envcopy = newHashMap(environment);
         }
-        
-        final ClassLoader loader = resolveClassLoader(environment);
-        final Class targetInterface = JMXConnectorProvider.class;
+
+        final ClassLoader loader = resolveClassLoader(envcopy);
+        final Class<JMXConnectorProvider> targetInterface =
+                JMXConnectorProvider.class;
         final String protocol = serviceURL.getProtocol();
         final String providerClassName = "ClientProvider";
-        
-        JMXConnectorProvider provider =
-            (JMXConnectorProvider) getProvider(serviceURL, environment,
+        final JMXServiceURL providerURL = serviceURL;
+
+        JMXConnectorProvider provider = getProvider(providerURL, envcopy,
                                                providerClassName,
                                                targetInterface,
                                                loader);
@@ -308,7 +339,7 @@ public class JMXConnectorFactory {
             if (loader != null) {
                 try {
                     JMXConnector connection =
-                        getConnectorAsService(loader, serviceURL, environment);
+                        getConnectorAsService(loader, providerURL, envcopy);
                     if (connection != null)
                         return connection;
                 } catch (JMXProviderException e) {
@@ -317,8 +348,7 @@ public class JMXConnectorFactory {
                     exception = e;
                 }
             }
-            provider = (JMXConnectorProvider)
-                getProvider(protocol, PROTOCOL_PROVIDER_DEFAULT_PACKAGE,
+            provider = getProvider(protocol, PROTOCOL_PROVIDER_DEFAULT_PACKAGE,
                             JMXConnectorFactory.class.getClassLoader(),
                             providerClassName, targetInterface);
         }
@@ -333,12 +363,14 @@ public class JMXConnectorFactory {
             }
         }
 
-        environment = Collections.unmodifiableMap(environment);
+        final Map<String,Object> fixedenv =
+                Collections.unmodifiableMap(envcopy);
 
-        return provider.newJMXConnector(serviceURL, environment);
+        return provider.newJMXConnector(serviceURL, fixedenv);
     }
 
-    private static String resolvePkgs(Map env) throws JMXProviderException {
+    private static String resolvePkgs(Map<String, ?> env)
+            throws JMXProviderException {
 
         Object pkgsObject = null;
 
@@ -347,8 +379,8 @@ public class JMXConnectorFactory {
 
         if (pkgsObject == null)
             pkgsObject =
-                AccessController.doPrivileged(new PrivilegedAction() {
-                    public Object run() {
+                AccessController.doPrivileged(new PrivilegedAction<String>() {
+                    public String run() {
                         return System.getProperty(PROTOCOL_PROVIDER_PACKAGES);
                     }
                 });
@@ -378,51 +410,66 @@ public class JMXConnectorFactory {
         return pkgs;
     }
 
-    static Object getProvider(JMXServiceURL serviceURL,
-                              Map environment, String providerClassName,
-                              Class targetInterface,
-                              ClassLoader loader)
+    static <T> T getProvider(JMXServiceURL serviceURL,
+                             final Map<String, Object> environment,
+                             String providerClassName,
+                             Class<T> targetInterface,
+                             final ClassLoader loader)
             throws IOException {
 
         final String protocol = serviceURL.getProtocol();
-        
+
         final String pkgs = resolvePkgs(environment);
 
-        Object instance = null;
-        
+        T instance = null;
+
         if (pkgs != null) {
-            environment.put(PROTOCOL_PROVIDER_CLASS_LOADER, loader);
-            
             instance =
                 getProvider(protocol, pkgs, loader, providerClassName,
                             targetInterface);
+
+            if (instance != null) {
+                boolean needsWrap = (loader != instance.getClass().getClassLoader());
+                environment.put(PROTOCOL_PROVIDER_CLASS_LOADER, needsWrap ? wrap(loader) : loader);
+            }
         }
 
         return instance;
     }
-    
-    static Iterator getProviderIterator(final Class providerClass,
-                                        final ClassLoader loader) {
-        PrivilegedAction action = new PrivilegedAction() {
-                public Object run() {
-                    return Service.providers(providerClass, loader);
-                }
-            };
-        return (Iterator) AccessController.doPrivileged(action);
+
+    static <T> Iterator<T> getProviderIterator(final Class<T> providerClass,
+                                               final ClassLoader loader) {
+       ServiceLoader<T> serviceLoader =
+                ServiceLoader.load(providerClass, loader);
+       return serviceLoader.iterator();
+    }
+
+    private static ClassLoader wrap(final ClassLoader parent) {
+        return parent != null ? AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
+            @Override
+            public ClassLoader run() {
+                return new ClassLoader(parent) {
+                    @Override
+                    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+                        ReflectUtil.checkPackageAccess(name);
+                        return super.loadClass(name, resolve);
+                    }
+                };
+            }
+        }) : null;
     }
 
     private static JMXConnector getConnectorAsService(ClassLoader loader,
                                                       JMXServiceURL url,
-                                                      Map map)
+                                                      Map<String, ?> map)
         throws IOException {
 
-        Iterator providers = getProviderIterator(JMXConnectorProvider.class,
-                                                 loader);
-        JMXConnectorProvider provider = null;
-        JMXConnector connection = null;
+        Iterator<JMXConnectorProvider> providers =
+                getProviderIterator(JMXConnectorProvider.class, loader);
+        JMXConnector connection;
         IOException exception = null;
         while (providers.hasNext()) {
-            provider = (JMXConnectorProvider) providers.next();
+            JMXConnectorProvider provider = providers.next();
             try {
                 connection = provider.newJMXConnector(url, map);
                 return connection;
@@ -435,7 +482,7 @@ public class JMXConnectorFactory {
                                  "] Service provider exception: " + e);
                 if (!(e instanceof MalformedURLException)) {
                     if (exception == null) {
-                        if (exception instanceof IOException) {
+                        if (e instanceof IOException) {
                             exception = (IOException) e;
                         } else {
                             exception = EnvHelp.initCause(
@@ -452,11 +499,11 @@ public class JMXConnectorFactory {
             throw exception;
     }
 
-    static Object getProvider(String protocol,
-                              String pkgs, 
+    static <T> T getProvider(String protocol,
+                              String pkgs,
                               ClassLoader loader,
                               String providerClassName,
-                              Class targetInterface)
+                              Class<T> targetInterface)
             throws IOException {
 
         StringTokenizer tokenizer = new StringTokenizer(pkgs, "|");
@@ -465,7 +512,7 @@ public class JMXConnectorFactory {
             String pkg = tokenizer.nextToken();
             String className = (pkg + "." + protocol2package(protocol) +
                                 "." + providerClassName);
-            Class providerClass;
+            Class<?> providerClass;
             try {
                 providerClass = Class.forName(className, true, loader);
             } catch (ClassNotFoundException e) {
@@ -481,8 +528,10 @@ public class JMXConnectorFactory {
                 throw new JMXProviderException(msg);
             }
 
+            // We have just proved that this cast is correct
+            Class<? extends T> providerClassT = Util.cast(providerClass);
             try {
-                return providerClass.newInstance();
+                return providerClassT.newInstance();
             } catch (Exception e) {
                 final String msg =
                     "Exception when instantiating provider [" + className +
@@ -494,7 +543,7 @@ public class JMXConnectorFactory {
         return null;
     }
 
-    static ClassLoader resolveClassLoader(Map environment) {
+    static ClassLoader resolveClassLoader(Map<String, ?> environment) {
         ClassLoader loader = null;
 
         if (environment != null) {
@@ -506,22 +555,17 @@ public class JMXConnectorFactory {
                     "The ClassLoader supplied in the environment map using " +
                     "the " + PROTOCOL_PROVIDER_CLASS_LOADER +
                     " attribute is not an instance of java.lang.ClassLoader";
-                throw new IllegalArgumentException(msg); 
+                throw new IllegalArgumentException(msg);
             }
         }
 
-        if (loader == null)
-            loader = (ClassLoader)
-                AccessController.doPrivileged(new PrivilegedAction() {
-                        public Object run() {
-                            return
-                                Thread.currentThread().getContextClassLoader();
-                        }
-                    });
+        if (loader == null) {
+            loader = Thread.currentThread().getContextClassLoader();
+        }
 
         return loader;
     }
-    
+
     private static String protocol2package(String protocol) {
         return protocol.replace('+', '.').replace('-', '_');
     }

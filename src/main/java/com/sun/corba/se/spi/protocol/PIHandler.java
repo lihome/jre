@@ -1,13 +1,31 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2002, 2012, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package com.sun.corba.se.spi.protocol;
 
-import java.io.Closeable ;
+import java.io.Closeable;
 
 import org.omg.PortableInterceptor.ObjectReferenceTemplate ;
 import org.omg.PortableInterceptor.Interceptor ;
@@ -42,7 +60,7 @@ public interface PIHandler extends Closeable {
     * will need access to the PIHandler through the ORB.
     */
     public void initialize() ;
-    
+
     public void destroyInterceptors() ;
 
     /*
@@ -51,14 +69,14 @@ public interface PIHandler extends Closeable {
      ****************************/
 
     /**
-     * Called when a new object adapter is created.  
+     * Called when a new object adapter is created.
      *
      * @param oa The adapter associated with the interceptors to be
      *   invoked.
      */
     void objectAdapterCreated( ObjectAdapter oa )  ;
 
-    /** 
+    /**
      * Called whenever a state change occurs in an adapter manager.
      *
      * @param managerId managerId The adapter manager id
@@ -66,17 +84,17 @@ public interface PIHandler extends Closeable {
      * and by implication of all object adapters managed by this manager.
      */
     void adapterManagerStateChanged( int managerId,
-	short newState ) ;
+        short newState ) ;
 
     /** Called whenever a state change occurs in an object adapter that
     * was not caused by an adapter manager state change.
     *
     * @param templates The templates that are changing state.
-    * @param newState The new state of the adapters identified by the 
+    * @param newState The new state of the adapters identified by the
     * templates.
     */
     void adapterStateChanged( ObjectReferenceTemplate[] templates,
-	short newState ) ;
+        short newState ) ;
 
     /*
      *****************
@@ -126,7 +144,7 @@ public interface PIHandler extends Closeable {
         int replyStatus, Exception exception ) ;
 
     /**
-     * Called when a retry is needed after initiateClientPIRequest but 
+     * Called when a retry is needed after initiateClientPIRequest but
      * before invokeClientPIRequest.  In this case, we need to properly
      * balance initiateClientPIRequest/cleanupClientPIRequest calls,
      * but WITHOUT extraneous calls to invokeClientPIEndingPoint
@@ -172,7 +190,7 @@ public interface PIHandler extends Closeable {
      */
     void setClientPIInfo( RequestImpl requestImpl ) ;
 
-    /** 
+    /**
      * Notify PI of the MessageMediator for the request.
      */
     void setClientPIInfo(CorbaMessageMediator messageMediator) ;
@@ -209,7 +227,7 @@ public interface PIHandler extends Closeable {
      * to be invoked for all appropriate server-side request interceptors.
      *
      * @param replyMessage The iiop.messages.ReplyMessage containing the
-     *     reply status.  
+     *     reply status.
      * @throws ForwardException Thrown if an interceptor raises
      *     ForwardRequest.  This is an unchecked exception so that we need
      *     not modify the entire execution path to declare throwing
@@ -224,8 +242,8 @@ public interface PIHandler extends Closeable {
      * ServerRequestInfo object.  poaimpl is declared as an Object so that
      * we need not introduce a dependency on the POA package.
      */
-    void initializeServerPIInfo( CorbaMessageMediator request, 
-	ObjectAdapter oa, byte[] objectId, ObjectKeyTemplate oktemp ) ;
+    void initializeServerPIInfo( CorbaMessageMediator request,
+        ObjectAdapter oa, byte[] objectId, ObjectKeyTemplate oktemp ) ;
 
     /**
      * Notifies PI of additional information reqired for ServerRequestInfo.
@@ -277,8 +295,8 @@ public interface PIHandler extends Closeable {
 
     Policy create_policy( int type, Any val ) throws PolicyError ;
 
-    void register_interceptor( Interceptor interceptor, int type ) 
-	throws DuplicateName ;
+    void register_interceptor( Interceptor interceptor, int type )
+        throws DuplicateName ;
 
     Current getPICurrent() ;
 

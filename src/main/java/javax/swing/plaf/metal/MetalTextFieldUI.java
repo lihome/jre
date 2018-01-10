@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1998, 2001, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 package javax.swing.plaf.metal;
 
@@ -28,7 +46,6 @@ import javax.swing.plaf.basic.*;
  * Please see {@link java.beans.XMLEncoder}.
  *
  * @author  Steve Wilson
- * @version %I% %G%
  */
 public class MetalTextFieldUI extends BasicTextFieldUI {
 
@@ -45,7 +62,7 @@ public class MetalTextFieldUI extends BasicTextFieldUI {
      * @param evt the property change event
      */
     public void propertyChange(PropertyChangeEvent evt) {
-	super.propertyChange(evt);
+        super.propertyChange(evt);
     }
 
  }

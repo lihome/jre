@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1998, 2002, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.awt.event;
@@ -30,12 +48,12 @@ class NativeLibLoader {
      * would be to provide a separate library which defines java.awt.*
      * initIDs, and exports the relevant symbols out to the
      * implementation libraries.
-     * 
+     *
      * For now, we know it's done by the implementation, and we assume
      * that the name of the library is "awt".  -br.
      */
     static void loadLibraries() {
-	java.security.AccessController.doPrivileged(
-		new sun.security.action.LoadLibraryAction("awt"));
+        java.security.AccessController.doPrivileged(
+                new sun.security.action.LoadLibraryAction("awt"));
     }
 }

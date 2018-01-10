@@ -1,12 +1,16 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright 2001, 2002,2004 The Apache Software Foundation.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,6 +20,7 @@
 
 package com.sun.org.apache.xerces.internal.xni.parser;
 
+import com.sun.org.apache.xerces.internal.utils.XMLLimitAnalyzer;
 import java.io.IOException;
 import com.sun.org.apache.xerces.internal.xni.XNIException;
 
@@ -26,7 +31,7 @@ import com.sun.org.apache.xerces.internal.xni.XNIException;
  * <p>
  * If the parser configuration uses a DTD scanner that implements
  * this interface, components should be able to query the scanner
- * instance from the component manager using the following property 
+ * instance from the component manager using the following property
  * identifier:
  * <blockquote>
  *  "http://apache.org/xml/properties/internal/dtd-scanner"
@@ -34,17 +39,16 @@ import com.sun.org.apache.xerces.internal.xni.XNIException;
  *
  * @author Andy Clark, IBM
  *
- * @version $Id: XMLDTDScanner.java,v 1.4 2007/07/19 04:39:06 ofung Exp $
  */
-public interface XMLDTDScanner 
+public interface XMLDTDScanner
     extends XMLDTDSource, XMLDTDContentModelSource {
 
     //
     // XMLDTDScanner methods
     //
 
-    /** 
-     * Sets the input source. 
+    /**
+     * Sets the input source.
      *
      * @param inputSource The input source or null.
      *
@@ -52,7 +56,7 @@ public interface XMLDTDScanner
      */
     public void setInputSource(XMLInputSource inputSource) throws IOException;
 
-    /** 
+    /**
      * Scans the internal subset of the document.
      *
      * @param complete True if the scanner should scan the document
@@ -89,7 +93,8 @@ public interface XMLDTDScanner
      *
      * @return True if there is more to scan, false otherwise.
      */
-    public boolean scanDTDExternalSubset(boolean complete) 
+    public boolean scanDTDExternalSubset(boolean complete)
         throws IOException, XNIException;
 
+    public void setLimitAnalyzer(XMLLimitAnalyzer limitAnalyzer);
 } // interface XMLDTDScanner

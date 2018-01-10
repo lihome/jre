@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 1999, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.awt;
@@ -10,7 +28,6 @@ package java.awt;
 /**
  * The <code>Transparency</code> interface defines the common transparency
  * modes for implementing classes.
- * @version %I%, %G%
  */
 public interface Transparency {
 
@@ -36,7 +53,7 @@ public interface Transparency {
     /**
      * Returns the type of this <code>Transparency</code>.
      * @return the field type of this <code>Transparency</code>, which is
-     *		either OPAQUE, BITMASK or TRANSLUCENT. 
+     *          either OPAQUE, BITMASK or TRANSLUCENT.
      */
     public int getTransparency();
 }

@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 package javax.swing.plaf.basic;
 
@@ -13,7 +31,6 @@ import javax.swing.plaf.ComponentUI;
  * Provides the look and feel implementation for
  * <code>JFormattedTextField</code>.
  *
- * @version %I% %G%
  * @since 1.4
  */
 public class BasicFormattedTextFieldUI extends BasicTextFieldUI {
@@ -35,6 +52,6 @@ public class BasicFormattedTextFieldUI extends BasicTextFieldUI {
      * @return the name "FormattedTextField"
      */
     protected String getPropertyPrefix() {
-	return "FormattedTextField";
+        return "FormattedTextField";
     }
 }

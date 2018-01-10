@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2004, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 package com.sun.corba.se.impl.protocol.giopmsgheaders;
 
@@ -15,7 +33,7 @@ public class Message_1_2 extends Message_1_1
     protected int request_id = (int) 0;
 
     Message_1_2() {}
-    
+
     Message_1_2(int _magic, GIOPVersion _GIOP_version, byte _flags,
             byte _message_type, int _message_size) {
 
@@ -24,7 +42,7 @@ public class Message_1_2 extends Message_1_1
               _flags,
               _message_type,
               _message_size);
-    }    
+    }
 
     /**
      * The byteBuffer is presumed to have contents of the message already
@@ -50,15 +68,14 @@ public class Message_1_2 extends Message_1_1
     }
 
     public void write(org.omg.CORBA.portable.OutputStream ostream) {
-	if (this.encodingVersion == Message.CDR_ENC_VERSION) {
-	    super.write(ostream);
-	    return;
-	}
-	GIOPVersion gv = this.GIOP_version; // save
-	this.GIOP_version = GIOPVersion.getInstance((byte)13,
-						    this.encodingVersion);
-	super.write(ostream);
-	this.GIOP_version = gv; // restore
+        if (this.encodingVersion == Message.CDR_ENC_VERSION) {
+            super.write(ostream);
+            return;
+        }
+        GIOPVersion gv = this.GIOP_version; // save
+        this.GIOP_version = GIOPVersion.getInstance((byte)13,
+                                                    this.encodingVersion);
+        super.write(ostream);
+        this.GIOP_version = gv; // restore
     }
 }
-

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright 2001-2004 The Apache Software Foundation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +24,7 @@
 package com.sun.org.apache.xalan.internal.xsltc.compiler;
 
 import com.sun.org.apache.bcel.internal.generic.ConstantPoolGen;
+import com.sun.org.apache.bcel.internal.generic.INVOKEINTERFACE;
 import com.sun.org.apache.bcel.internal.generic.INVOKESPECIAL;
 import com.sun.org.apache.bcel.internal.generic.INVOKEVIRTUAL;
 import com.sun.org.apache.bcel.internal.generic.InstructionList;
@@ -39,24 +44,24 @@ final class Message extends Instruction {
     private boolean _terminate = false;
 
     public void parseContents(Parser parser) {
-	String termstr = getAttribute("terminate");
-	if (termstr != null) {
+        String termstr = getAttribute("terminate");
+        if (termstr != null) {
             _terminate = termstr.equals("yes");
-	}
-	parseChildren(parser);
+        }
+        parseChildren(parser);
     }
 
     public Type typeCheck(SymbolTable stable) throws TypeCheckError {
-	typeCheckContents(stable);
-	return Type.Void;
+        typeCheckContents(stable);
+        return Type.Void;
     }
 
     public void translate(ClassGenerator classGen, MethodGenerator methodGen) {
-	final ConstantPoolGen cpg = classGen.getConstantPool();
-	final InstructionList il = methodGen.getInstructionList();
+        final ConstantPoolGen cpg = classGen.getConstantPool();
+        final InstructionList il = methodGen.getInstructionList();
 
-	// Load the translet (for call to displayMessage() function)
-	il.append(classGen.loadTranslet());
+        // Load the translet (for call to displayMessage() function)
+        il.append(classGen.loadTranslet());
 
         switch (elementCount()) {
             case 0:
@@ -93,36 +98,41 @@ final class Message extends Instruction {
                 // Invoke output.setWriter(STRING_WRITER)
                 il.append(methodGen.loadHandler());
                 il.append(SWAP);
-                il.append(new INVOKEVIRTUAL(
-                    cpg.addMethodref(OUTPUT_BASE, "setWriter",
-                                     "("+WRITER_SIG+")V")));
+                il.append(new INVOKEINTERFACE(
+                    cpg.addInterfaceMethodref(TRANSLET_OUTPUT_INTERFACE,
+                                              "setWriter",
+                                              "("+WRITER_SIG+")V"), 2));
 
                 // Invoke output.setEncoding("UTF-8")
                 il.append(methodGen.loadHandler());
                 il.append(new PUSH(cpg, "UTF-8"));   // other encodings?
-                il.append(new INVOKEVIRTUAL(
-                    cpg.addMethodref(OUTPUT_BASE, "setEncoding",
-                                     "("+STRING_SIG+")V")));
+                il.append(new INVOKEINTERFACE(
+                    cpg.addInterfaceMethodref(TRANSLET_OUTPUT_INTERFACE,
+                                              "setEncoding",
+                                              "("+STRING_SIG+")V"), 2));
 
                 // Invoke output.setOmitXMLDeclaration(true)
                 il.append(methodGen.loadHandler());
                 il.append(ICONST_1);
-                il.append(new INVOKEVIRTUAL(
-                    cpg.addMethodref(OUTPUT_BASE, "setOmitXMLDeclaration",
-                                     "(Z)V")));
+                il.append(new INVOKEINTERFACE(
+                    cpg.addInterfaceMethodref(TRANSLET_OUTPUT_INTERFACE,
+                                              "setOmitXMLDeclaration",
+                                              "(Z)V"), 2));
 
                 il.append(methodGen.loadHandler());
-                il.append(new INVOKEVIRTUAL(
-                    cpg.addMethodref(OUTPUT_BASE, "startDocument",
-                                     "()V")));
+                il.append(new INVOKEINTERFACE(
+                    cpg.addInterfaceMethodref(TRANSLET_OUTPUT_INTERFACE,
+                                              "startDocument",
+                                              "()V"), 1));
 
                 // Inline translation of contents
                 translateContents(classGen, methodGen);
 
                 il.append(methodGen.loadHandler());
-                il.append(new INVOKEVIRTUAL(
-                    cpg.addMethodref(OUTPUT_BASE, "endDocument",
-                                     "()V")));
+                il.append(new INVOKEINTERFACE(
+                    cpg.addInterfaceMethodref(TRANSLET_OUTPUT_INTERFACE,
+                                              "endDocument",
+                                              "()V"), 1));
 
                 // Call toString() on StringWriter
                 il.append(new INVOKEVIRTUAL(
@@ -135,25 +145,25 @@ final class Message extends Instruction {
             break;
         }
 
-	// Send the resulting string to the message handling method
-	il.append(new INVOKEVIRTUAL(cpg.addMethodref(TRANSLET_CLASS,
-						     "displayMessage",
-						     "("+STRING_SIG+")V")));
+        // Send the resulting string to the message handling method
+        il.append(new INVOKEVIRTUAL(cpg.addMethodref(TRANSLET_CLASS,
+                                                     "displayMessage",
+                                                     "("+STRING_SIG+")V")));
 
-	// If 'terminate' attribute is set to 'yes': Instanciate a
-	// RunTimeException, but it on the stack and throw an exception
-	if (_terminate == true) {
-	    // Create a new instance of RunTimeException
-	    final int einit = cpg.addMethodref("java.lang.RuntimeException",
-					       "<init>",
-					       "(Ljava/lang/String;)V");
-	    il.append(new NEW(cpg.addClass("java.lang.RuntimeException")));
-	    il.append(DUP);
-	    il.append(new PUSH(cpg,"Termination forced by an " +
-			           "xsl:message instruction"));
-	    il.append(new INVOKESPECIAL(einit));
-	    il.append(ATHROW);
-	}
+        // If 'terminate' attribute is set to 'yes': Instanciate a
+        // RunTimeException, but it on the stack and throw an exception
+        if (_terminate == true) {
+            // Create a new instance of RunTimeException
+            final int einit = cpg.addMethodref("java.lang.RuntimeException",
+                                               "<init>",
+                                               "(Ljava/lang/String;)V");
+            il.append(new NEW(cpg.addClass("java.lang.RuntimeException")));
+            il.append(DUP);
+            il.append(new PUSH(cpg,"Termination forced by an " +
+                                   "xsl:message instruction"));
+            il.append(new INVOKESPECIAL(einit));
+            il.append(ATHROW);
+        }
     }
 
 }

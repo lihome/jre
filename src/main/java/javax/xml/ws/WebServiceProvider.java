@@ -1,8 +1,27 @@
 /*
- * Copyright (c) 2007, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, 2010, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
-
 
 package javax.xml.ws;
 
@@ -24,13 +43,13 @@ public @interface WebServiceProvider {
     /**
      * Location of the WSDL description for the service.
      */
-    String wsdlLocation() default "";    
-    
+    String wsdlLocation() default "";
+
     /**
      * Service name.
      */
     String serviceName() default "";
-    
+
     /**
      * Target namespace for the service
      */

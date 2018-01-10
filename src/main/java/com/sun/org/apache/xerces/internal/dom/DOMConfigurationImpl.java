@@ -1,12 +1,16 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright 2001-2004 The Apache Software Foundation.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,16 +19,6 @@
  */
 
 package com.sun.org.apache.xerces.internal.dom;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Vector;
-
-import org.w3c.dom.DOMConfiguration;
-import org.w3c.dom.DOMErrorHandler;
-import org.w3c.dom.DOMStringList;
 
 import com.sun.org.apache.xerces.internal.impl.Constants;
 import com.sun.org.apache.xerces.internal.impl.XMLEntityManager;
@@ -36,7 +30,11 @@ import com.sun.org.apache.xerces.internal.util.DOMEntityResolverWrapper;
 import com.sun.org.apache.xerces.internal.util.DOMErrorHandlerWrapper;
 import com.sun.org.apache.xerces.internal.util.MessageFormatter;
 import com.sun.org.apache.xerces.internal.util.ParserConfigurationSettings;
+import com.sun.org.apache.xerces.internal.util.PropertyState;
 import com.sun.org.apache.xerces.internal.util.SymbolTable;
+import com.sun.org.apache.xerces.internal.utils.ObjectFactory;
+import com.sun.org.apache.xerces.internal.utils.XMLSecurityManager;
+import com.sun.org.apache.xerces.internal.utils.XMLSecurityPropertyManager;
 import com.sun.org.apache.xerces.internal.xni.XMLDTDContentModelHandler;
 import com.sun.org.apache.xerces.internal.xni.XMLDTDHandler;
 import com.sun.org.apache.xerces.internal.xni.XMLDocumentHandler;
@@ -49,20 +47,28 @@ import com.sun.org.apache.xerces.internal.xni.parser.XMLEntityResolver;
 import com.sun.org.apache.xerces.internal.xni.parser.XMLErrorHandler;
 import com.sun.org.apache.xerces.internal.xni.parser.XMLInputSource;
 import com.sun.org.apache.xerces.internal.xni.parser.XMLParserConfiguration;
-import com.sun.org.apache.xerces.internal.utils.ObjectFactory;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Vector;
+import javax.xml.XMLConstants;
+import org.w3c.dom.DOMConfiguration;
+import org.w3c.dom.DOMErrorHandler;
 import org.w3c.dom.DOMException;
+import org.w3c.dom.DOMStringList;
 import org.w3c.dom.ls.LSResourceResolver;
 
 
 
 /**
  * Xerces implementation of DOMConfiguration that maintains a table of recognized parameters.
- * 
+ *
  * @xerces.internal
  *
  * @author Elena Litani, IBM
  * @author Neeraj Bajaj, Sun Microsystems.
- * @version $Id: DOMConfigurationImpl.java,v 1.6 2007/07/19 04:38:19 ofung Exp $
+ * @version $Id: DOMConfigurationImpl.java,v 1.9 2010-11-01 04:39:37 joehw Exp $
  */
 public class DOMConfigurationImpl extends ParserConfigurationSettings
     implements XMLParserConfiguration, DOMConfiguration {
@@ -83,7 +89,7 @@ public class DOMConfigurationImpl extends ParserConfigurationSettings
 
     protected static final String SCHEMA =
         Constants.XERCES_FEATURE_PREFIX + Constants.SCHEMA_VALIDATION_FEATURE;
-    
+
     protected static final String SCHEMA_FULL_CHECKING =
         Constants.XERCES_FEATURE_PREFIX + Constants.SCHEMA_FULL_CHECKING;
 
@@ -97,9 +103,16 @@ public class DOMConfigurationImpl extends ParserConfigurationSettings
     protected static final String SEND_PSVI =
         Constants.XERCES_FEATURE_PREFIX + Constants.SCHEMA_AUGMENT_PSVI;
 
-    protected final static String DTD_VALIDATOR_FACTORY_PROPERTY = 
-    	Constants.XERCES_PROPERTY_PREFIX + Constants.DATATYPE_VALIDATOR_FACTORY_PROPERTY;
-    
+    protected final static String DTD_VALIDATOR_FACTORY_PROPERTY =
+        Constants.XERCES_PROPERTY_PREFIX + Constants.DATATYPE_VALIDATOR_FACTORY_PROPERTY;
+
+    /** Feature identifier: namespace growth */
+    protected static final String NAMESPACE_GROWTH =
+        Constants.XERCES_FEATURE_PREFIX + Constants.NAMESPACE_GROWTH_FEATURE;
+
+    protected static final String TOLERATE_DUPLICATES =
+        Constants.XERCES_FEATURE_PREFIX + Constants.TOLERATE_DUPLICATES_FEATURE;
+
     // property identifiers
 
     /** Property identifier: entity manager. */
@@ -140,6 +153,18 @@ public class DOMConfigurationImpl extends ParserConfigurationSettings
 
     protected static final String VALIDATION_MANAGER =
         Constants.XERCES_PROPERTY_PREFIX + Constants.VALIDATION_MANAGER_PROPERTY;
+
+    /** Property identifier: Schema DV Factory */
+    protected static final String SCHEMA_DV_FACTORY =
+        Constants.XERCES_PROPERTY_PREFIX + Constants.SCHEMA_DV_FACTORY_PROPERTY;
+
+    /** Property identifier: Security manager. */
+    private static final String SECURITY_MANAGER = Constants.SECURITY_MANAGER;
+
+    /** Property identifier: Security property manager. */
+    private static final String XML_SECURITY_PROPERTY_MANAGER =
+            Constants.XML_SECURITY_PROPERTY_MANAGER;
+
     //
     // Data
     //
@@ -216,9 +241,6 @@ public class DOMConfigurationImpl extends ParserConfigurationSettings
                                     XMLComponentManager parentSettings) {
         super(parentSettings);
 
-        // create storage for recognized features and properties
-        fRecognizedFeatures = new ArrayList();
-        fRecognizedProperties = new ArrayList();
 
         // create table for features and properties
         fFeatures = new HashMap();
@@ -233,6 +255,8 @@ public class DOMConfigurationImpl extends ParserConfigurationSettings
             DYNAMIC_VALIDATION,
             NORMALIZE_DATA,
             SEND_PSVI,
+            NAMESPACE_GROWTH,
+            TOLERATE_DUPLICATES
         };
         addRecognizedFeatures(recognizedFeatures);
 
@@ -244,6 +268,7 @@ public class DOMConfigurationImpl extends ParserConfigurationSettings
         setFeature(NORMALIZE_DATA, false);
         setFeature(XERCES_NAMESPACES, true);
         setFeature(SEND_PSVI, true);
+        setFeature(NAMESPACE_GROWTH, false);
 
         // add default recognized properties
         final String[] recognizedProperties = {
@@ -257,7 +282,10 @@ public class DOMConfigurationImpl extends ParserConfigurationSettings
             GRAMMAR_POOL,
             JAXP_SCHEMA_SOURCE,
             JAXP_SCHEMA_LANGUAGE,
-			DTD_VALIDATOR_FACTORY_PROPERTY
+            DTD_VALIDATOR_FACTORY_PROPERTY,
+            SCHEMA_DV_FACTORY,
+            SECURITY_MANAGER,
+            XML_SECURITY_PROPERTY_MANAGER
         };
         addRecognizedProperties(recognizedProperties);
 
@@ -283,7 +311,7 @@ public class DOMConfigurationImpl extends ParserConfigurationSettings
         addComponent(fErrorReporter);
 
         setProperty(DTD_VALIDATOR_FACTORY_PROPERTY, DTDDVFactory.getInstance());
-		
+
         XMLEntityManager manager =  new XMLEntityManager();
         setProperty(ENTITY_MANAGER, manager);
         addComponent(manager);
@@ -291,6 +319,10 @@ public class DOMConfigurationImpl extends ParserConfigurationSettings
         fValidationManager = createValidationManager();
         setProperty(VALIDATION_MANAGER, fValidationManager);
 
+        setProperty(SECURITY_MANAGER, new XMLSecurityManager(true));
+
+        setProperty(Constants.XML_SECURITY_PROPERTY_MANAGER,
+                new XMLSecurityPropertyManager());
 
         // add message formatters
         if (fErrorReporter.getMessageFormatter(XMLMessageFormatter.XML_DOMAIN) == null) {
@@ -524,12 +556,12 @@ public class DOMConfigurationImpl extends ParserConfigurationSettings
      * setParameter
      */
     public void setParameter(String name, Object value) throws DOMException {
-    	boolean found = true;
+        boolean found = true;
 
         // REVISIT: Recognizes DOM L3 default features only.
         //          Does not yet recognize Xerces features.
-		if(value instanceof Boolean){
-	   		boolean state = ((Boolean)value).booleanValue();
+                if(value instanceof Boolean){
+                        boolean state = ((Boolean)value).booleanValue();
 
             if (name.equalsIgnoreCase(Constants.DOM_COMMENTS)) {
                 features = (short) (state ? features | COMMENTS : features & ~COMMENTS);
@@ -585,7 +617,7 @@ public class DOMConfigurationImpl extends ParserConfigurationSettings
                     throw new DOMException(DOMException.NOT_SUPPORTED_ERR, msg);
                 }
             }
-			else if ( name.equalsIgnoreCase(Constants.DOM_ELEMENT_CONTENT_WHITESPACE)) {
+                        else if ( name.equalsIgnoreCase(Constants.DOM_ELEMENT_CONTENT_WHITESPACE)) {
                 if (!state) { // false is not supported
                     String msg =
                         DOMMessageFormatter.formatMessage(
@@ -612,7 +644,7 @@ public class DOMConfigurationImpl extends ParserConfigurationSettings
                   features = (short) (state ? features | PSVI : features & ~PSVI);
             }
             else {
-            	found = false;
+                found = false;
                 /*
                 String msg =
                     DOMMessageFormatter.formatMessage(
@@ -622,11 +654,11 @@ public class DOMConfigurationImpl extends ParserConfigurationSettings
                 throw new DOMException(DOMException.NOT_FOUND_ERR, msg);
                 */
             }
-            
+
         }
-		
-		if (!found || !(value instanceof Boolean))  { // set properties
-			found = true;
+
+                if (!found || !(value instanceof Boolean))  { // set properties
+                        found = true;
 
             if (name.equalsIgnoreCase(Constants.DOM_ERROR_HANDLER)) {
                 if (value instanceof DOMErrorHandler || value == null) {
@@ -689,18 +721,18 @@ public class DOMConfigurationImpl extends ParserConfigurationSettings
                         if (value == null) {
                             setProperty(
                                 Constants.JAXP_PROPERTY_PREFIX + Constants.SCHEMA_LANGUAGE,
-                                null);                  		
+                                null);
                         }
                         else if (value.equals(Constants.NS_XMLSCHEMA)) {
                             // REVISIT: when add support to DTD validation
                             setProperty(
                                 Constants.JAXP_PROPERTY_PREFIX + Constants.SCHEMA_LANGUAGE,
                                 Constants.NS_XMLSCHEMA);
-                        }	                        
+                        }
                         else if (value.equals(Constants.NS_DTD)) {
                             // Added support for revalidation against DTDs
-                        	setProperty(Constants.JAXP_PROPERTY_PREFIX + Constants.SCHEMA_LANGUAGE,
-                        			Constants.NS_DTD);
+                                setProperty(Constants.JAXP_PROPERTY_PREFIX + Constants.SCHEMA_LANGUAGE,
+                                                Constants.NS_DTD);
                         }
                     }
                     catch (XMLConfigurationException e) {}
@@ -764,90 +796,90 @@ public class DOMConfigurationImpl extends ParserConfigurationSettings
      * DOM Level 3 WD - Experimental.
      * getParameter
      */
-	public Object getParameter(String name) throws DOMException {
+        public Object getParameter(String name) throws DOMException {
 
-		// REVISIT: Recognizes DOM L3 default features only.
-		//          Does not yet recognize Xerces features.
+                // REVISIT: Recognizes DOM L3 default features only.
+                //          Does not yet recognize Xerces features.
 
-		if (name.equalsIgnoreCase(Constants.DOM_COMMENTS)) {
-			return ((features & COMMENTS) != 0) ? Boolean.TRUE : Boolean.FALSE;
-		}
-		else if (name.equalsIgnoreCase(Constants.DOM_NAMESPACES)) {
-			return (features & NAMESPACES) != 0 ? Boolean.TRUE : Boolean.FALSE;
-		}
-		else if (name.equalsIgnoreCase(Constants.DOM_DATATYPE_NORMALIZATION)) {
-			// REVISIT: datatype-normalization only takes effect if validation is on
-			return (features & DTNORMALIZATION) != 0 ? Boolean.TRUE : Boolean.FALSE;
-		}
-		else if (name.equalsIgnoreCase(Constants.DOM_CDATA_SECTIONS)) {
-			return (features & CDATA) != 0 ? Boolean.TRUE : Boolean.FALSE;
-		}
-		else if (name.equalsIgnoreCase(Constants.DOM_ENTITIES)) {
-			return (features & ENTITIES) != 0 ? Boolean.TRUE : Boolean.FALSE;
-		}
-		else if (name.equalsIgnoreCase(Constants.DOM_SPLIT_CDATA)) {
-			return (features & SPLITCDATA) != 0 ? Boolean.TRUE : Boolean.FALSE;
-		}
-		else if (name.equalsIgnoreCase(Constants.DOM_VALIDATE)) {
-			return (features & VALIDATE) != 0 ? Boolean.TRUE : Boolean.FALSE;
-		}
-		else if (name.equalsIgnoreCase(Constants.DOM_WELLFORMED)) {
-			return (features & WELLFORMED) != 0 ? Boolean.TRUE : Boolean.FALSE;
-		}
-		else if (name.equalsIgnoreCase(Constants.DOM_NAMESPACE_DECLARATIONS)) {
-		    return (features & NSDECL) != 0 ? Boolean.TRUE : Boolean.FALSE;
-		} 
-		else if (name.equalsIgnoreCase(Constants.DOM_INFOSET)) {
-			return (features & INFOSET_MASK) == INFOSET_TRUE_PARAMS ? Boolean.TRUE : Boolean.FALSE;
-		}
-		else if (name.equalsIgnoreCase(Constants.DOM_NORMALIZE_CHARACTERS)
-				|| name.equalsIgnoreCase(Constants.DOM_CANONICAL_FORM)
-				|| name.equalsIgnoreCase(Constants.DOM_VALIDATE_IF_SCHEMA)
-				|| name.equalsIgnoreCase(Constants.DOM_CHECK_CHAR_NORMALIZATION)
+                if (name.equalsIgnoreCase(Constants.DOM_COMMENTS)) {
+                        return ((features & COMMENTS) != 0) ? Boolean.TRUE : Boolean.FALSE;
+                }
+                else if (name.equalsIgnoreCase(Constants.DOM_NAMESPACES)) {
+                        return (features & NAMESPACES) != 0 ? Boolean.TRUE : Boolean.FALSE;
+                }
+                else if (name.equalsIgnoreCase(Constants.DOM_DATATYPE_NORMALIZATION)) {
+                        // REVISIT: datatype-normalization only takes effect if validation is on
+                        return (features & DTNORMALIZATION) != 0 ? Boolean.TRUE : Boolean.FALSE;
+                }
+                else if (name.equalsIgnoreCase(Constants.DOM_CDATA_SECTIONS)) {
+                        return (features & CDATA) != 0 ? Boolean.TRUE : Boolean.FALSE;
+                }
+                else if (name.equalsIgnoreCase(Constants.DOM_ENTITIES)) {
+                        return (features & ENTITIES) != 0 ? Boolean.TRUE : Boolean.FALSE;
+                }
+                else if (name.equalsIgnoreCase(Constants.DOM_SPLIT_CDATA)) {
+                        return (features & SPLITCDATA) != 0 ? Boolean.TRUE : Boolean.FALSE;
+                }
+                else if (name.equalsIgnoreCase(Constants.DOM_VALIDATE)) {
+                        return (features & VALIDATE) != 0 ? Boolean.TRUE : Boolean.FALSE;
+                }
+                else if (name.equalsIgnoreCase(Constants.DOM_WELLFORMED)) {
+                        return (features & WELLFORMED) != 0 ? Boolean.TRUE : Boolean.FALSE;
+                }
+                else if (name.equalsIgnoreCase(Constants.DOM_NAMESPACE_DECLARATIONS)) {
+                    return (features & NSDECL) != 0 ? Boolean.TRUE : Boolean.FALSE;
+                }
+                else if (name.equalsIgnoreCase(Constants.DOM_INFOSET)) {
+                        return (features & INFOSET_MASK) == INFOSET_TRUE_PARAMS ? Boolean.TRUE : Boolean.FALSE;
+                }
+                else if (name.equalsIgnoreCase(Constants.DOM_NORMALIZE_CHARACTERS)
+                                || name.equalsIgnoreCase(Constants.DOM_CANONICAL_FORM)
+                                || name.equalsIgnoreCase(Constants.DOM_VALIDATE_IF_SCHEMA)
+                                || name.equalsIgnoreCase(Constants.DOM_CHECK_CHAR_NORMALIZATION)
                 ) {
-			return Boolean.FALSE;
-		}
+                        return Boolean.FALSE;
+                }
         else if (name.equalsIgnoreCase(SEND_PSVI)) {
             return Boolean.TRUE;
         }
         else if (name.equalsIgnoreCase(Constants.DOM_PSVI)) {
             return (features & PSVI) != 0 ? Boolean.TRUE : Boolean.FALSE;
-        }		
+        }
         else if (name.equalsIgnoreCase(Constants.DOM_ELEMENT_CONTENT_WHITESPACE)) {
-			return Boolean.TRUE;
-		}
-		else if (name.equalsIgnoreCase(Constants.DOM_ERROR_HANDLER)) {
+                        return Boolean.TRUE;
+                }
+                else if (name.equalsIgnoreCase(Constants.DOM_ERROR_HANDLER)) {
             return fErrorHandlerWrapper.getErrorHandler();
-		}
-		else if (name.equalsIgnoreCase(Constants.DOM_RESOURCE_RESOLVER)) {
-			XMLEntityResolver entityResolver = getEntityResolver();
-			if (entityResolver != null && entityResolver instanceof DOMEntityResolverWrapper) {
-				return ((DOMEntityResolverWrapper) entityResolver).getEntityResolver();
-			}
-			return null;
-		}
-		else if (name.equalsIgnoreCase(Constants.DOM_SCHEMA_TYPE)) {
-			return getProperty(Constants.JAXP_PROPERTY_PREFIX + Constants.SCHEMA_LANGUAGE);
-		}
-		else if (name.equalsIgnoreCase(Constants.DOM_SCHEMA_LOCATION)) {
-			return getProperty(Constants.JAXP_PROPERTY_PREFIX + Constants.SCHEMA_SOURCE);
-		}
+                }
+                else if (name.equalsIgnoreCase(Constants.DOM_RESOURCE_RESOLVER)) {
+                        XMLEntityResolver entityResolver = getEntityResolver();
+                        if (entityResolver != null && entityResolver instanceof DOMEntityResolverWrapper) {
+                                return ((DOMEntityResolverWrapper) entityResolver).getEntityResolver();
+                        }
+                        return null;
+                }
+                else if (name.equalsIgnoreCase(Constants.DOM_SCHEMA_TYPE)) {
+                        return getProperty(Constants.JAXP_PROPERTY_PREFIX + Constants.SCHEMA_LANGUAGE);
+                }
+                else if (name.equalsIgnoreCase(Constants.DOM_SCHEMA_LOCATION)) {
+                        return getProperty(Constants.JAXP_PROPERTY_PREFIX + Constants.SCHEMA_SOURCE);
+                }
         else if (name.equalsIgnoreCase(SYMBOL_TABLE)){
             return getProperty(SYMBOL_TABLE);
         }
         else if (name.equalsIgnoreCase(GRAMMAR_POOL)){
             return getProperty(GRAMMAR_POOL);
         }
-		else {
-			String msg =
-				DOMMessageFormatter.formatMessage(
-					DOMMessageFormatter.DOM_DOMAIN,
-					"FEATURE_NOT_FOUND",
-					new Object[] { name });
-			throw new DOMException(DOMException.NOT_FOUND_ERR, msg);
-		}
+                else {
+                        String msg =
+                                DOMMessageFormatter.formatMessage(
+                                        DOMMessageFormatter.DOM_DOMAIN,
+                                        "FEATURE_NOT_FOUND",
+                                        new Object[] { name });
+                        throw new DOMException(DOMException.NOT_FOUND_ERR, msg);
+                }
 
-	}
+        }
 
     /**
      * DOM Level 3 WD - Experimental.
@@ -862,7 +894,7 @@ public class DOMConfigurationImpl extends ParserConfigurationSettings
      * the requested value is not supported. This does not change the
      * current value of the parameter itself.
      */
-	public boolean canSetParameter(String name, Object value) {
+        public boolean canSetParameter(String name, Object value) {
 
         if (value == null){
             //if null, the returned value is true.
@@ -907,7 +939,7 @@ public class DOMConfigurationImpl extends ParserConfigurationSettings
                 return false ;
             }
         }
-		else if (name.equalsIgnoreCase(Constants.DOM_ERROR_HANDLER)) {
+                else if (name.equalsIgnoreCase(Constants.DOM_ERROR_HANDLER)) {
             return (value instanceof DOMErrorHandler) ? true : false ;
         }
         else if (name.equalsIgnoreCase(Constants.DOM_RESOURCE_RESOLVER)) {
@@ -933,7 +965,7 @@ public class DOMConfigurationImpl extends ParserConfigurationSettings
             return false ;
         }
 
-	} //canSetParameter
+        } //canSetParameter
 
     /**
      *  DOM Level 3 CR - Experimental.
@@ -944,45 +976,45 @@ public class DOMConfigurationImpl extends ParserConfigurationSettings
      * parameter names defined outside this specification.
      */
     public DOMStringList getParameterNames() {
-    	if (fRecognizedParameters == null){
-			Vector parameters = new Vector();
+        if (fRecognizedParameters == null){
+                        Vector parameters = new Vector();
 
-			//Add DOM recognized parameters
-			//REVISIT: Would have been nice to have a list of
-			//recognized paramters.
-			parameters.add(Constants.DOM_COMMENTS);
-			parameters.add(Constants.DOM_DATATYPE_NORMALIZATION);
-			parameters.add(Constants.DOM_CDATA_SECTIONS);
-			parameters.add(Constants.DOM_ENTITIES);
-			parameters.add(Constants.DOM_SPLIT_CDATA);
-			parameters.add(Constants.DOM_NAMESPACES);
-			parameters.add(Constants.DOM_VALIDATE);
+                        //Add DOM recognized parameters
+                        //REVISIT: Would have been nice to have a list of
+                        //recognized paramters.
+                        parameters.add(Constants.DOM_COMMENTS);
+                        parameters.add(Constants.DOM_DATATYPE_NORMALIZATION);
+                        parameters.add(Constants.DOM_CDATA_SECTIONS);
+                        parameters.add(Constants.DOM_ENTITIES);
+                        parameters.add(Constants.DOM_SPLIT_CDATA);
+                        parameters.add(Constants.DOM_NAMESPACES);
+                        parameters.add(Constants.DOM_VALIDATE);
 
-			parameters.add(Constants.DOM_INFOSET);
-			parameters.add(Constants.DOM_NORMALIZE_CHARACTERS);
-			parameters.add(Constants.DOM_CANONICAL_FORM);
-			parameters.add(Constants.DOM_VALIDATE_IF_SCHEMA);
-			parameters.add(Constants.DOM_CHECK_CHAR_NORMALIZATION);
-			parameters.add(Constants.DOM_WELLFORMED);
+                        parameters.add(Constants.DOM_INFOSET);
+                        parameters.add(Constants.DOM_NORMALIZE_CHARACTERS);
+                        parameters.add(Constants.DOM_CANONICAL_FORM);
+                        parameters.add(Constants.DOM_VALIDATE_IF_SCHEMA);
+                        parameters.add(Constants.DOM_CHECK_CHAR_NORMALIZATION);
+                        parameters.add(Constants.DOM_WELLFORMED);
 
-			parameters.add(Constants.DOM_NAMESPACE_DECLARATIONS);
-			parameters.add(Constants.DOM_ELEMENT_CONTENT_WHITESPACE);
+                        parameters.add(Constants.DOM_NAMESPACE_DECLARATIONS);
+                        parameters.add(Constants.DOM_ELEMENT_CONTENT_WHITESPACE);
 
-			parameters.add(Constants.DOM_ERROR_HANDLER);
-			parameters.add(Constants.DOM_SCHEMA_TYPE);
-			parameters.add(Constants.DOM_SCHEMA_LOCATION);
-			parameters.add(Constants.DOM_RESOURCE_RESOLVER);
+                        parameters.add(Constants.DOM_ERROR_HANDLER);
+                        parameters.add(Constants.DOM_SCHEMA_TYPE);
+                        parameters.add(Constants.DOM_SCHEMA_LOCATION);
+                        parameters.add(Constants.DOM_RESOURCE_RESOLVER);
 
-			//Add recognized xerces features and properties
-			parameters.add(GRAMMAR_POOL);
-			parameters.add(SYMBOL_TABLE);
-			parameters.add(SEND_PSVI);
+                        //Add recognized xerces features and properties
+                        parameters.add(GRAMMAR_POOL);
+                        parameters.add(SYMBOL_TABLE);
+                        parameters.add(SEND_PSVI);
 
-			fRecognizedParameters = new DOMStringListImpl(parameters);
+                        fRecognizedParameters = new DOMStringListImpl(parameters);
 
-    	}
+        }
 
-    	return fRecognizedParameters;
+        return fRecognizedParameters;
     }//getParameterNames
 
     //
@@ -1014,7 +1046,7 @@ public class DOMConfigurationImpl extends ParserConfigurationSettings
      * @exception com.sun.org.apache.xerces.internal.xni.parser.XMLConfigurationException If the
      *            requested feature is not known or supported.
      */
-    protected void checkProperty(String propertyId)
+    protected PropertyState checkProperty(String propertyId)
         throws XMLConfigurationException {
 
         // special cases
@@ -1036,13 +1068,12 @@ public class DOMConfigurationImpl extends ParserConfigurationSettings
                 // REVISIT - we should probably ask xml-dev for a precise
                 // definition of what this is actually supposed to return, and
                 // in exactly which circumstances.
-                short type = XMLConfigurationException.NOT_SUPPORTED;
-                throw new XMLConfigurationException(type, propertyId);
+                return PropertyState.NOT_SUPPORTED;
             }
         }
 
         // check property
-        super.checkProperty(propertyId);
+        return super.checkProperty(propertyId);
 
     } // checkProperty(String)
 

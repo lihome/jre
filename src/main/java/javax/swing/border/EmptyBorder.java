@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2007, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 package javax.swing.border;
 
@@ -11,6 +29,7 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.Component;
 import java.io.Serializable;
+import java.beans.ConstructorProperties;
 
 /**
  * A class which provides an empty, transparent border which
@@ -25,7 +44,6 @@ import java.io.Serializable;
  * has been added to the <code>java.beans</code> package.
  * Please see {@link java.beans.XMLEncoder}.
  *
- * @version %I% %G%
  * @author David Kloba
  */
 public class EmptyBorder extends AbstractBorder implements Serializable
@@ -40,7 +58,7 @@ public class EmptyBorder extends AbstractBorder implements Serializable
      * @param right the right inset of the border
      */
     public EmptyBorder(int top, int left, int bottom, int right)   {
-        this.top = top; 
+        this.top = top;
         this.right = right;
         this.bottom = bottom;
         this.left = left;
@@ -50,8 +68,9 @@ public class EmptyBorder extends AbstractBorder implements Serializable
      * Creates an empty border with the specified insets.
      * @param borderInsets the insets of the border
      */
+    @ConstructorProperties({"borderInsets"})
     public EmptyBorder(Insets borderInsets)   {
-        this.top = borderInsets.top; 
+        this.top = borderInsets.top;
         this.right = borderInsets.right;
         this.bottom = borderInsets.bottom;
         this.left = borderInsets.left;
@@ -64,16 +83,7 @@ public class EmptyBorder extends AbstractBorder implements Serializable
     }
 
     /**
-     * Returns the insets of the border.
-     * @param c the component for which this border insets value applies
-     * @since 1.3
-     */
-    public Insets getBorderInsets(Component c)       {
-        return getBorderInsets();
-    }
-
-    /** 
-     * Reinitialize the insets parameter with this Border's current Insets. 
+     * Reinitialize the insets parameter with this Border's current Insets.
      * @param c the component for which this border insets value applies
      * @param insets the object to be reinitialized
      */

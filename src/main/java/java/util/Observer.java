@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1994, 1998, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 package java.util;
 
@@ -11,7 +29,6 @@ package java.util;
  * wants to be informed of changes in observable objects.
  *
  * @author  Chris Warth
- * @version %I%, %G%
  * @see     java.util.Observable
  * @since   JDK1.0
  */

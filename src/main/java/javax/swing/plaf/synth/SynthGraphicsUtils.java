@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2002, 2011, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 package javax.swing.plaf.synth;
 
@@ -18,7 +36,6 @@ import sun.swing.plaf.synth.*;
 /**
  * Wrapper for primitive graphics calls.
  *
- * @version %I%, %G%
  * @since 1.5
  * @author Scott Violet
  */
@@ -59,7 +76,7 @@ public class SynthGraphicsUtils {
                          Graphics g, int x1, int y1, int x2, int y2) {
         g.drawLine(x1, y1, x2, y2);
     }
-    
+
     /**
      * Draws a line between the two end points.
      * <p>This implementation supports only one line style key,
@@ -178,12 +195,12 @@ public class SynthGraphicsUtils {
         Dimension size = getPreferredSize(ss, font, text, icon, hAlign,
                                           vAlign, hTextPosition, vTextPosition,
                                           iconTextGap, mnemonicIndex);
-	View v = (View) c.getClientProperty(BasicHTML.propertyKey);
+        View v = (View) c.getClientProperty(BasicHTML.propertyKey);
 
-	if (v != null) {
-	    size.width -= v.getPreferredSpan(View.X_AXIS) -
+        if (v != null) {
+            size.width -= v.getPreferredSpan(View.X_AXIS) -
                           v.getMinimumSpan(View.X_AXIS);
-	}
+        }
         return size;
     }
 
@@ -209,12 +226,12 @@ public class SynthGraphicsUtils {
         Dimension size = getPreferredSize(ss, font, text, icon, hAlign,
                                           vAlign, hTextPosition, vTextPosition,
                                           iconTextGap, mnemonicIndex);
-	View v = (View) c.getClientProperty(BasicHTML.propertyKey);
+        View v = (View) c.getClientProperty(BasicHTML.propertyKey);
 
-	if (v != null) {
-	    size.width += v.getMaximumSpan(View.X_AXIS) -
+        if (v != null) {
+            size.width += v.getMaximumSpan(View.X_AXIS) -
                           v.getPreferredSpan(View.X_AXIS);
-	}
+        }
         return size;
     }
 
@@ -259,7 +276,7 @@ public class SynthGraphicsUtils {
             return new Dimension(dx, dy);
         }
         else if ((text == null) || ((icon != null) && (font == null))) {
-            return new Dimension(SynthIcon.getIconWidth(icon, ss) + dx, 
+            return new Dimension(SynthIcon.getIconWidth(icon, ss) + dx,
                                  SynthIcon.getIconHeight(icon, ss) + dy);
         }
         else {
@@ -318,21 +335,10 @@ public class SynthGraphicsUtils {
                           int x, int y, int mnemonicIndex) {
         if (text != null) {
             JComponent c = ss.getComponent();
-            SynthStyle style = ss.getStyle();
             FontMetrics fm = SwingUtilities2.getFontMetrics(c, g);
-
             y += fm.getAscent();
-            SwingUtilities2.drawString(c, g, text, x, y);
-            if (mnemonicIndex >= 0 && mnemonicIndex < text.length()) {
-                int underlineX = x + SwingUtilities2.stringWidth(
-                             c, fm, text.substring(0, mnemonicIndex));
-                int underlineY = y;
-                int underlineWidth = fm.charWidth(text.charAt(mnemonicIndex));
-                int underlineHeight = 1;
-
-                g.fillRect(underlineX, underlineY + fm.getDescent() - 1,
-                           underlineWidth, underlineHeight);
-            }
+            SwingUtilities2.drawStringUnderlineCharAt(c, g, text,
+                                                      mnemonicIndex, x, y);
         }
     }
 
@@ -372,14 +378,20 @@ public class SynthGraphicsUtils {
         paintIconR.x = paintIconR.y = paintIconR.width = paintIconR.height = 0;
         paintTextR.x = paintTextR.y = paintTextR.width = paintTextR.height = 0;
 
-        String clippedText = 
+        String clippedText =
             layoutText(ss, fm, text, icon, hAlign, vAlign,
                    hTextPosition, vTextPosition, paintViewR, paintIconR,
                    paintTextR, iconTextGap);
 
         if (icon != null) {
             Color color = g.getColor();
-            paintIconR.x += textOffset;
+
+            if (ss.getStyle().getBoolean(ss, "TableHeader.alignSorterArrow", false) &&
+                "TableHeader.renderer".equals(c.getName())) {
+                paintIconR.x = paintViewR.width - paintIconR.width;
+            } else {
+                paintIconR.x += textOffset;
+            }
             paintIconR.y += textOffset;
             SynthIcon.paintIcon(icon, ss, g, paintIconR.x, paintIconR.y,
                                 paintIconR.width, paintIconR.height);
@@ -387,16 +399,16 @@ public class SynthGraphicsUtils {
         }
 
         if (text != null) {
-	    View v = (View) c.getClientProperty(BasicHTML.propertyKey);
+            View v = (View) c.getClientProperty(BasicHTML.propertyKey);
 
-	    if (v != null) {
-		v.paint(g, paintTextR);
-	    } else {
+            if (v != null) {
+                v.paint(g, paintTextR);
+            } else {
                 paintTextR.x += textOffset;
                 paintTextR.y += textOffset;
 
                 paintText(ss, g, clippedText, paintTextR, mnemonicIndex);
-	    }
+            }
         }
     }
 
@@ -463,11 +475,11 @@ public class SynthGraphicsUtils {
          return result;
      }
 
-    static void applyInsets(Rectangle rect, Insets insets) {
+    static void applyInsets(Rectangle rect, Insets insets, boolean leftToRight) {
         if (insets != null) {
-            rect.x += insets.left;
+            rect.x += (leftToRight ? insets.left : insets.right);
             rect.y += insets.top;
-            rect.width -= (insets.right + rect.x);
+            rect.width -= (leftToRight ? insets.right : insets.left) + rect.x;
             rect.height -= (insets.bottom + rect.y);
         }
     }
@@ -480,12 +492,12 @@ public class SynthGraphicsUtils {
         g.setFont(style.getFont(context));
 
         Rectangle viewRect = new Rectangle(0, 0, mi.getWidth(), mi.getHeight());
-        applyInsets(viewRect, mi.getInsets());
+        boolean leftToRight = SynthLookAndFeel.isLeftToRight(mi);
+        applyInsets(viewRect, mi.getInsets(), leftToRight);
 
         SynthMenuItemLayoutHelper lh = new SynthMenuItemLayoutHelper(
-                context, accContext, mi, checkIcon,
-                arrowIcon, viewRect, defaultTextIconGap, acceleratorDelimiter,
-                SynthLookAndFeel.isLeftToRight(mi),
+                context, accContext, mi, checkIcon, arrowIcon, viewRect,
+                defaultTextIconGap, acceleratorDelimiter, leftToRight,
                 MenuItemLayoutHelper.useCheckAndArrow(mi), propertyPrefix);
         MenuItemLayoutHelper.LayoutResult lr = lh.layoutMenuItem();
 
@@ -525,15 +537,15 @@ public class SynthGraphicsUtils {
             JMenuItem mi = lh.getMenuItem();
             ButtonModel model = mi.getModel();
             if (!model.isEnabled()) {
-                icon = (Icon) mi.getDisabledIcon();
+                icon = mi.getDisabledIcon();
             } else if (model.isPressed() && model.isArmed()) {
-                icon = (Icon) mi.getPressedIcon();
+                icon = mi.getPressedIcon();
                 if (icon == null) {
                     // Use default icon
-                    icon = (Icon) mi.getIcon();
+                    icon = mi.getIcon();
                 }
             } else {
-                icon = (Icon) mi.getIcon();
+                icon = mi.getIcon();
             }
 
             if (icon != null) {
@@ -597,7 +609,7 @@ public class SynthGraphicsUtils {
      * the SynthIcon with a given SynthContext.
      */
     private static class SynthIconWrapper implements Icon {
-        private static final java.util.List CACHE = new java.util.ArrayList(1);
+        private static final java.util.List<SynthIconWrapper> CACHE = new java.util.ArrayList<SynthIconWrapper>(1);
 
         private SynthIcon synthIcon;
         private SynthContext context;
@@ -606,8 +618,7 @@ public class SynthGraphicsUtils {
             synchronized(CACHE) {
                 int size = CACHE.size();
                 if (size > 0) {
-                    SynthIconWrapper wrapper = (SynthIconWrapper)CACHE.remove(
-                                               size - 1);
+                    SynthIconWrapper wrapper = CACHE.remove(size - 1);
                     wrapper.reset(icon, context);
                     return wrapper;
                 }

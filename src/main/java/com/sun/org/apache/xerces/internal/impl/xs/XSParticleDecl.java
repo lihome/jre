@@ -1,12 +1,16 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright 2001, 2002,2004 The Apache Software Foundation.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,19 +20,21 @@
 
 package com.sun.org.apache.xerces.internal.impl.xs;
 
+import com.sun.org.apache.xerces.internal.impl.xs.util.XSObjectListImpl;
 import com.sun.org.apache.xerces.internal.xs.XSConstants;
 import com.sun.org.apache.xerces.internal.xs.XSNamespaceItem;
+import com.sun.org.apache.xerces.internal.xs.XSObjectList;
 import com.sun.org.apache.xerces.internal.xs.XSParticle;
 import com.sun.org.apache.xerces.internal.xs.XSTerm;
 
 /**
  * Store schema particle declaration.
  *
- * @xerces.internal 
+ * @xerces.internal
  *
  * @author Sandy Gao, IBM
  *
- * @version $Id: XSParticleDecl.java,v 1.4 2007/07/19 04:38:42 ofung Exp $
+ * @version $Id: XSParticleDecl.java,v 1.7 2010-11-01 04:39:55 joehw Exp $
  */
 public class XSParticleDecl implements XSParticle {
 
@@ -43,7 +49,7 @@ public class XSParticleDecl implements XSParticle {
 
     // type of the particle
     public short fType = PARTICLE_EMPTY;
-    
+
     // term of the particle
     // for PARTICLE_ELEMENT : the element decl
     // for PARTICLE_WILDCARD: the wildcard decl
@@ -54,6 +60,8 @@ public class XSParticleDecl implements XSParticle {
     public int fMinOccurs = 1;
     // maximum occurrence of this particle
     public int fMaxOccurs = 1;
+    // optional annotation
+    public XSObjectList fAnnotations = null;
 
     // clone this decl
     public XSParticleDecl makeClone() {
@@ -63,9 +71,10 @@ public class XSParticleDecl implements XSParticle {
         particle.fMaxOccurs = fMaxOccurs;
         particle.fDescription = fDescription;
         particle.fValue = fValue;
+        particle.fAnnotations = fAnnotations;
         return particle;
     }
-    
+
     /**
      * 3.9.6 Schema Component Constraint: Particle Emptiable
      * whether this particle is emptible
@@ -79,7 +88,7 @@ public class XSParticleDecl implements XSParticle {
         if (fType == PARTICLE_EMPTY)
              return true;
         if (fType == PARTICLE_ELEMENT || fType == PARTICLE_WILDCARD)
-            return false; 
+            return false;
 
         return ((XSModelGroupImpl)fValue).isEmpty();
     }
@@ -126,12 +135,12 @@ public class XSParticleDecl implements XSParticle {
             appendParticle(buffer);
             if (!(fMinOccurs == 0 && fMaxOccurs == 0 ||
                   fMinOccurs == 1 && fMaxOccurs == 1)) {
-                buffer.append("{" + fMinOccurs);
+                buffer.append('{').append(fMinOccurs);
                 if (fMaxOccurs == SchemaSymbols.OCCURRENCE_UNBOUNDED)
                     buffer.append("-UNBOUNDED");
                 else if (fMinOccurs != fMaxOccurs)
-                    buffer.append("-" + fMaxOccurs);
-                buffer.append("}");
+                    buffer.append('-').append(fMaxOccurs);
+                buffer.append('}');
             }
             fDescription = buffer.toString();
         }
@@ -167,6 +176,7 @@ public class XSParticleDecl implements XSParticle {
         fMinOccurs = 1;
         fMaxOccurs = 1;
         fDescription = null;
+        fAnnotations = null;
     }
 
     /**
@@ -221,11 +231,18 @@ public class XSParticleDecl implements XSParticle {
         return fValue;
     }
 
-	/**
-	 * @see com.sun.org.apache.xerces.internal.xs.XSObject#getNamespaceItem()
-	 */
-	public XSNamespaceItem getNamespaceItem() {
-		return null;
-	}
+        /**
+         * @see org.apache.xerces.xs.XSObject#getNamespaceItem()
+         */
+        public XSNamespaceItem getNamespaceItem() {
+                return null;
+        }
 
-} // class XSParticle
+    /**
+     * Optional. Annotations.
+     */
+    public XSObjectList getAnnotations() {
+        return (fAnnotations != null) ? fAnnotations : XSObjectListImpl.EMPTY_LIST;
+    }
+
+} // class XSParticleDecl

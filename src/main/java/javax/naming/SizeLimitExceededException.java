@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1999, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 
@@ -23,7 +41,6 @@ import javax.naming.Name;
   * @author Rosanna Lee
   * @author Scott Seligman
   *
-  * @version %I% %E%
   * @since 1.3
   */
 public class SizeLimitExceededException extends LimitExceededException {
@@ -32,7 +49,7 @@ public class SizeLimitExceededException extends LimitExceededException {
      * All fields default to null.
      */
     public SizeLimitExceededException() {
-	super();
+        super();
     }
 
     /**
@@ -42,7 +59,7 @@ public class SizeLimitExceededException extends LimitExceededException {
      * @param explanation Possibly null detail about this exception.
      */
     public SizeLimitExceededException(String explanation) {
-	super(explanation);
+        super(explanation);
     }
 
     /**

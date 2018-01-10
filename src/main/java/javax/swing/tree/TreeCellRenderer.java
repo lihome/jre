@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2006, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 package javax.swing.tree;
 
@@ -17,7 +35,6 @@ import javax.swing.JTree;
  * for an example of implementing a tree cell renderer
  * that displays custom icons.
  *
- * @version %I% %G%
  * @author Rob Davis
  * @author Ray Ryan
  * @author Scott Violet
@@ -50,10 +67,10 @@ public interface TreeCellRenderer {
      *     }
      * </pre>
      *
-     * @return	the <code>Component</code> that the renderer uses to draw the value
+     * @return  the <code>Component</code> that the renderer uses to draw the value
      */
     Component getTreeCellRendererComponent(JTree tree, Object value,
-				   boolean selected, boolean expanded,
-				   boolean leaf, int row, boolean hasFocus);
+                                   boolean selected, boolean expanded,
+                                   boolean leaf, int row, boolean hasFocus);
 
 }

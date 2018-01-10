@@ -1,54 +1,15 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
+ * Copyright 2001-2004 The Apache Software Foundation.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The contents of this file are subject to the terms of either the GNU
- * General Public License Version 2 only ("GPL") or the Common Development
- * and Distribution License("CDDL") (collectively, the "License").  You
- * may not use this file except in compliance with the License.  You can
- * obtain a copy of the License at
- * https://glassfish.dev.java.net/public/CDDL+GPL_1_1.html
- * or packager/legal/LICENSE.txt.  See the License for the specific
- * language governing permissions and limitations under the License.
- *
- * When distributing the software, include this License Header Notice in each
- * file and include the License file at packager/legal/LICENSE.txt.
- *
- * GPL Classpath Exception:
- * Oracle designates this particular file as subject to the "Classpath"
- * exception as provided by Oracle in the GPL Version 2 section of the License
- * file that accompanied this code.
- *
- * Modifications:
- * If applicable, add the following below the License Header, with the fields
- * enclosed by brackets [] replaced by your own identifying information:
- * "Portions Copyright [year] [name of copyright owner]"
- *
- * Contributor(s):
- * If you wish your version of this file to be governed by only the CDDL or
- * only the GPL Version 2, indicate your decision by adding "[Contributor]
- * elects to include this software in this distribution under the [CDDL or GPL
- * Version 2] license."  If you don't indicate a single choice of license, a
- * recipient has the option to distribute your version of this file under
- * either the CDDL, the GPL Version 2 or to extend the choice of license to
- * its licensees as provided above.  However, if you add GPL Version 2 code
- * and therefore, elected the GPL Version 2 license, then the option applies
- * only if the new code is made subject to such option by the copyright
- * holder.
- *
- *
- * This file incorporates work covered by the following copyright and
- * permission notice:
- *
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -56,10 +17,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 /*
- * $Id: ObjectFactory.java,v 1.11 2010-11-01 04:34:25 joehw Exp $
+ * $Id: ObjectFactory.java,v 1.2.4.1 2005/09/15 02:39:54 jeffsuttor Exp $
  */
+
 package com.sun.org.apache.xalan.internal.utils;
 
 import java.io.InputStream;
@@ -78,12 +39,12 @@ import java.io.InputStreamReader;
  * <p>
  * This code is designed to implement the JAXP 1.1 spec pluggability
  * feature and is designed to run on JDK version 1.1 and
- * later, and to compile on JDK 1.2 and onward.  
+ * later, and to compile on JDK 1.2 and onward.
  * The code also runs both as part of an unbundled jar file and
  * when bundled as part of the JDK.
  * <p>
  * This class was moved from the <code>javax.xml.parsers.ObjectFactory</code>
- * class and modified to be used as a general utility for creating objects 
+ * class and modified to be used as a general utility for creating objects
  * dynamically.
  *
  * @version $Id: ObjectFactory.java,v 1.11 2010-11-01 04:34:25 joehw Exp $
@@ -93,8 +54,8 @@ public class ObjectFactory {
     //
     // Constants
     //
-     private static final String XALAN_INTERNAL = "com.sun.org.apache.xalan.internal";
-     private static final String XERCES_INTERNAL = "com.sun.org.apache.xerces.internal";
+     private static final String JAXP_INTERNAL = "com.sun.org.apache";
+     private static final String STAX_INTERNAL = "com.sun.xml.internal";
 
     // name of default properties file to look for in JDK's jre/lib directory
     private static final String DEFAULT_PROPERTIES_FILENAME =
@@ -168,7 +129,7 @@ public class ObjectFactory {
      *
      * @exception ObjectFactory.ConfigurationError
      */
-    static Object createObject(String factoryId, 
+    static Object createObject(String factoryId,
                                       String propertiesFilename,
                                       String fallbackClassName)
         throws ConfigurationError
@@ -362,13 +323,13 @@ public class ObjectFactory {
                         fis = SecuritySupport.getFileInputStream(propertiesFile);
                         fXalanProperties.load(fis);
                     }
-	        } catch (Exception x) {
-	            fXalanProperties = null;
-	            fLastModified = -1;
+                } catch (Exception x) {
+                    fXalanProperties = null;
+                    fLastModified = -1;
                     // assert(x instanceof FileNotFoundException
-	            //        || x instanceof SecurityException)
-	            // In both cases, ignore and continue w/ next location
-	        }
+                    //        || x instanceof SecurityException)
+                    // In both cases, ignore and continue w/ next location
+                }
                 finally {
                     // try to close the input stream if one was opened.
                     if (fis != null) {
@@ -378,7 +339,7 @@ public class ObjectFactory {
                         // Ignore the exception.
                         catch (IOException exc) {}
                     }
-                }	            
+                }
             }
             if(fXalanProperties != null) {
                 factoryClassName = fXalanProperties.getProperty(factoryId);
@@ -404,7 +365,7 @@ public class ObjectFactory {
                     // Ignore the exception.
                     catch (IOException exc) {}
                 }
-            }               
+            }
         }
         if (factoryClassName != null) {
             if (DEBUG) debugPrintln("found in " + propertiesFilename + ", value="
@@ -433,7 +394,7 @@ public class ObjectFactory {
      */
     public static ClassLoader findClassLoader()
         throws ConfigurationError
-    { 
+    {
         if (System.getSecurityManager()!=null) {
             //this will ensure bootclassloader is used
             return null;
@@ -507,7 +468,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of a class using the specified ClassLoader
-     */ 
+     */
     static Object newInstance(String className, ClassLoader cl,
                                       boolean doFallback)
         throws ConfigurationError
@@ -536,28 +497,24 @@ public class ObjectFactory {
     public static Class findProviderClass(String className, boolean doFallback)
         throws ClassNotFoundException, ConfigurationError
     {
-        if (System.getSecurityManager()!=null) {
-            return Class.forName(className);
-        } else {
-            return findProviderClass (className,
+        return findProviderClass (className,
                 findClassLoader (), doFallback);
-        }
     }
 
     /**
      * Find a Class using the specified ClassLoader
-     */ 
+     */
     static Class findProviderClass(String className, ClassLoader cl,
                                            boolean doFallback)
         throws ClassNotFoundException, ConfigurationError
-    {   
+    {
         //throw security exception if the calling thread is not allowed to access the
         //class. Restrict the access to the package classes as specified in java.security policy.
         SecurityManager security = System.getSecurityManager();
         try{
             if (security != null){
-                if (className.startsWith(XALAN_INTERNAL) ||
-                    className.startsWith(XERCES_INTERNAL)) {
+                if (className.startsWith(JAXP_INTERNAL) ||
+                    className.startsWith(STAX_INTERNAL)) {
                     cl = null;
                 } else {
                     final int lastDot = className.lastIndexOf(".");
@@ -569,19 +526,10 @@ public class ObjectFactory {
         }catch(SecurityException e){
             throw e;
         }
-        
+
         Class providerClass;
         if (cl == null) {
-            // XXX Use the bootstrap ClassLoader.  There is no way to
-            // load a class using the bootstrap ClassLoader that works
-            // in both JDK 1.1 and Java 2.  However, this should still
-            // work b/c the following should be true:
-            //
-            // (cl == null) iff current ClassLoader == null
-            //
-            // Thus Class.forName(String) will use the current
-            // ClassLoader which will be the bootstrap ClassLoader.
-            providerClass = Class.forName(className);
+            providerClass = Class.forName(className, false, ObjectFactory.class.getClassLoader());
         } else {
             try {
                 providerClass = cl.loadClass(className);
@@ -660,7 +608,7 @@ public class ObjectFactory {
         } catch (java.io.UnsupportedEncodingException e) {
             rd = new BufferedReader(new InputStreamReader(is));
         }
-        
+
         String factoryClassName = null;
         try {
             // XXX Does not handle all possible input as specified by the
@@ -677,7 +625,7 @@ public class ObjectFactory {
             }
             // Ignore the exception.
             catch (IOException exc) {}
-        }          
+        }
 
         if (factoryClassName != null &&
             ! "".equals(factoryClassName)) {

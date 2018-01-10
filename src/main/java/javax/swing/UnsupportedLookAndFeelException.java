@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2003, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 package javax.swing;
 
@@ -20,7 +38,6 @@ package javax.swing;
  * Please see {@link java.beans.XMLEncoder}.
  *
  * @author unattributed
- * @version %I% %G%
  */
 public class UnsupportedLookAndFeelException extends Exception
 {
@@ -29,6 +46,6 @@ public class UnsupportedLookAndFeelException extends Exception
      * @param s a message String
      */
     public UnsupportedLookAndFeelException(String s) {
-	super(s);
+        super(s);
     }
 }

@@ -1,19 +1,36 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 1999, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 package javax.swing.event;
 
 
 import java.util.EventListener;
- 
- 
+
+
 /**
  * Defines a listener for menu events.
  *
- * @version %I% %G%
  * @author Georges Saab
  */
 public interface MenuListener extends EventListener {
@@ -36,4 +53,3 @@ public interface MenuListener extends EventListener {
      */
     void menuCanceled(MenuEvent e);
 }
-

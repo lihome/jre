@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2004, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.imageio.spi;
@@ -23,7 +41,6 @@ import javax.imageio.spi.ServiceRegistry;
  * @see javax.imageio.spi.ImageTranscoderSpi
  * @see javax.imageio.spi.ImageInputStreamSpi
  *
- * @version 0.5
  */
 public abstract class IIOServiceProvider implements RegisterableService {
 

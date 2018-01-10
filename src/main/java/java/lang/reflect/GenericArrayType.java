@@ -1,20 +1,38 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2003, 2004, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.lang.reflect;
 
 /**
- * <tt>GenericArrayType</tt> represents an array type whose component
+ * {@code GenericArrayType} represents an array type whose component
  * type is either a parameterized type or a type variable.
  * @since 1.5
  */
 public interface GenericArrayType extends Type {
     /**
-     * Returns a <tt>Type</tt> object representing the component type
+     * Returns a {@code Type} object representing the component type
      * of this array. This method creates the component type of the
      * array.  See the declaration of {@link
      * java.lang.reflect.ParameterizedType ParameterizedType} for the
@@ -22,7 +40,7 @@ public interface GenericArrayType extends Type {
      * see {@link java.lang.reflect.TypeVariable TypeVariable} for the
      * creation process for type variables.
      *
-     * @return  a <tt>Type</tt> object representing the component type
+     * @return  a {@code Type} object representing the component type
      *     of this array
      * @throws TypeNotPresentException if the underlying array type's
      *     component type refers to a non-existent type declaration
@@ -32,4 +50,3 @@ public interface GenericArrayType extends Type {
      */
     Type getGenericComponentType();
 }
-

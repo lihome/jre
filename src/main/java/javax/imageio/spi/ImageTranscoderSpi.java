@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.imageio.spi;
@@ -17,7 +35,6 @@ import javax.imageio.ImageTranscoder;
  * @see IIORegistry
  * @see javax.imageio.ImageTranscoder
  *
- * @version 0.5
  */
 public abstract class ImageTranscoderSpi extends IIOServiceProvider {
 

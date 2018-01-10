@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2001, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 package javax.swing.event;
 
@@ -10,7 +28,7 @@ import java.util.EventObject;
 
 
 /**
- * ChangeEvent is used to notify interested parties that 
+ * ChangeEvent is used to notify interested parties that
  * state has changed in the event source.
  * <p>
  * <strong>Warning:</strong>
@@ -22,7 +40,6 @@ import java.util.EventObject;
  * has been added to the <code>java.beans</code> package.
  * Please see {@link java.beans.XMLEncoder}.
  *
- * @version %I% %G%
  * @author Jeff Dinkins
  */
 public class ChangeEvent extends EventObject {
@@ -36,4 +53,3 @@ public class ChangeEvent extends EventObject {
         super(source);
     }
 }
-

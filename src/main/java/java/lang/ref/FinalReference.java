@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2003, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.lang.ref;
@@ -13,7 +31,7 @@ package java.lang.ref;
 class FinalReference<T> extends Reference<T> {
 
     public FinalReference(T referent, ReferenceQueue<? super T> q) {
-	super(referent, q);
+        super(referent, q);
     }
 
 }

@@ -1,29 +1,19 @@
 /*
- * %Z%file      %M%
- * %Z%author    Sun Microsystems, Inc.
- * %Z%version   %I%
- * %Z%date      %D%
  *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
- *
  */
 // Copyright (c) 1995-96 by Cisco Systems, Inc.
 
 package com.sun.jmx.snmp;
-
-
 
 /**
  * Contains SNMP constants related to command and response codes.
  * All members are static and can be used by any application.
  *
  *
- * <p><b>This API is a Sun Microsystems internal API  and is subject 
+ * <p><b>This API is a Sun Microsystems internal API  and is subject
  * to change without notice.</b></p>
- * @version     %I%     %G%
- * @author      Sun Microsystems, Inc
- * @author      Cisco Systems, Inc.
  */
 
 public interface SnmpDefinitions {
@@ -84,12 +74,12 @@ public interface SnmpDefinitions {
     /**
      * Represents the SNMP protocol version: <CODE>SnmpV1</CODE>.
      */
-    final public static byte snmpVersionOne	    = 0 ;
+    final public static byte snmpVersionOne         = 0 ;
 
     /**
      * Represents the SNMP protocol version: <CODE>SnmpV2</CODE>.
      */
-    final public static byte snmpVersionTwo	    = 1 ;
+    final public static byte snmpVersionTwo         = 1 ;
 
 
      /**
@@ -97,7 +87,7 @@ public interface SnmpDefinitions {
       *
       * @since 1.5
       */
-    final public static byte snmpVersionThree	    = 3 ;
+    final public static byte snmpVersionThree       = 3 ;
 
     /**
      * Represents a <CODE>GetRequest</CODE> PDU type (V1 or V2).
@@ -128,7 +118,7 @@ public interface SnmpDefinitions {
      * Represents a <CODE>Walk</CODE> request.
      * A walk uses the <CODE>getNext</CODE> request to "walk" through a given MIB.
      */
-    public final static int pduWalkRequest	=  0xFD ;
+    public final static int pduWalkRequest      =  0xFD ;
 
     /**
      * Represents a <CODE>V1Trap</CODE> PDU type (V1 only).

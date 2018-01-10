@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 1999, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.awt.dnd.peer;
@@ -17,7 +35,6 @@ import java.awt.dnd.DropTarget;
  * of the nearsest enclosing native Container (in the case of lightweights)
  * </p>
  *
- * @version 	%I%, %G%
  * @since 1.2
  *
  */

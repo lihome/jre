@@ -1,12 +1,16 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright 2001-2005 The Apache Software Foundation.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,11 +32,11 @@ import org.w3c.dom.TypeInfo;
  * The XML representation for a complexType
  * schema component is a <complexType> element information item
  *
- * @xerces.internal 
+ * @xerces.internal
  *
  * @author Elena Litani, IBM
  * @author Sandy Gao, IBM
- * @version $Id: XSComplexTypeDecl.java,v 1.5 2010/04/06 19:36:36 joehw Exp $
+ * @version $Id: XSComplexTypeDecl.java,v 1.8 2010-11-01 04:39:55 joehw Exp $
  */
 public class XSComplexTypeDecl implements XSComplexTypeDefinition, TypeInfo {
 
@@ -73,8 +77,15 @@ public class XSComplexTypeDecl implements XSComplexTypeDefinition, TypeInfo {
     // if there is a particle, the content model corresponding to that particle
     volatile XSCMValidator fCMValidator = null;
 
+    // the content model that's sufficient for computing UPA
+    XSCMValidator fUPACMValidator = null;
+
     // list of annotations affiliated with this type
     XSObjectListImpl fAnnotations = null;
+
+    // The namespace schema information item corresponding to the target namespace
+    // of the complex type definition, if it is globally declared; or null otherwise.
+    private XSNamespaceItem fNamespaceItem = null;
 
     // DOM Level 3 TypeInfo Derivation Method constants
     static final int DERIVATION_ANY = 0;
@@ -82,15 +93,15 @@ public class XSComplexTypeDecl implements XSComplexTypeDefinition, TypeInfo {
     static final int DERIVATION_EXTENSION = 2;
     static final int DERIVATION_UNION = 4;
     static final int DERIVATION_LIST = 8;
-    
+
     public XSComplexTypeDecl() {
         // do-nothing constructor for now.
     }
 
     public void setValues(String name, String targetNamespace,
-            XSTypeDefinition baseType, short derivedBy, short schemaFinal, 
+            XSTypeDefinition baseType, short derivedBy, short schemaFinal,
             short block, short contentType,
-            boolean isAbstract, XSAttributeGroupDecl attrGrp, 
+            boolean isAbstract, XSAttributeGroupDecl attrGrp,
             XSSimpleType simpleType, XSParticleDecl particle,
             XSObjectListImpl annotations) {
         fTargetNamespace = targetNamespace;
@@ -149,13 +160,18 @@ public class XSComplexTypeDecl implements XSComplexTypeDefinition, TypeInfo {
     }
 
     public XSCMValidator getContentModel(CMBuilder cmBuilder) {
-        if (fCMValidator == null) {
+        // for complex type with empty or simple content,
+        // there is no content model validator
+        if (fContentType == XSComplexTypeDecl.CONTENTTYPE_SIMPLE ||
+            fContentType == XSComplexTypeDecl.CONTENTTYPE_EMPTY) {
+            return null;
+        }
+        if (fCMValidator == null)
             synchronized (this) {
                 if (fCMValidator == null) {
                     fCMValidator = cmBuilder.getContentModel(this);
                 }
             }
-        }
         return fCMValidator;
     }
 
@@ -176,18 +192,19 @@ public class XSComplexTypeDecl implements XSComplexTypeDefinition, TypeInfo {
         String contentType[] = {"EMPTY", "SIMPLE", "ELEMENT", "MIXED"};
         String derivedBy[] = {"EMPTY", "EXTENSION", "RESTRICTION"};
 
-        str.append("Complex type name='" + fTargetNamespace + "," + getTypeName() + "', ");
-        if (fBaseType != null)
-            str.append(" base type name='" + fBaseType.getName() + "', ");
-
-        str.append(" content type='" + contentType[fContentType] + "', ");
-        str.append(" isAbstract='" + getAbstract() + "', ");
-        str.append(" hasTypeId='" + containsTypeID() + "', ");
-        str.append(" final='" + fFinal + "', ");
-        str.append(" block='" + fBlock + "', ");
-        if (fParticle != null)
-            str.append(" particle='" + fParticle.toString() + "', ");
-        str.append(" derivedBy='" + derivedBy[fDerivedBy] + "'. ");
+        str.append("Complex type name='").append(fTargetNamespace).append(',').append(getTypeName()).append("', ");
+        if (fBaseType != null) {
+            str.append(" base type name='").append(fBaseType.getName()).append("', ");
+        }
+        str.append(" content type='").append(contentType[fContentType]).append("', ");
+        str.append(" isAbstract='").append(getAbstract()).append("', ");
+        str.append(" hasTypeId='").append(containsTypeID()).append("', ");
+        str.append(" final='").append(fFinal).append("', ");
+        str.append(" block='").append(fBlock).append("', ");
+        if (fParticle != null) {
+            str.append(" particle='").append(fParticle.toString()).append("', ");
+        }
+        str.append(" derivedBy='").append(derivedBy[fDerivedBy]).append("'. ");
 
     }
 
@@ -238,14 +255,14 @@ public class XSComplexTypeDecl implements XSComplexTypeDefinition, TypeInfo {
      * Checks if a type is derived from another given the the name, namespace
      * and derivation method. See:
      * http://www.w3.org/TR/2004/REC-DOM-Level-3-Core-20040407/core.html#TypeInfo-isDerivedFrom
-     * 
+     *
      * @param ancestorNS
      *            The namspace of the ancestor type declaration
      * @param ancestorName
      *            The name of the ancestor type declaration
-     * @param derivation
+     * @param derivationMethod
      *            The derivation method
-     * 
+     *
      * @return boolean True if the ancestor type is derived from the reference
      *         type by the specifiied derivation method.
      */
@@ -254,16 +271,16 @@ public class XSComplexTypeDecl implements XSComplexTypeDefinition, TypeInfo {
         // ancestor is null, retur false
         if (ancestorName == null)
             return false;
-        
+
         // ancestor is anyType, return true
         if (ancestorNS != null
                 && ancestorNS.equals(SchemaSymbols.URI_SCHEMAFORSCHEMA)
                 && ancestorName.equals(SchemaSymbols.ATTVAL_ANYTYPE)
-                && (derivationMethod == DERIVATION_RESTRICTION 
+                && (derivationMethod == DERIVATION_RESTRICTION
                 && derivationMethod == DERIVATION_EXTENSION)) {
             return true;
         }
-        
+
         // restriction
         if ((derivationMethod & DERIVATION_RESTRICTION) != 0) {
             if (isDerivedByRestriction(ancestorNS, ancestorName,
@@ -271,7 +288,7 @@ public class XSComplexTypeDecl implements XSComplexTypeDefinition, TypeInfo {
                 return true;
             }
         }
-        
+
         // extension
         if ((derivationMethod & DERIVATION_EXTENSION) != 0) {
             if (isDerivedByExtension(ancestorNS, ancestorName,
@@ -279,7 +296,7 @@ public class XSComplexTypeDecl implements XSComplexTypeDefinition, TypeInfo {
                 return true;
             }
         }
-        
+
         // list or union
         if ((((derivationMethod & DERIVATION_LIST) != 0) || ((derivationMethod & DERIVATION_UNION) != 0))
                 && ((derivationMethod & DERIVATION_RESTRICTION) == 0)
@@ -290,10 +307,10 @@ public class XSComplexTypeDecl implements XSComplexTypeDefinition, TypeInfo {
                 ancestorName = SchemaSymbols.ATTVAL_ANYSIMPLETYPE;
             }
 
-            if(!(fName.equals(SchemaSymbols.ATTVAL_ANYTYPE) 
+            if(!(fName.equals(SchemaSymbols.ATTVAL_ANYTYPE)
                             && fTargetNamespace.equals(SchemaSymbols.URI_SCHEMAFORSCHEMA))){
                 if (fBaseType != null && fBaseType instanceof XSSimpleTypeDecl) {
-                    
+
                     return ((XSSimpleTypeDecl) fBaseType).isDOMDerivedFrom(ancestorNS,
                             ancestorName, derivationMethod);
                 } else if (fBaseType != null
@@ -303,25 +320,25 @@ public class XSComplexTypeDecl implements XSComplexTypeDefinition, TypeInfo {
                 }
             }
         }
-        
+
         // If the value of the parameter is 0 i.e. no bit (corresponding to
-        // restriction, list, extension or union) is set to 1 for the 
-        // derivationMethod parameter.   
+        // restriction, list, extension or union) is set to 1 for the
+        // derivationMethod parameter.
         if (((derivationMethod  & DERIVATION_EXTENSION) == 0)
                 && (((derivationMethod & DERIVATION_RESTRICTION) == 0)
-                        && ((derivationMethod & DERIVATION_LIST) == 0) 
+                        && ((derivationMethod & DERIVATION_LIST) == 0)
                         && ((derivationMethod & DERIVATION_UNION) == 0))) {
             return isDerivedByAny(ancestorNS, ancestorName, derivationMethod, this);
         }
 
         return false;
     }
-    
+
     /**
      * Checks if a type is derived from another by any combination of
      * restriction, list ir union. See:
      * http://www.w3.org/TR/2004/REC-DOM-Level-3-Core-20040407/core.html#TypeInfo-isDerivedFrom
-     * 
+     *
      * @param ancestorNS
      *            The namspace of the ancestor type declaration
      * @param ancestorName
@@ -330,7 +347,7 @@ public class XSComplexTypeDecl implements XSComplexTypeDefinition, TypeInfo {
      *            A short indication the method of derivation
      * @param type
      *            The reference type definition
-     * 
+     *
      * @return boolean True if the type is derived by any method for the
      *         reference type
      */
@@ -339,15 +356,15 @@ public class XSComplexTypeDecl implements XSComplexTypeDefinition, TypeInfo {
         XSTypeDefinition oldType = null;
         boolean derivedFrom = false;
         while (type != null && type != oldType) {
-            
+
             // If the ancestor type is reached or is the same as this type.
             if ((ancestorName.equals(type.getName()))
-                    && ((ancestorNS == null && type.getNamespace() == null) 
+                    && ((ancestorNS == null && type.getNamespace() == null)
                         || (ancestorNS != null && ancestorNS.equals(type.getNamespace())))) {
                 derivedFrom = true;
                 break;
             }
-            
+
             // Check if this type is derived from the base by restriction or
             // extension
             if (isDerivedByRestriction(ancestorNS, ancestorName,
@@ -360,14 +377,14 @@ public class XSComplexTypeDecl implements XSComplexTypeDefinition, TypeInfo {
             oldType = type;
             type = type.getBaseType();
         }
-        
+
         return derivedFrom;
     }
-    
+
     /**
      * Checks if a type is derived from another by restriction. See:
      * http://www.w3.org/TR/2004/REC-DOM-Level-3-Core-20040407/core.html#TypeInfo-isDerivedFrom
-     * 
+     *
      * @param ancestorNS
      *            The namspace of the ancestor type declaration
      * @param ancestorName
@@ -376,32 +393,32 @@ public class XSComplexTypeDecl implements XSComplexTypeDefinition, TypeInfo {
      *            A short indication the method of derivation *
      * @param type
      *            The reference type definition
-     * 
+     *
      * @return boolean True if the type is derived by restriciton for the
      *         reference type
      */
     private boolean isDerivedByRestriction(String ancestorNS,
             String ancestorName, int derivationMethod, XSTypeDefinition type) {
-        
+
         XSTypeDefinition oldType = null;
         while (type != null && type != oldType) {
-            
+
             // ancestor is anySimpleType, return false
             if (ancestorNS != null
                     && ancestorNS.equals(SchemaSymbols.URI_SCHEMAFORSCHEMA)
                     && ancestorName.equals(SchemaSymbols.ATTVAL_ANYSIMPLETYPE)) {
                 return false;
             }
-            
+
             // if the name and namespace of this type is the same as the
             // ancestor return true
             if ((ancestorName.equals(type.getName()))
-                    && (ancestorNS != null && ancestorNS.equals(type.getNamespace())) 
+                    && (ancestorNS != null && ancestorNS.equals(type.getNamespace()))
                             || ((type.getNamespace() == null && ancestorNS == null))) {
-                
+
                 return true;
             }
-            
+
             // If the base type is a complexType with simpleContent
             if (type instanceof XSSimpleTypeDecl) {
                 if (ancestorNS.equals(SchemaSymbols.URI_SCHEMAFORSCHEMA)
@@ -420,16 +437,16 @@ public class XSComplexTypeDecl implements XSComplexTypeDefinition, TypeInfo {
             }
             oldType = type;
             type = type.getBaseType();
-            
+
         }
-        
+
         return false;
     }
-    
+
     /**
      * Checks if a type is derived from another by extension. See:
      * http://www.w3.org/TR/2004/REC-DOM-Level-3-Core-20040407/core.html#TypeInfo-isDerivedFrom
-     * 
+     *
      * @param ancestorNS
      *            The namspace of the ancestor type declaration
      * @param ancestorName
@@ -438,13 +455,13 @@ public class XSComplexTypeDecl implements XSComplexTypeDefinition, TypeInfo {
      *            A short indication the method of derivation
      * @param type
      *            The reference type definition
-     * 
+     *
      * @return boolean True if the type is derived by extension for the
      *         reference type
      */
     private boolean isDerivedByExtension(String ancestorNS,
             String ancestorName, int derivationMethod, XSTypeDefinition type) {
-        
+
         boolean extension = false;
         XSTypeDefinition oldType = null;
         while (type != null && type != oldType) {
@@ -456,21 +473,21 @@ public class XSComplexTypeDecl implements XSComplexTypeDefinition, TypeInfo {
                             && SchemaSymbols.ATTVAL_ANYTYPE.equals(type.getName())) {
                 break;
             }
-            
+
             if ((ancestorName.equals(type.getName()))
-                    && ((ancestorNS == null && type.getNamespace() == null) 
+                    && ((ancestorNS == null && type.getNamespace() == null)
                         || (ancestorNS != null && ancestorNS.equals(type.getNamespace())))) {
                 // returns true if atleast one derivation step was extension
                 return extension;
             }
-            
+
             // If the base type is a complexType with simpleContent
             if (type instanceof XSSimpleTypeDecl) {
                 if (ancestorNS.equals(SchemaSymbols.URI_SCHEMAFORSCHEMA)
                         && ancestorName.equals(SchemaSymbols.ATTVAL_ANYTYPE)) {
                     ancestorName = SchemaSymbols.ATTVAL_ANYSIMPLETYPE;
                 }
-                
+
                 // derivationMethod extension will always return false for a
                 // simpleType,
                 // we treat it like a restriction
@@ -484,7 +501,7 @@ public class XSComplexTypeDecl implements XSComplexTypeDefinition, TypeInfo {
                     & ((XSSimpleTypeDecl) type).isDOMDerivedFrom(
                             ancestorNS, ancestorName, derivationMethod);
                 }
-                
+
             } else {
                 // If the base type is a complex type
                 // At least one derivation step upto the ancestor type should be
@@ -496,12 +513,12 @@ public class XSComplexTypeDecl implements XSComplexTypeDefinition, TypeInfo {
             oldType = type;
             type = type.getBaseType();
         }
-        
+
         return false;
     }
-    
-    
-    
+
+
+
     public void reset(){
         fName = null;
         fTargetNamespace = null;
@@ -518,9 +535,10 @@ public class XSComplexTypeDecl implements XSComplexTypeDefinition, TypeInfo {
         fXSSimpleType = null;
         fParticle = null;
         fCMValidator = null;
+        fUPACMValidator = null;
         if(fAnnotations != null) {
             // help out the garbage collector
-            fAnnotations.clear();
+            fAnnotations.clearXSObjectList();
         }
         fAnnotations = null;
     }
@@ -669,19 +687,22 @@ public class XSComplexTypeDecl implements XSComplexTypeDefinition, TypeInfo {
      * Optional. Annotation.
      */
     public XSObjectList getAnnotations() {
-        return fAnnotations;
+        return (fAnnotations != null) ? fAnnotations : XSObjectListImpl.EMPTY_LIST;
     }
-    
-	/**
-	 * @see com.sun.org.apache.xerces.internal.xs.XSObject#getNamespaceItem()
-	 */
-	public XSNamespaceItem getNamespaceItem() {
-        // REVISIT: implement
-		return null;
-	}
+
+    /**
+     * @see org.apache.xerces.xs.XSObject#getNamespaceItem()
+     */
+    public XSNamespaceItem getNamespaceItem() {
+        return fNamespaceItem;
+    }
+
+    void setNamespaceItem(XSNamespaceItem namespaceItem) {
+        fNamespaceItem = namespaceItem;
+    }
 
     /* (non-Javadoc)
-     * @see com.sun.org.apache.xerces.internal.xs.XSComplexTypeDefinition#getAttributeUse(java.lang.String, java.lang.String)
+     * @see org.apache.xerces.xs.XSComplexTypeDefinition#getAttributeUse(java.lang.String, java.lang.String)
      */
     public XSAttributeUse getAttributeUse(String namespace, String name) {
          return fAttrGrp.getAttributeUse(namespace, name);

@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2003, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.awt;
@@ -20,7 +38,6 @@ package java.awt;
  * {@link MouseInfo#getPointerInfo} again.
  *
  * @see MouseInfo#getPointerInfo
- * @version     %I%, %G%
  * @author      Roman Poborchiy
  * @since       1.5
  */

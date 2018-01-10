@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- * 
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1999, 2006, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.management;
@@ -17,12 +35,12 @@ package javax.management;
  *
  * @since 1.5
  */
-public class InvalidApplicationException extends Exception   { 
-   
+public class InvalidApplicationException extends Exception   {
+
 
     /* Serial version */
     private static final long serialVersionUID = -3048022274675537269L;
-  
+
     /**
      * @serial The object representing the class of the MBean
      */
@@ -34,7 +52,7 @@ public class InvalidApplicationException extends Exception   {
      *
      * @param val the detail message of this exception.
      */
-    public InvalidApplicationException(Object val) { 
-	this.val = val;
+    public InvalidApplicationException(Object val) {
+        this.val = val;
     }
 }

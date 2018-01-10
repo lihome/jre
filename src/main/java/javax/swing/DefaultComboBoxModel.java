@@ -1,45 +1,51 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1998, 2013, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 package javax.swing;
 
-import java.beans.*;
 import java.util.*;
 
-import java.awt.*;
-import java.awt.event.*;
-
 import java.io.Serializable;
-import java.io.ObjectOutputStream;
-import java.io.ObjectInputStream;
-import java.io.IOException;
-
-import javax.swing.event.*;
-import javax.swing.plaf.*;
-import javax.swing.border.*;
-
-import javax.accessibility.*;
 
 /**
  * The default model for combo boxes.
  *
- * @version %I% %G%
+ * @param <E> the type of the elements of this model
+ *
  * @author Arnaud Weber
  * @author Tom Santos
  */
 
-public class DefaultComboBoxModel extends AbstractListModel implements MutableComboBoxModel, Serializable {
-    Vector objects;
+public class DefaultComboBoxModel<E> extends AbstractListModel<E> implements MutableComboBoxModel<E>, Serializable {
+    Vector<E> objects;
     Object selectedObject;
 
     /**
      * Constructs an empty DefaultComboBoxModel object.
      */
     public DefaultComboBoxModel() {
-        objects = new Vector();
+        objects = new Vector<E>();
     }
 
     /**
@@ -48,9 +54,8 @@ public class DefaultComboBoxModel extends AbstractListModel implements MutableCo
      *
      * @param items  an array of Object objects
      */
-    public DefaultComboBoxModel(final Object items[]) {
-        objects = new Vector();
-        objects.ensureCapacity( items.length );
+    public DefaultComboBoxModel(final E items[]) {
+        objects = new Vector<E>(items.length);
 
         int i,c;
         for ( i=0,c=items.length;i<c;i++ )
@@ -67,7 +72,7 @@ public class DefaultComboBoxModel extends AbstractListModel implements MutableCo
      *
      * @param v  a Vector object ...
      */
-    public DefaultComboBoxModel(Vector<?> v) {
+    public DefaultComboBoxModel(Vector<E> v) {
         objects = v;
 
         if ( getSize() > 0 ) {
@@ -83,9 +88,9 @@ public class DefaultComboBoxModel extends AbstractListModel implements MutableCo
      */
     public void setSelectedItem(Object anObject) {
         if ((selectedObject != null && !selectedObject.equals( anObject )) ||
-	    selectedObject == null && anObject != null) {
-	    selectedObject = anObject;
-	    fireContentsChanged(this, -1, -1);
+            selectedObject == null && anObject != null) {
+            selectedObject = anObject;
+            fireContentsChanged(this, -1, -1);
         }
     }
 
@@ -100,7 +105,7 @@ public class DefaultComboBoxModel extends AbstractListModel implements MutableCo
     }
 
     // implements javax.swing.ListModel
-    public Object getElementAt(int index) {
+    public E getElementAt(int index) {
         if ( index >= 0 && index < objects.size() )
             return objects.elementAt(index);
         else
@@ -110,8 +115,8 @@ public class DefaultComboBoxModel extends AbstractListModel implements MutableCo
     /**
      * Returns the index-position of the specified object in the list.
      *
-     * @param anObject  
-     * @return an int representing the index position, where 0 is 
+     * @param anObject
+     * @return an int representing the index position, where 0 is
      *         the first position
      */
     public int getIndexOf(Object anObject) {
@@ -119,7 +124,7 @@ public class DefaultComboBoxModel extends AbstractListModel implements MutableCo
     }
 
     // implements javax.swing.MutableComboBoxModel
-    public void addElement(Object anObject) {
+    public void addElement(E anObject) {
         objects.addElement(anObject);
         fireIntervalAdded(this,objects.size()-1, objects.size()-1);
         if ( objects.size() == 1 && selectedObject == null && anObject != null ) {
@@ -128,7 +133,7 @@ public class DefaultComboBoxModel extends AbstractListModel implements MutableCo
     }
 
     // implements javax.swing.MutableComboBoxModel
-    public void insertElementAt(Object anObject,int index) {
+    public void insertElementAt(E anObject,int index) {
         objects.insertElementAt(anObject,index);
         fireIntervalAdded(this, index, index);
     }
@@ -165,10 +170,10 @@ public class DefaultComboBoxModel extends AbstractListModel implements MutableCo
             int firstIndex = 0;
             int lastIndex = objects.size() - 1;
             objects.removeAllElements();
-	    selectedObject = null;
+            selectedObject = null;
             fireIntervalRemoved(this, firstIndex, lastIndex);
         } else {
-	    selectedObject = null;
-	}
+            selectedObject = null;
+        }
     }
 }

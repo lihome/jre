@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2004, 2014, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package com.sun.java.swing.plaf.windows;
@@ -20,7 +38,6 @@ import com.sun.java.swing.plaf.windows.XPStyle.Skin;
 /**
  * Windows L&F implementation of PopupMenuSeparatorUI.
  *
- * @version %I% %G%
  * @author Leif Samuelsson
  * @author Igor Kushnirskiy
  */
@@ -33,24 +50,25 @@ public class WindowsPopupMenuSeparatorUI extends BasicPopupMenuSeparatorUI {
 
     public void paint(Graphics g, JComponent c) {
         Dimension s = c.getSize();
-        if (WindowsMenuItemUI.isVistaPainting()) {
+        XPStyle xp = XPStyle.getXP();
+        if (WindowsMenuItemUI.isVistaPainting(xp)) {
             int x = 1;
             Component parent = c.getParent();
             if (parent instanceof JComponent) {
-                Object gutterOffsetObject = 
+                Object gutterOffsetObject =
                     ((JComponent) parent).getClientProperty(
                         WindowsPopupMenuUI.GUTTER_OFFSET_KEY);
                 if (gutterOffsetObject instanceof Integer) {
-                    /* 
+                    /*
                      * gutter offset is in parent's coordinates.
-                     * See comment in 
+                     * See comment in
                      * WindowsPopupMenuUI.getTextOffset(JComponent)
                      */
                     x = ((Integer) gutterOffsetObject).intValue() - c.getX();
                     x += WindowsPopupMenuUI.getGutterWidth();
                 }
             }
-            Skin skin = XPStyle.getXP().getSkin(c, Part.MP_POPUPSEPARATOR);
+            Skin skin = xp.getSkin(c, Part.MP_POPUPSEPARATOR);
             int skinHeight = skin.getHeight();
             int y = (s.height - skinHeight) / 2;
             skin.paintSkin(g, x, y, s.width - x - 1, skinHeight, State.NORMAL);
@@ -71,7 +89,7 @@ public class WindowsPopupMenuSeparatorUI extends BasicPopupMenuSeparatorUI {
             fontHeight = c.getFontMetrics(font).getHeight();
         }
 
-	return new Dimension(0, fontHeight/2 + 2);
+        return new Dimension(0, fontHeight/2 + 2);
     }
 
 }

@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1995, 2008, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.lang;
@@ -20,7 +38,6 @@ package java.lang;
  * </pre>
  *
  * @author  Frank Yellin
- * @version %I%, %G%
  * @see     java.lang.Object#wait()
  * @see     java.lang.Object#wait(long)
  * @see     java.lang.Object#wait(long, int)
@@ -31,20 +48,22 @@ package java.lang;
  */
 public
 class InterruptedException extends Exception {
+    private static final long serialVersionUID = 6700697376100628473L;
+
     /**
-     * Constructs an <code>InterruptedException</code> with no detail  message. 
+     * Constructs an <code>InterruptedException</code> with no detail  message.
      */
     public InterruptedException() {
-	super();
+        super();
     }
 
     /**
-     * Constructs an <code>InterruptedException</code> with the 
-     * specified detail message. 
+     * Constructs an <code>InterruptedException</code> with the
+     * specified detail message.
      *
      * @param   s   the detail message.
      */
     public InterruptedException(String s) {
-	super(s);
+        super(s);
     }
 }

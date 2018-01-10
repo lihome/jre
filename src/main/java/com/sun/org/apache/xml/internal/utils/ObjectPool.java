@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright 1999-2004 The Apache Software Foundation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +22,7 @@
  */
 package com.sun.org.apache.xml.internal.utils;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import com.sun.org.apache.xml.internal.res.XMLErrorResources;
 import com.sun.org.apache.xml.internal.res.XMLMessages;
@@ -37,9 +41,9 @@ public class ObjectPool implements java.io.Serializable
    *  @serial          */
   private final Class objectType;
 
-  /** Vector of given objects this points to.
+  /** Stack of given objects this points to.
    *  @serial          */
-  private final Vector freeStack;
+  private final ArrayList freeStack;
 
   /**
    * Constructor ObjectPool
@@ -49,9 +53,9 @@ public class ObjectPool implements java.io.Serializable
   public ObjectPool(Class type)
   {
     objectType = type;
-    freeStack = new Vector();
+    freeStack = new ArrayList();
   }
-  
+
   /**
    * Constructor ObjectPool
    *
@@ -67,7 +71,7 @@ public class ObjectPool implements java.io.Serializable
     {
       throw new WrappedRuntimeException(cnfe);
     }
-    freeStack = new Vector();
+    freeStack = new ArrayList();
   }
 
 
@@ -81,7 +85,7 @@ public class ObjectPool implements java.io.Serializable
   public ObjectPool(Class type, int size)
   {
     objectType = type;
-    freeStack = new Vector(size);
+    freeStack = new ArrayList(size);
   }
 
   /**
@@ -91,7 +95,7 @@ public class ObjectPool implements java.io.Serializable
   public ObjectPool()
   {
     objectType = null;
-    freeStack = new Vector();
+    freeStack = new ArrayList();
   }
 
   /**
@@ -108,10 +112,7 @@ public class ObjectPool implements java.io.Serializable
     {
 
       // Remove object from end of free pool.
-      Object result = freeStack.lastElement();
-
-      freeStack.setSize(freeStack.size() - 1);
-
+      Object result = freeStack.remove(freeStack.size() - 1);
       return result;
     }
 
@@ -119,7 +120,7 @@ public class ObjectPool implements java.io.Serializable
   }
 
   /**
-   * Get an instance of the given object in this pool 
+   * Get an instance of the given object in this pool
    *
    *
    * @return An instance of the given object
@@ -146,16 +147,13 @@ public class ObjectPool implements java.io.Serializable
     {
 
       // Remove object from end of free pool.
-      Object result = freeStack.lastElement();
-
-      freeStack.setSize(freeStack.size() - 1);
-
+      Object result = freeStack.remove(freeStack.size() - 1);
       return result;
     }
   }
 
   /**
-   * Add an instance of the given object to the pool  
+   * Add an instance of the given object to the pool
    *
    *
    * @param obj Object to add.
@@ -167,7 +165,7 @@ public class ObjectPool implements java.io.Serializable
     // Remove safety.  -sb
     // if (objectType.isInstance(obj))
     // {
-    freeStack.addElement(obj);
+    freeStack.add(obj);
     // }
     // else
     // {

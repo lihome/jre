@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2010, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.util.zip;
@@ -11,7 +29,7 @@ package java.util.zip;
  * This class provides support for general purpose compression using the
  * popular ZLIB compression library. The ZLIB compression library was
  * initially developed as part of the PNG graphics standard and is not
- * protected by patents. It is fully described in the specifications at 
+ * protected by patents. It is fully described in the specifications at
  * the <a href="package-summary.html#package_description">java.util.zip
  * package description</a>.
  *
@@ -22,7 +40,7 @@ package java.util.zip;
  * <blockquote><pre>
  * try {
  *     // Encode a String into bytes
- *     String inputString = "blahblahblah\u20AC\u20AC";
+ *     String inputString = "blahblahblah";
  *     byte[] input = inputString.getBytes("UTF-8");
  *
  *     // Compress the bytes
@@ -31,6 +49,7 @@ package java.util.zip;
  *     compresser.setInput(input);
  *     compresser.finish();
  *     int compressedDataLength = compresser.deflate(output);
+ *     compresser.end();
  *
  *     // Decompress the bytes
  *     Inflater decompresser = new Inflater();
@@ -48,9 +67,8 @@ package java.util.zip;
  * }
  * </pre></blockquote>
  *
- * @see		Inflater
- * @version 	%I%, %G%
- * @author 	David Connelly
+ * @see         Inflater
+ * @author      David Connelly
  */
 public
 class Deflater {
@@ -61,6 +79,8 @@ class Deflater {
     private int level, strategy;
     private boolean setParams;
     private boolean finish, finished;
+    private long bytesRead;
+    private long bytesWritten;
 
     /**
      * Compression method for the deflate algorithm (the only one currently
@@ -105,9 +125,36 @@ class Deflater {
      */
     public static final int DEFAULT_STRATEGY = 0;
 
+    /**
+     * Compression flush mode used to achieve best compression result.
+     *
+     * @see Deflater#deflate(byte[], int, int, int)
+     * @since 1.7
+     */
+    public static final int NO_FLUSH = 0;
+
+    /**
+     * Compression flush mode used to flush out all pending output; may
+     * degrade compression for some compression algorithms.
+     *
+     * @see Deflater#deflate(byte[], int, int, int)
+     * @since 1.7
+     */
+    public static final int SYNC_FLUSH = 2;
+
+    /**
+     * Compression flush mode used to flush out all pending output and
+     * reset the deflater. Using this mode too often can seriously degrade
+     * compression.
+     *
+     * @see Deflater#deflate(byte[], int, int, int)
+     * @since 1.7
+     */
+    public static final int FULL_FLUSH = 3;
+
     static {
-	/* Zip library is loaded from System.initializeSystemClass */
-	initIDs();
+        /* Zip library is loaded from System.initializeSystemClass */
+        initIDs();
     }
 
     /**
@@ -119,18 +166,18 @@ class Deflater {
      * @param nowrap if true then use GZIP compatible compression
      */
     public Deflater(int level, boolean nowrap) {
-	this.level = level;
-	this.strategy = DEFAULT_STRATEGY;
+        this.level = level;
+        this.strategy = DEFAULT_STRATEGY;
         this.zsRef = new ZStreamRef(init(level, DEFAULT_STRATEGY, nowrap));
     }
 
-    /** 
+    /**
      * Creates a new compressor using the specified compression level.
      * Compressed data will be generated in ZLIB format.
      * @param level the compression level (0-9)
      */
     public Deflater(int level) {
-	this(level, false);
+        this(level, false);
     }
 
     /**
@@ -138,7 +185,7 @@ class Deflater {
      * Compressed data will be generated in ZLIB format.
      */
     public Deflater() {
-	this(DEFAULT_COMPRESSION, false);
+        this(DEFAULT_COMPRESSION, false);
     }
 
     /**
@@ -170,7 +217,7 @@ class Deflater {
      * @see Deflater#needsInput
      */
     public void setInput(byte[] b) {
-	setInput(b, 0, b.length);
+        setInput(b, 0, b.length);
     }
 
     /**
@@ -209,24 +256,24 @@ class Deflater {
      * @see Inflater#getAdler
      */
     public void setDictionary(byte[] b) {
-	setDictionary(b, 0, b.length);
+        setDictionary(b, 0, b.length);
     }
 
     /**
      * Sets the compression strategy to the specified value.
      * @param strategy the new compression strategy
      * @exception IllegalArgumentException if the compression strategy is
-     *				           invalid
+     *                                     invalid
      */
     public void setStrategy(int strategy) {
-	switch (strategy) {
-	  case DEFAULT_STRATEGY:
-	  case FILTERED:
-	  case HUFFMAN_ONLY:
-	    break;
-	  default:
-	    throw new IllegalArgumentException();
-	}
+        switch (strategy) {
+          case DEFAULT_STRATEGY:
+          case FILTERED:
+          case HUFFMAN_ONLY:
+            break;
+          default:
+            throw new IllegalArgumentException();
+        }
         synchronized (zsRef) {
             if (this.strategy != strategy) {
                 this.strategy = strategy;
@@ -241,9 +288,9 @@ class Deflater {
      * @exception IllegalArgumentException if the compression level is invalid
      */
     public void setLevel(int level) {
-	if ((level < 0 || level > 9) && level != DEFAULT_COMPRESSION) {
-	    throw new IllegalArgumentException("invalid compression level");
-	}
+        if ((level < 0 || level > 9) && level != DEFAULT_COMPRESSION) {
+            throw new IllegalArgumentException("invalid compression level");
+        }
         synchronized (zsRef) {
             if (this.level != level) {
                 this.level = level;
@@ -259,7 +306,7 @@ class Deflater {
      * should be called in order to provide more input
      */
     public boolean needsInput() {
-	return len <= 0;
+        return len <= 0;
     }
 
     /**
@@ -285,38 +332,108 @@ class Deflater {
     }
 
     /**
-     * Fills specified buffer with compressed data. Returns actual number
-     * of bytes of compressed data. A return value of 0 indicates that
-     * needsInput() should be called in order to determine if more input
-     * data is required.
+     * Compresses the input data and fills specified buffer with compressed
+     * data. Returns actual number of bytes of compressed data. A return value
+     * of 0 indicates that {@link #needsInput() needsInput} should be called
+     * in order to determine if more input data is required.
+     *
+     * <p>This method uses {@link #NO_FLUSH} as its compression flush mode.
+     * An invocation of this method of the form {@code deflater.deflate(b, off, len)}
+     * yields the same result as the invocation of
+     * {@code deflater.deflate(b, off, len, Deflater.NO_FLUSH)}.
+     *
      * @param b the buffer for the compressed data
      * @param off the start offset of the data
      * @param len the maximum number of bytes of compressed data
-     * @return the actual number of bytes of compressed data
+     * @return the actual number of bytes of compressed data written to the
+     *         output buffer
      */
     public int deflate(byte[] b, int off, int len) {
-	if (b == null) {
-	    throw new NullPointerException();
-	}
-        if (off < 0 || len < 0 || off > b.length - len) {
-	    throw new ArrayIndexOutOfBoundsException();
-	}
-        synchronized (zsRef) {
-            ensureOpen();
-	    return deflateBytes(zsRef.address(), b, off, len);
-        }
+        return deflate(b, off, len, NO_FLUSH);
     }
 
     /**
-     * Fills specified buffer with compressed data. Returns actual number
-     * of bytes of compressed data. A return value of 0 indicates that
-     * needsInput() should be called in order to determine if more input
-     * data is required.
+     * Compresses the input data and fills specified buffer with compressed
+     * data. Returns actual number of bytes of compressed data. A return value
+     * of 0 indicates that {@link #needsInput() needsInput} should be called
+     * in order to determine if more input data is required.
+     *
+     * <p>This method uses {@link #NO_FLUSH} as its compression flush mode.
+     * An invocation of this method of the form {@code deflater.deflate(b)}
+     * yields the same result as the invocation of
+     * {@code deflater.deflate(b, 0, b.length, Deflater.NO_FLUSH)}.
+     *
      * @param b the buffer for the compressed data
-     * @return the actual number of bytes of compressed data
+     * @return the actual number of bytes of compressed data written to the
+     *         output buffer
      */
     public int deflate(byte[] b) {
-	return deflate(b, 0, b.length);
+        return deflate(b, 0, b.length, NO_FLUSH);
+    }
+
+    /**
+     * Compresses the input data and fills the specified buffer with compressed
+     * data. Returns actual number of bytes of data compressed.
+     *
+     * <p>Compression flush mode is one of the following three modes:
+     *
+     * <ul>
+     * <li>{@link #NO_FLUSH}: allows the deflater to decide how much data
+     * to accumulate, before producing output, in order to achieve the best
+     * compression (should be used in normal use scenario). A return value
+     * of 0 in this flush mode indicates that {@link #needsInput()} should
+     * be called in order to determine if more input data is required.
+     *
+     * <li>{@link #SYNC_FLUSH}: all pending output in the deflater is flushed,
+     * to the specified output buffer, so that an inflater that works on
+     * compressed data can get all input data available so far (In particular
+     * the {@link #needsInput()} returns {@code true} after this invocation
+     * if enough output space is provided). Flushing with {@link #SYNC_FLUSH}
+     * may degrade compression for some compression algorithms and so it
+     * should be used only when necessary.
+     *
+     * <li>{@link #FULL_FLUSH}: all pending output is flushed out as with
+     * {@link #SYNC_FLUSH}. The compression state is reset so that the inflater
+     * that works on the compressed output data can restart from this point
+     * if previous compressed data has been damaged or if random access is
+     * desired. Using {@link #FULL_FLUSH} too often can seriously degrade
+     * compression.
+     * </ul>
+     *
+     * <p>In the case of {@link #FULL_FLUSH} or {@link #SYNC_FLUSH}, if
+     * the return value is {@code len}, the space available in output
+     * buffer {@code b}, this method should be invoked again with the same
+     * {@code flush} parameter and more output space.
+     *
+     * @param b the buffer for the compressed data
+     * @param off the start offset of the data
+     * @param len the maximum number of bytes of compressed data
+     * @param flush the compression flush mode
+     * @return the actual number of bytes of compressed data written to
+     *         the output buffer
+     *
+     * @throws IllegalArgumentException if the flush mode is invalid
+     * @since 1.7
+     */
+    public int deflate(byte[] b, int off, int len, int flush) {
+        if (b == null) {
+            throw new NullPointerException();
+        }
+        if (off < 0 || len < 0 || off > b.length - len) {
+            throw new ArrayIndexOutOfBoundsException();
+        }
+        synchronized (zsRef) {
+            ensureOpen();
+            if (flush == NO_FLUSH || flush == SYNC_FLUSH ||
+                flush == FULL_FLUSH) {
+                int thisLen = this.len;
+                int n = deflateBytes(zsRef.address(), b, off, len, flush);
+                bytesWritten += n;
+                bytesRead += (thisLen - this.len);
+                return n;
+            }
+            throw new IllegalArgumentException();
+        }
     }
 
     /**
@@ -340,7 +457,7 @@ class Deflater {
      * @return the total number of uncompressed bytes input so far
      */
     public int getTotalIn() {
-	return (int) getBytesRead();
+        return (int) getBytesRead();
     }
 
     /**
@@ -352,7 +469,7 @@ class Deflater {
     public long getBytesRead() {
         synchronized (zsRef) {
             ensureOpen();
-            return getBytesRead(zsRef.address());
+            return bytesRead;
         }
     }
 
@@ -366,7 +483,7 @@ class Deflater {
      * @return the total number of compressed bytes output so far
      */
     public int getTotalOut() {
-	return (int) getBytesWritten();
+        return (int) getBytesWritten();
     }
 
     /**
@@ -378,7 +495,7 @@ class Deflater {
     public long getBytesWritten() {
         synchronized (zsRef) {
             ensureOpen();
-            return getBytesWritten(zsRef.address());
+            return bytesWritten;
         }
     }
 
@@ -393,6 +510,7 @@ class Deflater {
             finish = false;
             finished = false;
             off = len = 0;
+            bytesRead = bytesWritten = 0;
         }
     }
 
@@ -418,23 +536,21 @@ class Deflater {
      * Closes the compressor when garbage is collected.
      */
     protected void finalize() {
-	end();
+        end();
     }
 
     private void ensureOpen() {
         assert Thread.holdsLock(zsRef);
-	if (zsRef.address() == 0)
+        if (zsRef.address() == 0)
             throw new NullPointerException("Deflater has been closed");
     }
 
     private static native void initIDs();
     private native static long init(int level, int strategy, boolean nowrap);
-    private native static void setDictionary(long addr, byte[] b, int off,
-					     int len);
-    private native int deflateBytes(long addr, byte[] b, int off, int len);
+    private native static void setDictionary(long addr, byte[] b, int off, int len);
+    private native int deflateBytes(long addr, byte[] b, int off, int len,
+                                    int flush);
     private native static int getAdler(long addr);
-    private native static long getBytesRead(long addr);
-    private native static long getBytesWritten(long addr);
     private native static void reset(long addr);
     private native static void end(long addr);
 }

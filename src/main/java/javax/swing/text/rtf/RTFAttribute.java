@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 1998, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 package javax.swing.text.rtf;
 
@@ -10,7 +28,7 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.MutableAttributeSet;
 import java.io.IOException;
 
-/** 
+/**
  * This interface describes a class which defines a 1-1 mapping between
  * an RTF keyword and a SwingText attribute.
  */
@@ -38,12 +56,12 @@ interface RTFAttribute
 
     /* TODO: This method is poorly thought out */
     public boolean write(AttributeSet source,
-		         RTFGenerator target,
-			 boolean force)
+                         RTFGenerator target,
+                         boolean force)
         throws IOException;
 
     public boolean writeValue(Object value,
-			      RTFGenerator target,
-			      boolean force)
+                              RTFGenerator target,
+                              boolean force)
         throws IOException;
 }

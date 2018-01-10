@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1995, 2006, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.io;
@@ -24,7 +42,6 @@ package java.io;
  * an <code>IOException</code> is thrown.
  *
  * @author  Frank Yellin
- * @version %I%, %G%
  * @see     java.io.DataInput
  * @see     java.io.DataOutputStream
  * @since   JDK1.0

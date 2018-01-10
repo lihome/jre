@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- * 
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2003, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.management.relation;
@@ -22,7 +40,7 @@ public class RelationNotFoundException extends RelationException {
      * Default constructor, no message put in exception.
      */
     public RelationNotFoundException() {
-	super();
+        super();
     }
 
     /**
@@ -31,6 +49,6 @@ public class RelationNotFoundException extends RelationException {
      * @param message the detail message.
      */
     public RelationNotFoundException(String message) {
-	super(message);
+        super(message);
     }
 }

@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1995, 1997, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.applet;
@@ -13,8 +31,7 @@ package java.applet;
  * playing at the same time, and the resulting sound is mixed
  * together to produce a composite.
  *
- * @author 	Arthur van Hoff
- * @version     %I%, %G%
+ * @author      Arthur van Hoff
  * @since       JDK1.0
  */
 public interface AudioClip {

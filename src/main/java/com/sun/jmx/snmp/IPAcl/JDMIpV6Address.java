@@ -1,11 +1,25 @@
 /*
- * %Z%file      %M%
- * %Z%author    Sun Microsystems, Inc.
- * %Z%version   %I%
- * %Z%date      %D%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2002, 2006, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  *
  */
 
@@ -14,6 +28,8 @@
 package com.sun.jmx.snmp.IPAcl;
 
 class JDMIpV6Address extends JDMIpAddress {
+  private static final long serialVersionUID = -5929917334606674243L;
+
   public JDMIpV6Address(int id) {
     super(id);
   }

@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1998, 2000, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.accessibility;
@@ -31,8 +49,7 @@ import javax.swing.text.*;
  * @see AccessibleText
  * @see AccessibleContext#getAccessibleText
  *
- * @version
- * @author	Peter Korn
+ * @author      Peter Korn
  */
 public interface AccessibleHypertext extends AccessibleText {
 

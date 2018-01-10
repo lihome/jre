@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright 1999-2002,2004,2005 The Apache Software Foundation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,12 +29,12 @@ import com.sun.org.apache.xerces.internal.impl.dv.ValidationContext;
 /**
  * Validator for &lt;gMonthDay&gt; datatype (W3C Schema Datatypes)
  *
- * @xerces.internal 
+ * @xerces.internal
  *
  * @author Elena Litani
  * @author Gopal Sharma, SUN Microsystem Inc.
  *
- * @version $Id: MonthDayDV.java,v 1.4 2007/07/19 04:38:33 ofung Exp $
+ * @version $Id: MonthDayDV.java,v 1.7 2010-11-01 04:39:47 joehw Exp $
  */
 
 public class MonthDayDV extends AbstractDateTimeDV {
@@ -90,10 +94,10 @@ public class MonthDayDV extends AbstractDateTimeDV {
         //validate and normalize
 
         validateDateTime(date);
-        
+
         //save unnormalized values
         saveUnnormalized(date);
-        
+
         if ( date.utc!=0 && date.utc!='Z' ) {
             normalize(date);
         }
@@ -117,10 +121,11 @@ public class MonthDayDV extends AbstractDateTimeDV {
         append(message, (char)date.utc, 0);
         return message.toString();
     }
-    
+
     protected XMLGregorianCalendar getXMLGregorianCalendar(DateTimeData date) {
-        return factory.newXMLGregorianCalendar(DatatypeConstants.FIELD_UNDEFINED, date.unNormMonth, date.unNormDay
-                , DatatypeConstants.FIELD_UNDEFINED, DatatypeConstants.FIELD_UNDEFINED, DatatypeConstants.FIELD_UNDEFINED, DatatypeConstants.FIELD_UNDEFINED, date.timezoneHr * 60 + date.timezoneMin);
+        return datatypeFactory.newXMLGregorianCalendar(DatatypeConstants.FIELD_UNDEFINED, date.unNormMonth, date.unNormDay,
+                DatatypeConstants.FIELD_UNDEFINED, DatatypeConstants.FIELD_UNDEFINED,
+                DatatypeConstants.FIELD_UNDEFINED, DatatypeConstants.FIELD_UNDEFINED,
+                date.hasTimeZone() ? date.timezoneHr * 60 + date.timezoneMin : DatatypeConstants.FIELD_UNDEFINED);
     }
 }
-

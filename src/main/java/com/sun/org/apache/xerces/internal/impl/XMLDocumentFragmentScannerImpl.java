@@ -1,28 +1,5 @@
 /*
- * The contents of this file are subject to the terms
- * of the Common Development and Distribution License
- * (the "License").  You may not use this file except
- * in compliance with the License.
- *
- * You can obtain a copy of the license at
- * https://jaxp.dev.java.net/CDDLv1.0.html.
- * See the License for the specific language governing
- * permissions and limitations under the License.
- *
- * When distributing Covered Code, include this CDDL
- * HEADER in each file and include the License file at
- * https://jaxp.dev.java.net/CDDLv1.0.html
- * If applicable add the following below this CDDL HEADER
- * with the fields enclosed by brackets "[]" replaced with
- * your own identifying information: Portions Copyright
- * [year] [name of copyright owner]
- */
-
-/*
- * $Id: XMLDocumentFragmentScannerImpl.java,v 1.13 2007/05/09 15:23:31 ndw Exp $
- * @(#)XMLDocumentFragmentScannerImpl.java	1.24 08/03/28
- *
- * Copyright (c) 2005, 2011, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2003, 2006, Oracle and/or its affiliates. All rights reserved.
  */
 
 /*
@@ -73,9 +50,15 @@ import com.sun.org.apache.xerces.internal.xni.parser.XMLInputSource;
 import com.sun.org.apache.xerces.internal.xni.Augmentations;
 import com.sun.org.apache.xerces.internal.impl.Constants;
 import com.sun.org.apache.xerces.internal.impl.XMLEntityHandler;
-import com.sun.org.apache.xerces.internal.util.SecurityManager;
 import com.sun.org.apache.xerces.internal.util.NamespaceSupport;
+import com.sun.org.apache.xerces.internal.utils.SecuritySupport;
+import com.sun.org.apache.xerces.internal.utils.XMLLimitAnalyzer;
+import com.sun.org.apache.xerces.internal.utils.XMLSecurityManager;
+import com.sun.org.apache.xerces.internal.utils.XMLSecurityManager.Limit;
+import com.sun.org.apache.xerces.internal.utils.XMLSecurityManager.State;
+import com.sun.org.apache.xerces.internal.utils.XMLSecurityPropertyManager;
 import com.sun.org.apache.xerces.internal.xni.NamespaceContext;
+import javax.xml.XMLConstants;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.events.XMLEvent;
 
@@ -95,104 +78,117 @@ import javax.xml.stream.events.XMLEvent;
  * @author Arnaud  Le Hors, IBM
  * @author Eric Ye, IBM
  * @author Sunitha Reddy, SUN Microsystems
- * @version $Id: XMLDocumentFragmentScannerImpl.java,v 1.17 2009/06/10 18:50:48 joehw Exp $
+ * @version $Id: XMLDocumentFragmentScannerImpl.java,v 1.19 2010-11-02 19:54:55 joehw Exp $
  *
  */
 public class XMLDocumentFragmentScannerImpl
         extends XMLScanner
         implements XMLDocumentScanner, XMLComponent, XMLEntityHandler, XMLBufferListener {
-    
+
     //
     // Constants
     //
-    
+
     protected int fElementAttributeLimit;
-    
+
     /** External subset resolver. **/
     protected ExternalSubsetResolver fExternalSubsetResolver;
-    
+
     // scanner states
-    
+
     //XXX this should be divided into more states.
     /** Scanner state: start of markup. */
     protected static final int SCANNER_STATE_START_OF_MARKUP = 21;
-    
+
     /** Scanner state: content. */
     protected static final int SCANNER_STATE_CONTENT = 22;
-    
+
     /** Scanner state: processing instruction. */
     protected static final int SCANNER_STATE_PI = 23;
-    
+
     /** Scanner state: DOCTYPE. */
     protected static final int SCANNER_STATE_DOCTYPE = 24;
-    
+
     /** Scanner state: XML Declaration */
     protected static final int SCANNER_STATE_XML_DECL = 25;
-    
+
     /** Scanner state: root element. */
     protected static final int SCANNER_STATE_ROOT_ELEMENT = 26;
-    
+
     /** Scanner state: comment. */
     protected static final int SCANNER_STATE_COMMENT = 27;
-    
+
     /** Scanner state: reference. */
     protected static final int SCANNER_STATE_REFERENCE = 28;
-    
+
     // <book type="hard"> reading attribute name 'type'
     protected static final int SCANNER_STATE_ATTRIBUTE = 29;
-    
+
     // <book type="hard"> //reading attribute value.
     protected static final int SCANNER_STATE_ATTRIBUTE_VALUE = 30;
-    
+
     /** Scanner state: trailing misc. USED BY DOCUMENT_SCANNER_IMPL*/
     //protected static final int SCANNER_STATE_TRAILING_MISC = 32;
-    
+
     /** Scanner state: end of input. */
     protected static final int SCANNER_STATE_END_OF_INPUT = 33;
-    
+
     /** Scanner state: terminated. */
     protected static final int SCANNER_STATE_TERMINATED = 34;
-    
+
     /** Scanner state: CDATA section. */
     protected static final int SCANNER_STATE_CDATA = 35;
-    
+
     /** Scanner state: Text declaration. */
     protected static final int SCANNER_STATE_TEXT_DECL = 36;
-    
+
     /** Scanner state: Text declaration. */
     protected static final int SCANNER_STATE_CHARACTER_DATA = 37;
-    
+
     //<book type="hard">foo</book>
     protected static final int SCANNER_STATE_START_ELEMENT_TAG = 38;
-    
+
     //<book type="hard">foo</book> reading </book>
     protected static final int SCANNER_STATE_END_ELEMENT_TAG = 39;
-    
+
     protected static final int SCANNER_STATE_CHAR_REFERENCE = 40;
     protected static final int SCANNER_STATE_BUILT_IN_REFS = 41;
-    
+
     // feature identifiers
-    
-    
+
+
     /** Feature identifier: notify built-in refereces. */
     protected static final String NOTIFY_BUILTIN_REFS =
             Constants.XERCES_FEATURE_PREFIX + Constants.NOTIFY_BUILTIN_REFS_FEATURE;
-    
+
     /** Property identifier: entity resolver. */
     protected static final String ENTITY_RESOLVER =
             Constants.XERCES_PROPERTY_PREFIX + Constants.ENTITY_RESOLVER_PROPERTY;
-        
+
+    /** Feature identifier: standard uri conformant */
+    protected static final String STANDARD_URI_CONFORMANT =
+            Constants.XERCES_FEATURE_PREFIX + Constants.STANDARD_URI_CONFORMANT_FEATURE;
+
+    /** Property identifier: Security property manager. */
+    private static final String XML_SECURITY_PROPERTY_MANAGER =
+            Constants.XML_SECURITY_PROPERTY_MANAGER;
+
+    /** access external dtd: file protocol
+     *  For DOM/SAX, the secure feature is set to true by default
+     */
+    final static String EXTERNAL_ACCESS_DEFAULT = Constants.EXTERNAL_ACCESS_DEFAULT;
+
     // recognized features and properties
-    
+
     /** Recognized features. */
     private static final String[] RECOGNIZED_FEATURES = {
                 NAMESPACES,
                 VALIDATION,
                 NOTIFY_BUILTIN_REFS,
                 NOTIFY_CHAR_REFS,
-                Constants.STAX_REPORT_CDATA_EVENT                
+                Constants.STAX_REPORT_CDATA_EVENT
     };
-    
+
     /** Feature defaults. */
     private static final Boolean[] FEATURE_DEFAULTS = {
                 Boolean.TRUE,
@@ -201,180 +197,194 @@ public class XMLDocumentFragmentScannerImpl
                 Boolean.FALSE,
                 Boolean.TRUE
     };
-    
+
     /** Recognized properties. */
     private static final String[] RECOGNIZED_PROPERTIES = {
         SYMBOL_TABLE,
                 ERROR_REPORTER,
                 ENTITY_MANAGER,
+                XML_SECURITY_PROPERTY_MANAGER
     };
-    
+
     /** Property defaults. */
     private static final Object[] PROPERTY_DEFAULTS = {
                 null,
                 null,
                 null,
+                EXTERNAL_ACCESS_DEFAULT
     };
-    
-    protected static final char [] cdata = {'[','C','D','A','T','A','['};
-    protected static final char [] xmlDecl = {'<','?','x','m','l'};
-    protected static final char [] endTag = {'<','/'};
+
+    private static final char [] cdata = {'[','C','D','A','T','A','['};
+    static final char [] xmlDecl = {'<','?','x','m','l'};
+    private static final char [] endTag = {'<','/'};
     // debugging
-    
+
     /** Debug scanner state. */
     private static final boolean DEBUG_SCANNER_STATE = false;
-    
+
     /** Debug driver. */
     private static final boolean DEBUG_DISPATCHER = false;
-    
+
     /** Debug content driver scanning. */
-    protected static final boolean DEBUG_START_END_ELEMENT = false; 
-    
-    
+    protected static final boolean DEBUG_START_END_ELEMENT = false;
+
+
     /** Debug driver next */
     protected static final boolean DEBUG_NEXT = false ;
-    
+
     /** Debug driver next */
     protected static final boolean DEBUG = false;
     protected static final boolean DEBUG_COALESCE = false;
     //
     // Data
     //
-    
+
     // protected data
-    
+
     /** Document handler. */
     protected XMLDocumentHandler fDocumentHandler;
     protected int fScannerLastState ;
-    
+
     /** Entity Storage */
     protected XMLEntityStorage fEntityStore;
-    
+
     /** Entity stack. */
     protected int[] fEntityStack = new int[4];
-    
+
     /** Markup depth. */
     protected int fMarkupDepth;
-    
+
     //is the element empty
     protected boolean fEmptyElement ;
-    
+
     //track if we are reading attributes, this is usefule while
     //there is a callback
     protected boolean fReadingAttributes = false;
-    
+
     /** Scanner state. */
     protected int fScannerState;
-    
+
     /** SubScanner state: inside scanContent method. */
     protected boolean fInScanContent = false;
     protected boolean fLastSectionWasCData = false;
     protected boolean fLastSectionWasEntityReference = false;
-    protected boolean fLastSectionWasCharacterData = false;        
-    
+    protected boolean fLastSectionWasCharacterData = false;
+
     /** has external dtd */
     protected boolean fHasExternalDTD;
-    
+
     /** Standalone. */
     protected boolean fStandaloneSet;
     protected boolean fStandalone;
     protected String fVersion;
-    
+
     // element information
-    
+
     /** Current element. */
     protected QName fCurrentElement;
-    
+
     /** Element stack. */
     protected ElementStack fElementStack = new ElementStack();
     protected ElementStack2 fElementStack2 = new ElementStack2();
-    
+
     // other info
-    
+
     /** Document system identifier.
      * REVISIT:  So what's this used for?  - NG
      * protected String fDocumentSystemId;
      ******/
-    
+
     protected String fPITarget ;
-    
+
     //xxx do we need to create an extra XMLString object... look for using fTempString for collecting all the data values
     protected XMLString fPIData  = new XMLString();
-    
+
     // features
-    
-    
+
+
     /** Notify built-in references. */
     protected boolean fNotifyBuiltInRefs = false;
-    
+
     //STAX related properties
     //defaultValues.
+    protected boolean fSupportDTD = true;
     protected boolean fReplaceEntityReferences = true;
     protected boolean fSupportExternalEntities = false;
     protected boolean fReportCdataEvent = false ;
     protected boolean fIsCoalesce = false ;
     protected String fDeclaredEncoding =  null;
-    /** Disallow doctype declaration. */
+    /** Xerces Feature: Disallow doctype declaration. */
     protected boolean fDisallowDoctype = false;
-    
+
+    /**
+     * comma-delimited list of protocols that are allowed for the purpose
+     * of accessing external dtd or entity references
+     */
+    protected String fAccessExternalDTD = EXTERNAL_ACCESS_DEFAULT;
+
+    /**
+     * standard uri conformant (strict uri).
+     * http://apache.org/xml/features/standard-uri-conformant
+     */
+    protected boolean fStrictURI;
+
     // drivers
-    
+
     /** Active driver. */
     protected Driver fDriver;
-    
+
     /** Content driver. */
     protected Driver fContentDriver = createContentDriver();
-    
+
     // temporary variables
-    
+
     /** Element QName. */
     protected QName fElementQName = new QName();
-    
+
     /** Attribute QName. */
     protected QName fAttributeQName = new QName();
-    
+
     /**
      * CHANGED: Using XMLAttributesIteratorImpl instead of XMLAttributesImpl. This class
      * implements Iterator interface so we can directly give Attributes in the form of
      * iterator.
      */
     protected XMLAttributesIteratorImpl fAttributes = new XMLAttributesIteratorImpl();
-    
-    
+
+
     /** String. */
     protected XMLString fTempString = new XMLString();
-    
+
     /** String. */
     protected XMLString fTempString2 = new XMLString();
-    
+
     /** Array of 3 strings. */
     private String[] fStrings = new String[3];
-    
+
     /** Making the buffer accesible to derived class -- String buffer. */
     protected XMLStringBuffer fStringBuffer = new XMLStringBuffer();
-    
+
     /** Making the buffer accesible to derived class -- String buffer. */
     protected XMLStringBuffer fStringBuffer2 = new XMLStringBuffer();
-    
+
     /** stores character data. */
     /** Making the buffer accesible to derived class -- stores PI data */
     protected XMLStringBuffer fContentBuffer = new XMLStringBuffer();
-    
+
     /** Single character array. */
     private final char[] fSingleChar = new char[1];
     private String fCurrentEntityName = null;
-    
+
     // New members
     protected boolean fScanToEnd = false;
-    
+
     protected DTDGrammarUtil dtdGrammarUtil= null;
-    
+
     protected boolean fAddDefaultAttr = false;
-    
+
     protected boolean foundBuiltInRefs = false;
-    
-    protected SecurityManager fSecurityManager = null;
-    
+
+
     //skip element algorithm
     static final short MAX_DEPTH_LIMIT = 5 ;
     static final short ELEMENT_ARRAY_LENGTH = 200 ;
@@ -391,21 +401,21 @@ public class XMLDocumentFragmentScannerImpl
     protected boolean fShouldSkip = false;
     protected boolean fAdd = false ;
     protected boolean fSkip = false;
-    
+
     /** Reusable Augmentations. */
     private Augmentations fTempAugmentations = null;
     //
     // Constructors
     //
-    
+
     /** Default constructor. */
     public XMLDocumentFragmentScannerImpl() {
     } // <init>()
-    
+
     //
     // XMLDocumentScanner methods
     //
-    
+
     /**
      * Sets the input source.
      *
@@ -418,7 +428,7 @@ public class XMLDocumentFragmentScannerImpl
         fEntityManager.startEntity("$fragment$", inputSource, false, true);
         // fDocumentSystemId = fEntityManager.expandSystemId(inputSource.getSystemId());
     } // setInputSource(XMLInputSource)
-    
+
     /**
      * Scans a document.
      *
@@ -432,24 +442,13 @@ public class XMLDocumentFragmentScannerImpl
      *
      * @return True if there is more to scan, false otherwise.
      */
-   /* public boolean scanDocument(boolean complete)
-    throws IOException, XNIException {
-    
-        // keep dispatching "events"
-        fEntityManager.setEntityHandler(this);
-    
-        return true;
-    
-    } // scanDocument(boolean):boolean
-    */
-    
     public boolean scanDocument(boolean complete)
     throws IOException, XNIException {
-        
+
         // keep dispatching "events"
         fEntityManager.setEntityHandler(this);
         //System.out.println(" get Document Handler in NSDocumentHandler " + fDocumentHandler );
-        
+
         int event = next();
         do {
             switch (event) {
@@ -499,49 +498,49 @@ public class XMLDocumentFragmentScannerImpl
                 case XMLStreamConstants.ATTRIBUTE :
                     break;
                 case XMLStreamConstants.END_ELEMENT :
-                    //do not give callback here. 
+                    //do not give callback here.
                     //this callback is given in scanEndElement function.
                     //fDocumentHandler.endElement(getElementQName(),null);
                     break;
                 default :
                     throw new InternalError("processing event: " + event);
-                    
+
             }
             //System.out.println("here in before calling next");
             event = next();
             //System.out.println("here in after calling next");
         } while (event!=XMLStreamConstants.END_DOCUMENT && complete);
-        
-        if(event == XMLStreamConstants.END_DOCUMENT) {            
+
+        if(event == XMLStreamConstants.END_DOCUMENT) {
             fDocumentHandler.endDocument(null);
             return false;
         }
-        
+
         return true;
-        
+
     } // scanDocument(boolean):boolean
-    
-    
-    
+
+
+
     public com.sun.org.apache.xerces.internal.xni.QName getElementQName(){
         if(fScannerLastState == XMLEvent.END_ELEMENT){
             fElementQName.setValues(fElementStack.getLastPoppedElement());
         }
         return fElementQName ;
     }
-    
+
     /** return the next state on the input
      * @return int
      */
-    
+
     public int next() throws IOException, XNIException {
         return fDriver.next();
     }
-    
+
     //
     // XMLComponent methods
     //
-    
+
     /**
      * Resets the component. The component can query the component manager
      * about any features and properties that affect the operation of the
@@ -556,61 +555,27 @@ public class XMLDocumentFragmentScannerImpl
      *                      SAXNotRecognizedException or a
      *                      SAXNotSupportedException.
      */
-    
+
     public void reset(XMLComponentManager componentManager)
     throws XMLConfigurationException {
-        
+
         super.reset(componentManager);
-        
+
         // other settings
         // fDocumentSystemId = null;
-                
+
         // sax features
         //fAttributes.setNamespaces(fNamespaces);
-                
+
         // xerces features
-        try{
-            fReportCdataEvent = componentManager.getFeature(Constants.STAX_REPORT_CDATA_EVENT);
-        } catch (XMLConfigurationException e) {
-            e.printStackTrace();
-            //note that default value of this feature is true in stax configuration
-            fReportCdataEvent = true;
-        }
-        
-        try {
-            fSecurityManager = (SecurityManager)componentManager.getProperty(Constants.SECURITY_MANAGER);
-        } catch (XMLConfigurationException e) {
-            fSecurityManager = null;
-        }
-        fElementAttributeLimit = (fSecurityManager != null)?fSecurityManager.getElementAttrLimit():0;
-        
-        try {
-            fNotifyBuiltInRefs = componentManager.getFeature(NOTIFY_BUILTIN_REFS);
-        } catch (XMLConfigurationException e) {
-            fNotifyBuiltInRefs = false;
-        }
-        
-        try {
-            Object resolver = componentManager.getProperty(ENTITY_RESOLVER);
-            fExternalSubsetResolver = (resolver instanceof ExternalSubsetResolver) ?
+        fReportCdataEvent = componentManager.getFeature(Constants.STAX_REPORT_CDATA_EVENT, true);
+        fSecurityManager = (XMLSecurityManager)componentManager.getProperty(Constants.SECURITY_MANAGER, null);
+        fNotifyBuiltInRefs = componentManager.getFeature(NOTIFY_BUILTIN_REFS, false);
+
+        Object resolver = componentManager.getProperty(ENTITY_RESOLVER, null);
+        fExternalSubsetResolver = (resolver instanceof ExternalSubsetResolver) ?
                 (ExternalSubsetResolver) resolver : null;
-        } catch (XMLConfigurationException e) {
-            fExternalSubsetResolver = null;
-        }
-                        
-        // initialize vars
-        fMarkupDepth = 0;
-        fCurrentElement = null;
-        fElementStack.clear();
-        fHasExternalDTD = false;
-        fStandaloneSet = false;
-        fStandalone = false;
-        fInScanContent = false;
-        //skipping algorithm
-        fShouldSkip = false;
-        fAdd = false;
-        fSkip = false;
-        
+
         //attribute
         fReadingAttributes = false;
         //xxx: external entities are supported in Xerces
@@ -618,44 +583,38 @@ public class XMLDocumentFragmentScannerImpl
         fSupportExternalEntities = true;
         fReplaceEntityReferences = true;
         fIsCoalesce = false;
-        
+
         // setup Driver
         setScannerState(SCANNER_STATE_CONTENT);
         setDriver(fContentDriver);
-        fEntityStore = fEntityManager.getEntityStore();
-        
-        dtdGrammarUtil = null;
-                
-        
+
+        // JAXP 1.5 features and properties
+        XMLSecurityPropertyManager spm = (XMLSecurityPropertyManager)
+                componentManager.getProperty(XML_SECURITY_PROPERTY_MANAGER, null);
+        fAccessExternalDTD = spm.getValue(XMLSecurityPropertyManager.Property.ACCESS_EXTERNAL_DTD);
+
+        fStrictURI = componentManager.getFeature(STANDARD_URI_CONFORMANT, false);
+
+        resetCommon();
         //fEntityManager.test();
     } // reset(XMLComponentManager)
-    
-    
+
+
     public void reset(PropertyManager propertyManager){
-        
+
         super.reset(propertyManager);
-        
+
         // other settings
         // fDocumentSystemId = null;
         fNamespaces = ((Boolean)propertyManager.getProperty(XMLInputFactory.IS_NAMESPACE_AWARE)).booleanValue();
         fNotifyBuiltInRefs = false ;
-                
-        // initialize vars
-        fMarkupDepth = 0;
-        fCurrentElement = null;
-        fShouldSkip = false;
-        fAdd = false;
-        fSkip = false;
-        fElementStack.clear();
+
         //fElementStack2.clear();
-        fHasExternalDTD = false;
-        fStandaloneSet = false;
-        fStandalone = false;
         //fReplaceEntityReferences = true;
         //fSupportExternalEntities = true;
-        Boolean bo = (Boolean)propertyManager.getProperty(XMLInputFactoryImpl.IS_REPLACING_ENTITY_REFERENCES);
+        Boolean bo = (Boolean)propertyManager.getProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES);
         fReplaceEntityReferences = bo.booleanValue();
-        bo = (Boolean)propertyManager.getProperty(XMLInputFactoryImpl.IS_SUPPORTING_EXTERNAL_ENTITIES);
+        bo = (Boolean)propertyManager.getProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES);
         fSupportExternalEntities = bo.booleanValue();
         Boolean cdata = (Boolean)propertyManager.getProperty(Constants.ZEPHYR_PROPERTY_PREFIX + Constants.STAX_REPORT_CDATA_EVENT) ;
         if(cdata != null)
@@ -671,13 +630,43 @@ public class XMLDocumentFragmentScannerImpl
         //we dont need to do this -- nb.
         //setScannerState(SCANNER_STATE_CONTENT);
         //setDriver(fContentDriver);
-        fEntityStore = fEntityManager.getEntityStore();
         //fEntityManager.test();
-        
-        dtdGrammarUtil = null;
-                
+
+        // JAXP 1.5 features and properties
+        XMLSecurityPropertyManager spm = (XMLSecurityPropertyManager)
+                propertyManager.getProperty(XML_SECURITY_PROPERTY_MANAGER);
+        fAccessExternalDTD = spm.getValue(XMLSecurityPropertyManager.Property.ACCESS_EXTERNAL_DTD);
+
+        fSecurityManager = (XMLSecurityManager)propertyManager.getProperty(Constants.SECURITY_MANAGER);
+        resetCommon();
     } // reset(XMLComponentManager)
-    
+
+    void resetCommon() {
+        // initialize vars
+        fMarkupDepth = 0;
+        fCurrentElement = null;
+        fElementStack.clear();
+        fHasExternalDTD = false;
+        fStandaloneSet = false;
+        fStandalone = false;
+        fInScanContent = false;
+        //skipping algorithm
+        fShouldSkip = false;
+        fAdd = false;
+        fSkip = false;
+
+        fEntityStore = fEntityManager.getEntityStore();
+        dtdGrammarUtil = null;
+
+        if (fSecurityManager != null) {
+            fElementAttributeLimit = fSecurityManager.getLimit(XMLSecurityManager.Limit.ELEMENT_ATTRIBUTE_LIMIT);
+        } else {
+            fElementAttributeLimit = 0;
+        }
+        fLimitAnalyzer = new XMLLimitAnalyzer();
+        fEntityManager.setLimitAnalyzer(fLimitAnalyzer);
+    }
+
     /**
      * Returns a list of feature identifiers that are recognized by
      * this component. This method may return null if no features
@@ -686,7 +675,7 @@ public class XMLDocumentFragmentScannerImpl
     public String[] getRecognizedFeatures() {
         return (String[])(RECOGNIZED_FEATURES.clone());
     } // getRecognizedFeatures():String[]
-    
+
     /**
      * Sets the state of a feature. This method is called by the component
      * manager any time after reset when a feature changes state.
@@ -704,9 +693,9 @@ public class XMLDocumentFragmentScannerImpl
      */
     public void setFeature(String featureId, boolean state)
     throws XMLConfigurationException {
-        
+
         super.setFeature(featureId, state);
-        
+
         // Xerces properties
         if (featureId.startsWith(Constants.XERCES_FEATURE_PREFIX)) {
             String feature = featureId.substring(Constants.XERCES_FEATURE_PREFIX.length());
@@ -714,9 +703,9 @@ public class XMLDocumentFragmentScannerImpl
                 fNotifyBuiltInRefs = state;
             }
         }
-        
+
     } // setFeature(String,boolean)
-    
+
     /**
      * Returns a list of property identifiers that are recognized by
      * this component. This method may return null if no properties
@@ -725,7 +714,7 @@ public class XMLDocumentFragmentScannerImpl
     public String[] getRecognizedProperties() {
         return (String[])(RECOGNIZED_PROPERTIES.clone());
     } // getRecognizedProperties():String[]
-    
+
     /**
      * Sets the value of a property. This method is called by the component
      * manager any time after reset when a property changes value.
@@ -743,9 +732,9 @@ public class XMLDocumentFragmentScannerImpl
      */
     public void setProperty(String propertyId, Object value)
     throws XMLConfigurationException {
-        
+
         super.setProperty(propertyId, value);
-        
+
         // Xerces properties
         if (propertyId.startsWith(Constants.XERCES_PROPERTY_PREFIX)) {
             final int suffixLength = propertyId.length() - Constants.XERCES_PROPERTY_PREFIX.length();
@@ -761,8 +750,8 @@ public class XMLDocumentFragmentScannerImpl
                 return;
             }
         }
-        
-        
+
+
                 // Xerces properties
         if (propertyId.startsWith(Constants.XERCES_PROPERTY_PREFIX)) {
             String property = propertyId.substring(Constants.XERCES_PROPERTY_PREFIX.length());
@@ -771,9 +760,16 @@ public class XMLDocumentFragmentScannerImpl
             }
             return;
         }
-        
+
+        //JAXP 1.5 properties
+        if (propertyId.equals(XML_SECURITY_PROPERTY_MANAGER))
+            {
+            XMLSecurityPropertyManager spm = (XMLSecurityPropertyManager)value;
+            fAccessExternalDTD = spm.getValue(XMLSecurityPropertyManager.Property.ACCESS_EXTERNAL_DTD);
+            }
+
     } // setProperty(String,Object)
-    
+
     /**
      * Returns the default state for a feature, or null if this
      * component does not want to report a default value for this
@@ -791,7 +787,7 @@ public class XMLDocumentFragmentScannerImpl
         }
         return null;
     } // getFeatureDefault(String):Boolean
-    
+
     /**
      * Returns the default state for a property, or null if this
      * component does not want to report a default value for this
@@ -809,11 +805,11 @@ public class XMLDocumentFragmentScannerImpl
         }
         return null;
     } // getPropertyDefault(String):Object
-    
+
     //
     // XMLDocumentSource methods
     //
-    
+
     /**
      * setDocumentHandler
      *
@@ -823,17 +819,17 @@ public class XMLDocumentFragmentScannerImpl
         fDocumentHandler = documentHandler;
         //System.out.println(" In Set DOCUMENT HANDLER" + fDocumentHandler + " scanner =" + this);
     } // setDocumentHandler(XMLDocumentHandler)
-    
-    
+
+
     /** Returns the document handler */
     public XMLDocumentHandler getDocumentHandler(){
         return fDocumentHandler;
     }
-    
+
     //
     // XMLEntityHandler methods
     //
-    
+
     /**
      * This method notifies of the start of an entity. The DTD has the
      * pseudo-name of "[dtd]" parameter entity names start with '%'; and
@@ -846,13 +842,14 @@ public class XMLDocumentFragmentScannerImpl
      *                 where the entity encoding is not auto-detected (e.g.
      *                 internal entities or a document entity that is
      *                 parsed from a java.io.Reader).
+     * @param augs     Additional information that may include infoset augmentations
      *
      * @throws XNIException Thrown by handler to signal an error.
      */
     public void startEntity(String name,
             XMLResourceIdentifier identifier,
             String encoding, Augmentations augs) throws XNIException {
-        
+
         // keep track of this entity before fEntityDepth is increased
         if (fEntityDepth == fEntityStack.length) {
             int[] entityarray = new int[fEntityStack.length * 2];
@@ -860,36 +857,37 @@ public class XMLDocumentFragmentScannerImpl
             fEntityStack = entityarray;
         }
         fEntityStack[fEntityDepth] = fMarkupDepth;
-        
+
         super.startEntity(name, identifier, encoding, augs);
-        
+
         // WFC:  entity declared in external subset in standalone doc
         if(fStandalone && fEntityStore.isEntityDeclInExternalSubset(name)) {
             reportFatalError("MSG_REFERENCE_TO_EXTERNALLY_DECLARED_ENTITY_WHEN_STANDALONE",
                     new Object[]{name});
         }
-        
+
         /** we are not calling the handlers yet.. */
         // call handler
         if (fDocumentHandler != null && !fScanningAttribute) {
             if (!name.equals("[xml]")) {
-                fDocumentHandler.startGeneralEntity(name, identifier, encoding, null);
+                fDocumentHandler.startGeneralEntity(name, identifier, encoding, augs);
             }
         }
-        
+
     } // startEntity(String,XMLResourceIdentifier,String)
-    
+
     /**
      * This method notifies the end of an entity. The DTD has the pseudo-name
      * of "[dtd]" parameter entity names start with '%'; and general entities
      * are just specified by their name.
      *
      * @param name The name of the entity.
+     * @param augs Additional information that may include infoset augmentations
      *
      * @throws XNIException Thrown by handler to signal an error.
      */
     public void endEntity(String name, Augmentations augs) throws IOException, XNIException {
-        
+
         /**
          * // flush possible pending output buffer - see scanContent
          * if (fInScanContent && fStringBuffer.length != 0
@@ -899,36 +897,36 @@ public class XMLDocumentFragmentScannerImpl
          * }
          */
         super.endEntity(name, augs);
-        
+
         // make sure markup is properly balanced
         if (fMarkupDepth != fEntityStack[fEntityDepth]) {
             reportFatalError("MarkupEntityMismatch", null);
         }
-        
+
         /**/
         // call handler
         if (fDocumentHandler != null && !fScanningAttribute) {
             if (!name.equals("[xml]")) {
-                fDocumentHandler.endGeneralEntity(name, null);
+                fDocumentHandler.endGeneralEntity(name, augs);
             }
         }
-        
-        
+
+
     } // endEntity(String)
-    
+
     //
     // Protected methods
     //
-    
+
     // Driver factory methods
-    
+
     /** Creates a content Driver. */
     protected Driver createContentDriver() {
         return new FragmentContentDriver();
     } // createContentDriver():Driver
-    
+
     // scanning methods
-    
+
     /**
      * Scans an XML or text declaration.
      * <p>
@@ -949,11 +947,11 @@ public class XMLDocumentFragmentScannerImpl
      */
     protected void scanXMLDeclOrTextDecl(boolean scanningTextDecl)
     throws IOException, XNIException {
-        
+
         // scan decl
         super.scanXMLDeclOrTextDecl(scanningTextDecl, fStrings);
         fMarkupDepth--;
-        
+
         // pseudo-attribute values
         String version = fStrings[0];
         String encoding = fStrings[1];
@@ -965,8 +963,8 @@ public class XMLDocumentFragmentScannerImpl
         ///xxx see where its used.. this is not used anywhere. it may be useful for entity to store this information
         //but this information is only related with Document Entity.
         fEntityManager.setStandalone(fStandalone);
-        
-        
+
+
         // call handler
         if (fDocumentHandler != null) {
             if (scanningTextDecl) {
@@ -975,7 +973,7 @@ public class XMLDocumentFragmentScannerImpl
                 fDocumentHandler.xmlDecl(version, encoding, standalone, null);
             }
         }
-       
+
         if(version != null){
             fEntityScanner.setVersion(version);
             fEntityScanner.setXMLVersion(version);
@@ -984,17 +982,17 @@ public class XMLDocumentFragmentScannerImpl
         if (encoding != null && !fEntityScanner.getCurrentEntity().isEncodingExternallySpecified()) {
              fEntityScanner.setEncoding(encoding);
         }
-        
+
     } // scanXMLDeclOrTextDecl(boolean)
-    
+
     public String getPITarget(){
         return fPITarget ;
     }
-    
+
     public XMLStringBuffer getPIData(){
         return fContentBuffer ;
     }
-    
+
     //XXX: why not this function behave as per the state of the parser?
     public XMLString getCharacterData(){
         if(fUsebuffer){
@@ -1002,10 +1000,10 @@ public class XMLDocumentFragmentScannerImpl
         }else{
             return fTempString;
         }
-        
+
     }
-    
-    
+
+
     /**
      * Scans a processing data. This is needed to handle the situation
      * where a document starts with a processing instruction whose
@@ -1016,16 +1014,16 @@ public class XMLDocumentFragmentScannerImpl
      */
     protected void scanPIData(String target, XMLStringBuffer data)
     throws IOException, XNIException {
-        
+
         super.scanPIData(target, data);
-        
+
         //set the PI target and values
         fPITarget = target ;
-        
+
         fMarkupDepth--;
-        
+
     } // scanPIData(String)
-    
+
     /**
      * Scans a comment.
      * <p>
@@ -1041,20 +1039,20 @@ public class XMLDocumentFragmentScannerImpl
         //getTextCharacters can also be called for reading comments
         fUsebuffer = true;
         fMarkupDepth--;
-        
+
     } // scanComment()
-    
+
     //xxx value returned by this function may not remain valid if another event is scanned.
     public String getComment(){
         return fContentBuffer.toString();
     }
-    
+
     void addElement(String rawname){
         if(fElementPointer < ELEMENT_ARRAY_LENGTH){
             //storing element raw name in a linear list of array
             fElementArray[fElementPointer] = rawname ;
             //storing elemnetPointer for particular element depth
-            
+
             if(DEBUG_SKIP_ALGORITHM){
                 StringBuffer sb = new StringBuffer() ;
                 sb.append(" Storing element information ") ;
@@ -1063,7 +1061,7 @@ public class XMLDocumentFragmentScannerImpl
                 sb.append(" fElementStack.fDepth = " + fElementStack.fDepth);
                 System.out.println(sb.toString()) ;
             }
-            
+
             //store pointer information only when element depth is less MAX_DEPTH_LIMIT
             if(fElementStack.fDepth < MAX_DEPTH_LIMIT){
                 short column = storePointerForADepth(fElementPointer);
@@ -1086,20 +1084,20 @@ public class XMLDocumentFragmentScannerImpl
             fElementPointer++ ;
         }
     }
-    
-    
+
+
     void resetPointer(short depth, short column){
         fPointerInfo[depth] [column] = (short)0;
     }
-    
+
     //returns column information at which pointer was stored.
     short storePointerForADepth(short elementPointer){
         short depth = (short) fElementStack.fDepth ;
-        
+
         //Stores element pointer locations at particular depth , only 4 pointer locations
         //are stored at particular depth for now.
         for(short i = 0 ; i < MAX_POINTER_AT_A_DEPTH ; i++){
-            
+
             if(canStore(depth, i)){
                 fPointerInfo[depth][i] = elementPointer ;
                 if(DEBUG_SKIP_ALGORITHM){
@@ -1117,22 +1115,22 @@ public class XMLDocumentFragmentScannerImpl
         }
         return -1 ;
     }
-    
+
     boolean canStore(short depth, short column){
         //colum = 0 , means first element at particular depth
         //column = 1, means second element at particular depth
         //        calle should make sure that it doesn't call for value outside allowed co-ordinates
         return fPointerInfo[depth][column] == 0 ? true : false ;
     }
-    
-    
+
+
     short getElementPointer(short depth, short column){
         //colum = 0 , means first element at particular depth
         //column = 1, means second element at particular depth
         //        calle should make sure that it doesn't call for value outside allowed co-ordinates
         return fPointerInfo[depth][column] ;
     }
-    
+
     //this function assumes that string passed is not null and skips
     //the following string from the buffer this makes sure
     boolean skipFromTheBuffer(String rawname) throws IOException{
@@ -1149,9 +1147,9 @@ public class XMLDocumentFragmentScannerImpl
         } else
             return false ;
     }
-            
+
     boolean skipQElement(String rawname) throws IOException{
-        
+
         final int c = fEntityScanner.getChar(rawname.length());
         //if this character is still valid element name -- this means string can't match
         if(XMLChar.isName(c)){
@@ -1160,11 +1158,11 @@ public class XMLDocumentFragmentScannerImpl
             return fEntityScanner.skipString(rawname);
         }
     }
-    
+
     protected boolean skipElement() throws IOException {
-        
+
         if(!fShouldSkip) return false ;
-        
+
         if(fLastPointerLocation != 0){
             //Look at the next element stored in the array list.. we might just get a match.
             String rawname = fElementArray[fLastPointerLocation + 1] ;
@@ -1177,7 +1175,7 @@ public class XMLDocumentFragmentScannerImpl
             } else{
                 //reset it back to zero... we haven't got the correct subset yet.
                 fLastPointerLocation = 0 ;
-                
+
             }
         }
         //xxx: we can put some logic here as from what column it should start looking
@@ -1185,23 +1183,23 @@ public class XMLDocumentFragmentScannerImpl
         //fallback to tolerant algorithm, it would look for differnt element stored at different
         //depth and get us the pointer location.
         return fShouldSkip && skipElement((short)0);
-        
+
     }
-    
+
     //start of the column at which it should try searching
     boolean skipElement(short column) throws IOException {
         short depth = (short)fElementStack.fDepth ;
-        
+
         if(depth > MAX_DEPTH_LIMIT){
             return fShouldSkip = false ;
         }
         for(short i = column ; i < MAX_POINTER_AT_A_DEPTH ; i++){
             short pointer = getElementPointer(depth , i ) ;
-            
+
             if(pointer == 0){
                 return fShouldSkip = false ;
             }
-            
+
             if(fElementArray[pointer] != null && skipFromTheBuffer(fElementArray[pointer])){
                 if(DEBUG_SKIP_ALGORITHM){
                     System.out.println();
@@ -1214,7 +1212,7 @@ public class XMLDocumentFragmentScannerImpl
         }
         return fShouldSkip = false ;
     }
-    
+
     /**
      * Scans a start element. This method will handle the binding of
      * namespace information and notifying the handler of the start
@@ -1241,22 +1239,22 @@ public class XMLDocumentFragmentScannerImpl
     // fAttributes will have the details of all the attributes.
     protected boolean scanStartElement()
     throws IOException, XNIException {
-        
+
         if (DEBUG_START_END_ELEMENT) System.out.println( this.getClass().toString() + ">>> scanStartElement()");
         //when skipping is true and no more elements should be added
         if(fSkip && !fAdd){
             //get the stored element -- if everything goes right this should match the
             //token in the buffer
-            
+
             QName name = fElementStack.getNext();
-            
+
             if(DEBUG_SKIP_ALGORITHM){
                 System.out.println("Trying to skip String = " + name.rawname);
             }
-            
+
             //Be conservative -- if skipping fails -- stop.
             fSkip = fEntityScanner.skipString(name.rawname);
-                        
+
             if(fSkip){
                 if(DEBUG_SKIP_ALGORITHM){
                     System.out.println("Element SUCESSFULLY skipped = " + name.rawname);
@@ -1271,7 +1269,7 @@ public class XMLDocumentFragmentScannerImpl
                 }
             }
         }
-        
+
         //we are still at the stage of adding elements
         //the elements were not matched or
         //fSkip is not set to true
@@ -1285,32 +1283,33 @@ public class XMLDocumentFragmentScannerImpl
                 String name = fEntityScanner.scanName();
                 fElementQName.setValues(null, name, name, null);
             }
-            
+
             if(DEBUG)System.out.println("Element scanned in start element is " + fElementQName.toString());
             if(DEBUG_SKIP_ALGORITHM){
                 if(fAdd){
                     System.out.println("Elements are being ADDED -- elemet added is = " + fElementQName.rawname + " at count = " + fElementStack.fCount);
                 }
             }
-            
+
         }
-        
+
         //when the elements are being added , we need to check if we are set for skipping the elements
         if(fAdd){
             //this sets the value of fAdd variable
             fElementStack.matchElement(fElementQName);
         }
-        
-        
+
+
         //xxx: We dont need another pointer, fCurrentElement, we can use fElementQName
         fCurrentElement = fElementQName;
-                
+
         String rawname = fElementQName.rawname;
-        
+
         fEmptyElement = false;
-        
+
         fAttributes.removeAllAttributes();
-        
+
+        checkDepth(rawname);
         if(!seekCloseOfStartTag()){
             fReadingAttributes = true;
             fAttributeCacheUsedCount =0;
@@ -1318,21 +1317,22 @@ public class XMLDocumentFragmentScannerImpl
             fAddDefaultAttr = true;
             do {
                 scanAttribute(fAttributes);
-                if (fSecurityManager != null && fAttributes.getLength() > fElementAttributeLimit){  
+                if (fSecurityManager != null && !fSecurityManager.isNoLimit(fElementAttributeLimit) &&
+                        fAttributes.getLength() > fElementAttributeLimit){
                     fErrorReporter.reportError(XMLMessageFormatter.XML_DOMAIN,
                                                  "ElementAttributeLimit",
-                                                 new Object[]{rawname, new Integer(fAttributes.getLength()) },
+                                                 new Object[]{rawname, fElementAttributeLimit },
                                                  XMLErrorReporter.SEVERITY_FATAL_ERROR );
                 }
-                
+
             } while (!seekCloseOfStartTag());
             fReadingAttributes=false;
         }
-        
+
         if (fEmptyElement) {
             //decrease the markup depth..
             fMarkupDepth--;
-            
+
             // check that this element was opened in the same entity
             if (fMarkupDepth < fEntityStack[fEntityDepth - 1]) {
                 reportFatalError("ElementEntityMismatch",
@@ -1342,32 +1342,32 @@ public class XMLDocumentFragmentScannerImpl
             if (fDocumentHandler != null) {
                 fDocumentHandler.emptyElement(fElementQName, fAttributes, null);
             }
-            
+
             //We should not be popping out the context here in endELement becaause the namespace context is still
-            //valid when parser is at the endElement state.            
+            //valid when parser is at the endElement state.
             //if (fNamespaces) {
             //  fNamespaceContext.popContext();
             //}
-            
+
             //pop the element off the stack..
             fElementStack.popElement();
-            
+
         } else {
-            
+
             if(dtdGrammarUtil != null)
-                dtdGrammarUtil.startElement(fElementQName, fAttributes); 
+                dtdGrammarUtil.startElement(fElementQName, fAttributes);
             if(fDocumentHandler != null){
                 //complete element and attributes are traversed in this function so we can send a callback
                 //here.
-                //<strong>we shouldn't be sending callback in scanDocument()</strong>                                
+                //<strong>we shouldn't be sending callback in scanDocument()</strong>
                 fDocumentHandler.startElement(fElementQName, fAttributes, null);
             }
         }
-        
-        
+
+
         if (DEBUG_START_END_ELEMENT) System.out.println(this.getClass().toString() + "<<< scanStartElement(): "+fEmptyElement);
         return fEmptyElement;
-        
+
     } // scanStartElement():boolean
 
     /**
@@ -1377,7 +1377,7 @@ public class XMLDocumentFragmentScannerImpl
     protected boolean seekCloseOfStartTag() throws IOException, XNIException {
         // spaces
         boolean sawSpace = fEntityScanner.skipSpaces();
-        
+
         // end tag?
         final int c = fEntityScanner.peekChar();
         if (c == '>') {
@@ -1394,15 +1394,15 @@ public class XMLDocumentFragmentScannerImpl
         } else if (!isValidNameStartChar(c) || !sawSpace) {
             reportFatalError("ElementUnterminated", new Object[]{fElementQName.rawname});
         }
-        
+
         return false;
     }
-    
+
     public boolean hasAttributes(){
         return fAttributes.getLength() > 0 ? true : false ;
     }
-    
-    
+
+
     /**
      * Scans an attribute.
      * <p>
@@ -1420,7 +1420,7 @@ public class XMLDocumentFragmentScannerImpl
      *
      * @param attributes The attributes list for the scanned attribute.
      */
-    
+
     /**
      * protected void scanAttribute(AttributeIteratorImpl attributes)
      * throws IOException, XNIException {
@@ -1458,25 +1458,25 @@ public class XMLDocumentFragmentScannerImpl
      * fAttributeQName.rawname});
      * }
      */
-    
+
     /*
         //REVISIT: one more case needs to be included: external PE and standalone is no
         boolean isVC =  fHasExternalDTD && !fStandalone;
         scanAttributeValue(fTempString, fTempString2,
                            fAttributeQName.rawname, attributes,
                            oldLen, isVC);
-     
+
         //attributes.setValue(oldLen, fTempString.toString());
         //attributes.setNonNormalizedValue(oldLen, fTempString2.toString());
         //attributes.setSpecified(oldLen, true);
-     
+
         AttributeImpl attribute = new AttributeImpl(fAttributeQName.prefix,fAttributeQName.localpart,fAttributeQName.uri,fTempString.toString(),fTempString2.toString(),XMLSymbols.fCDATASymbol,true);
         fAttributes.addAttribute(attribute);
         if (DEBUG_START_END_ELEMENT) System.out.println("<<< scanAttribute()");
     } // scanAttribute(XMLAttributes)
-     
+
      */
-    
+
     /** return the attribute iterator implementation */
     public XMLAttributesIteratorImpl getAttributeIterator(){
         if(dtdGrammarUtil != null && fAddDefaultAttr){
@@ -1485,7 +1485,7 @@ public class XMLDocumentFragmentScannerImpl
         }
         return fAttributes;
     }
-    
+
     /** return if standalone is set */
     public boolean standaloneSet(){
         return fStandaloneSet;
@@ -1511,11 +1511,11 @@ public class XMLDocumentFragmentScannerImpl
      *
      * @param attributes The attributes list for the scanned attribute.
      */
-    
+
     protected void scanAttribute(XMLAttributes attributes)
     throws IOException, XNIException {
         if (DEBUG_START_END_ELEMENT) System.out.println(this.getClass().toString() +">>> scanAttribute()");
-        
+
         // name
         if (fNamespaces) {
             fEntityScanner.scanQName(fAttributeQName);
@@ -1523,7 +1523,7 @@ public class XMLDocumentFragmentScannerImpl
             String name = fEntityScanner.scanName();
             fAttributeQName.setValues(null, name, name, null);
         }
-        
+
         // equals
         fEntityScanner.skipSpaces();
         if (!fEntityScanner.skipChar('=')) {
@@ -1531,19 +1531,19 @@ public class XMLDocumentFragmentScannerImpl
                 new Object[] {fCurrentElement.rawname, fAttributeQName.rawname});
         }
         fEntityScanner.skipSpaces();
-        
+
         int attIndex = 0 ;
         //REVISIT: one more case needs to be included: external PE and standalone is no
         boolean isVC =  fHasExternalDTD && !fStandalone;
         //fTempString would store attribute value
         ///fTempString2 would store attribute non-normalized value
-        
+
         //this function doesn't use 'attIndex'. We are adding the attribute later
         //after we have figured out that current attribute is not namespace declaration
         //since scanAttributeValue doesn't use attIndex parameter therefore we
         //can safely add the attribute later..
         XMLString tmpStr = getString();
-        
+
         scanAttributeValue(tmpStr, fTempString2,
                 fAttributeQName.rawname, attributes,
                 attIndex, isVC);
@@ -1552,7 +1552,7 @@ public class XMLDocumentFragmentScannerImpl
         int oldLen = attributes.getLength();
         //if the attribute name already exists.. new value is replaced with old value
         attIndex = attributes.addAttribute(fAttributeQName, XMLSymbols.fCDATASymbol, null);
-        
+
         // WFC: Unique Att Spec
         //attributes count will be same if the current attribute  name already exists for this element name.
         //this means there are two duplicate attributes.
@@ -1561,7 +1561,7 @@ public class XMLDocumentFragmentScannerImpl
                     new Object[]{fCurrentElement.rawname,
                             fAttributeQName.rawname});
         }
-        
+
         //tmpString contains attribute value
         //we are passing null as the attribute value
         attributes.setValue(attIndex, null, tmpStr);
@@ -1569,11 +1569,11 @@ public class XMLDocumentFragmentScannerImpl
         ///xxx: nonNormalizedValue is not being set as it is not required by SAX & DOM
         //attributes.setNonNormalizedValue(oldLen, fTempString2.toString());
         attributes.setSpecified(attIndex, true);
-        
+
         if (DEBUG_START_END_ELEMENT) System.out.println(this.getClass().toString() +"<<< scanAttribute()");
-        
+
     } // scanAttribute(XMLAttributes)
-    
+
     /**
      * Scans element content.
      *
@@ -1625,10 +1625,10 @@ public class XMLDocumentFragmentScannerImpl
             //fDocumentHandler.characters(content, null);
         }
         return c;
-        
+
     } // scanContent():int
-    
-    
+
+
     /**
      * Scans a CDATA section.
      * <p>
@@ -1643,12 +1643,12 @@ public class XMLDocumentFragmentScannerImpl
     //CHANGED:
     protected boolean scanCDATASection(XMLStringBuffer contentBuffer, boolean complete)
     throws IOException, XNIException {
-        
+
         // call handler
         if (fDocumentHandler != null) {
             //fDocumentHandler.startCDATA(null);
         }
-        
+
         while (true) {
             //scanData will fill the contentBuffer
             if (!fEntityScanner.scanData("]]>", contentBuffer)) {
@@ -1699,20 +1699,20 @@ public class XMLDocumentFragmentScannerImpl
             }
         }
         fMarkupDepth--;
-        
+
         if (fDocumentHandler != null && contentBuffer.length > 0) {
             //fDocumentHandler.characters(contentBuffer, null);
         }
-        
+
         // call handler
         if (fDocumentHandler != null) {
             //fDocumentHandler.endCDATA(null);
         }
-        
+
         return true;
-        
+
     } // scanCDATASection(XMLStringBuffer, boolean):boolean
-    
+
     /**
      * Scans an end element.
      * <p>
@@ -1729,26 +1729,26 @@ public class XMLDocumentFragmentScannerImpl
      */
     protected int scanEndElement() throws IOException, XNIException {
         if (DEBUG_START_END_ELEMENT) System.out.println(this.getClass().toString() +">>> scanEndElement()");
-        
+
         // pop context
         QName endElementName = fElementStack.popElement();
-        
+
         String rawname = endElementName.rawname;
         if(DEBUG)System.out.println("endElementName = " + endElementName.toString());
         // Take advantage of the fact that next string _should_ be "fElementQName.rawName",
         //In scanners most of the time is consumed on checks done for XML characters, we can
         // optimize on it and avoid the checks done for endElement,
         //we will also avoid symbol table lookup - neeraj.bajaj@sun.com
-        
+
         // this should work both for namespace processing true or false...
-        
+
         //REVISIT: if the string is not the same as expected.. we need to do better error handling..
         //We can skip this for now... In any case if the string doesn't match -- document is not well formed.
-        
+
         if (!fEntityScanner.skipString(endElementName.rawname)) {
              reportFatalError("ETagRequired", new Object[]{rawname});
         }
-        
+
         // end
         fEntityScanner.skipSpaces();
         if (!fEntityScanner.skipChar('>')) {
@@ -1756,38 +1756,38 @@ public class XMLDocumentFragmentScannerImpl
                     new Object[]{rawname});
         }
         fMarkupDepth--;
-        
+
         //we have increased the depth for two markup "<" characters
         fMarkupDepth--;
-        
+
         // check that this element was opened in the same entity
         if (fMarkupDepth < fEntityStack[fEntityDepth - 1]) {
             reportFatalError("ElementEntityMismatch",
                     new Object[]{rawname});
         }
-        
+
         //We should not be popping out the context here in endELement becaause the namespace context is still
         //valid when parser is at the endElement state.
-        
+
         //if (fNamespaces) {
         //  fNamespaceContext.popContext();
         //}
-        
+
         // call handler
-        if (fDocumentHandler != null ) {            
+        if (fDocumentHandler != null ) {
             //end element is scanned in this function so we can send a callback
             //here.
-            //<strong>we shouldn't be sending callback in scanDocument()</strong>                
-            
+            //<strong>we shouldn't be sending callback in scanDocument()</strong>
+
             fDocumentHandler.endElement(endElementName, null);
         }
         if(dtdGrammarUtil != null)
             dtdGrammarUtil.endElement(endElementName);
-        
+
         return fMarkupDepth;
-        
+
     } // scanEndElement():int
-    
+
     /**
      * Scans a character reference.
      * <p>
@@ -1797,20 +1797,20 @@ public class XMLDocumentFragmentScannerImpl
      */
     protected void scanCharReference()
     throws IOException, XNIException {
-        
+
         fStringBuffer2.clear();
         int ch = scanCharReferenceValue(fStringBuffer2, null);
         fMarkupDepth--;
         if (ch != -1) {
             // call handler
-            
+
             if (fDocumentHandler != null) {
                 if (fNotifyCharRefs) {
                     fDocumentHandler.startGeneralEntity(fCharRefLiteral, null, null, null);
                 }
                 Augmentations augs = null;
                 if (fValidation && ch <= 0x20) {
-                    if (fTempAugmentations != null) { 
+                    if (fTempAugmentations != null) {
                         fTempAugmentations.removeAllItems();
                     }
                     else {
@@ -1827,10 +1827,10 @@ public class XMLDocumentFragmentScannerImpl
                 }
             }
         }
-        
+
     } // scanCharReference()
-    
-    
+
+
     /**
      * Scans an entity reference.
      *
@@ -1844,6 +1844,7 @@ public class XMLDocumentFragmentScannerImpl
         String name = fEntityScanner.scanName();
         if (name == null) {
             reportFatalError("NameRequiredInReference", null);
+            return;
         }
         if (!fEntityScanner.skipChar(';')) {
             reportFatalError("SemicolonRequiredInReference", new Object []{name});
@@ -1853,7 +1854,7 @@ public class XMLDocumentFragmentScannerImpl
         }
         fMarkupDepth--;
         fCurrentEntityName = name;
-        
+
         // handle built-in entities
         if (name == fAmpSymbol) {
             handleCharacter('&', fAmpSymbol, content);
@@ -1876,18 +1877,19 @@ public class XMLDocumentFragmentScannerImpl
             fScannerState = SCANNER_STATE_BUILT_IN_REFS;
             return ;
         }
-        
+
         //1. if the entity is external and support to external entities is not required
         // 2. or entities should not be replaced
         //3. or if it is built in entity reference.
-        if((fEntityStore.isExternalEntity(name) && !fSupportExternalEntities) || (!fEntityStore.isExternalEntity(name) && !fReplaceEntityReferences) || foundBuiltInRefs){
+        boolean isEE = fEntityStore.isExternalEntity(name);
+        if((isEE && !fSupportExternalEntities) || (!isEE && !fReplaceEntityReferences) || foundBuiltInRefs){
             fScannerState = SCANNER_STATE_REFERENCE;
             return ;
         }
         // start general entity
         if (!fEntityStore.isDeclaredEntity(name)) {
             //SUPPORT_DTD=false && ReplaceEntityReferences should throw exception
-            if (fDisallowDoctype && fReplaceEntityReferences) {
+            if (!fSupportDTD && fReplaceEntityReferences) {
                 reportFatalError("EntityNotDeclared", new Object[]{name});
                 return;
             }
@@ -1908,9 +1910,24 @@ public class XMLDocumentFragmentScannerImpl
         //setScannerState(SCANNER_STATE_CONTENT);
         //return true ;
     } // scanEntityReference()
-    
+
     // utility methods
-    
+
+    /**
+     * Check if the depth exceeds the maxElementDepth limit
+     * @param elementName name of the current element
+     */
+    void checkDepth(String elementName) {
+        fLimitAnalyzer.addValue(Limit.MAX_ELEMENT_DEPTH_LIMIT, elementName, fElementStack.fDepth);
+        if (fSecurityManager.isOverLimit(Limit.MAX_ELEMENT_DEPTH_LIMIT,fLimitAnalyzer)) {
+            fSecurityManager.debugPrint(fLimitAnalyzer);
+            reportFatalError("MaxElementDepthLimit", new Object[]{elementName,
+                fLimitAnalyzer.getTotalValue(Limit.MAX_ELEMENT_DEPTH_LIMIT),
+                fSecurityManager.getLimit(Limit.MAX_ELEMENT_DEPTH_LIMIT),
+                "maxElementDepth"});
+        }
+    }
+
     /**
      * Calls document handler with a single character resulting from
      * built-in entity resolution.
@@ -1934,22 +1951,22 @@ public class XMLDocumentFragmentScannerImpl
             }
             fTempString.setValues(fSingleChar, 0, 1);
             //fDocumentHandler.characters(fTempString, null);
-            
+
             if (fNotifyBuiltInRefs) {
                 fDocumentHandler.endGeneralEntity(entity, null);
             }
         }
     } // handleCharacter(char)
-    
+
     // helper methods
-    
+
     /**
      * Sets the scanner state.
      *
      * @param state The new scanner state.
      */
     protected final void setScannerState(int state) {
-        
+
         fScannerState = state;
         if (DEBUG_SCANNER_STATE) {
             System.out.print("### setScannerState: ");
@@ -1957,10 +1974,10 @@ public class XMLDocumentFragmentScannerImpl
             System.out.print(getScannerStateName(state));
             System.out.println();
         }
-        
+
     } // setScannerState(int)
-    
-    
+
+
     /**
      * Sets the Driver.
      *
@@ -1974,14 +1991,14 @@ public class XMLDocumentFragmentScannerImpl
             System.out.println();
         }
     }
-    
+
     //
     // Private methods
     //
-    
+
     /** Returns the scanner state name. */
     protected String getScannerStateName(int state) {
-        
+
         switch (state) {
             case SCANNER_STATE_DOCTYPE: return "SCANNER_STATE_DOCTYPE";
             case SCANNER_STATE_ROOT_ELEMENT: return "SCANNER_STATE_ROOT_ELEMENT";
@@ -2000,18 +2017,18 @@ public class XMLDocumentFragmentScannerImpl
             case SCANNER_STATE_END_ELEMENT_TAG: return "SCANNER_STATE_END_ELEMENT_TAG";
             case SCANNER_STATE_CHARACTER_DATA: return "SCANNER_STATE_CHARACTER_DATA" ;
         }
-        
+
         return "??? ("+state+')';
-        
+
     } // getScannerStateName(int):String
     public String getEntityName(){
         //return the cached name
         return fCurrentEntityName;
     }
-    
+
     /** Returns the driver name. */
     public String getDriverName(Driver driver) {
-        
+
         if (DEBUG_DISPATCHER) {
             if (driver != null) {
                 String name = driver.getClass().getName();
@@ -2027,35 +2044,48 @@ public class XMLDocumentFragmentScannerImpl
             }
         }
         return "null";
-        
+
     } // getDriverName():String
-    
+
+    /**
+     * Check the protocol used in the systemId against allowed protocols
+     *
+     * @param systemId the Id of the URI
+     * @param allowedProtocols a list of allowed protocols separated by comma
+     * @return the name of the protocol if rejected, null otherwise
+     */
+    String checkAccess(String systemId, String allowedProtocols) throws IOException {
+        String baseSystemId = fEntityScanner.getBaseSystemId();
+        String expandedSystemId = fEntityManager.expandSystemId(systemId, baseSystemId,fStrictURI);
+        return SecuritySupport.checkAccess(expandedSystemId, allowedProtocols, Constants.ACCESS_EXTERNAL_ALL);
+    }
+
     //
     // Classes
     //
-    
+
     /**
      * @author Neeraj Bajaj, Sun Microsystems.
      */
     protected static final class Element {
-        
+
         //
         // Data
         //
-        
+
         /** Symbol. */
         public QName qname;
-        
+
         //raw name stored as characters
         public char[] fRawname;
-        
+
         /** The next Element entry. */
         public Element next;
-        
+
         //
         // Constructors
         //
-        
+
         /**
          * Constructs a new Element from the given QName and next Element
          * reference.
@@ -2065,23 +2095,23 @@ public class XMLDocumentFragmentScannerImpl
             this.fRawname = qname.rawname.toCharArray();
             this.next = next;
         }
-        
+
     } // class Element
-    
+
     /**
      * Element stack.
      *
      * @author Neeraj Bajaj, Sun Microsystems.
      */
     protected class ElementStack2 {
-        
+
         //
         // Data
         //
-        
+
         /** The stack data. */
         protected QName [] fQName = new QName[20];
-        
+
         //Element depth
         protected int fDepth;
         //total number of elements
@@ -2090,13 +2120,13 @@ public class XMLDocumentFragmentScannerImpl
         protected int fPosition;
         //Mark refers to the position
         protected int fMark;
-        
+
         protected int fLastDepth ;
-        
+
         //
         // Constructors
         //
-        
+
         /** Default constructor. */
         public ElementStack2() {
             for (int i = 0; i < fQName.length; i++) {
@@ -2104,7 +2134,7 @@ public class XMLDocumentFragmentScannerImpl
             }
             fMark = fPosition = 1;
         } // <init>()
-        
+
         public void resize(){
             /**
              * int length = fElements.length;
@@ -2117,18 +2147,18 @@ public class XMLDocumentFragmentScannerImpl
             QName [] tmp = new QName[oldLength * 2];
             System.arraycopy(fQName, 0, tmp, 0, oldLength);
             fQName = tmp;
-            
+
             for (int i = oldLength; i < fQName.length; i++) {
                 fQName[i] = new QName();
             }
-            
+
         }
-        
-        
+
+
         //
         // Public methods
         //
-        
+
         /** Check if the element scanned during the start element
          *matches the stored element.
          *
@@ -2172,7 +2202,7 @@ public class XMLDocumentFragmentScannerImpl
             fLastDepth = fDepth++;
             return match;
         } // pushElement(QName):QName
-        
+
         /**
          * This function doesn't increase depth. The function in this function is
          *broken down into two functions for efficiency. <@see>matchElement</see>.
@@ -2181,7 +2211,7 @@ public class XMLDocumentFragmentScannerImpl
          *@return QName reference to the next element in the list
          */
         public QName nextElement() {
-            
+
             //if number of elements becomes equal to the length of array -- stop the skipping
             if (fCount == fQName.length) {
                 fShouldSkip = false;
@@ -2195,9 +2225,9 @@ public class XMLDocumentFragmentScannerImpl
                 System.out.println("fCount = " + fCount);
             }
             return fQName[fCount++];
-            
+
         }
-        
+
         /** Note that this function is considerably different than nextElement()
          * This function just returns the previously stored elements
          */
@@ -2209,14 +2239,14 @@ public class XMLDocumentFragmentScannerImpl
             }
             return fQName[fPosition++];
         }
-        
+
         /** returns the current depth
          */
         public int popElement(){
             return fDepth--;
         }
-        
-        
+
+
         /** Clears the stack without throwing away existing QName objects. */
         public void clear() {
             fLastDepth = 0;
@@ -2224,9 +2254,9 @@ public class XMLDocumentFragmentScannerImpl
             fCount = 0 ;
             fPosition = fMark = 1;
         } // clear()
-        
+
     } // class ElementStack
-    
+
     /**
      * Element stack. This stack operates without synchronization, error
      * checking, and it re-uses objects instead of throwing popped items
@@ -2235,16 +2265,16 @@ public class XMLDocumentFragmentScannerImpl
      * @author Andy Clark, IBM
      */
     protected class ElementStack {
-        
+
         //
         // Data
         //
-        
+
         /** The stack data. */
         protected QName[] fElements;
         protected int []  fInt = new int[20];
-        
-        
+
+
         //Element depth
         protected int fDepth;
         //total number of elements
@@ -2253,13 +2283,13 @@ public class XMLDocumentFragmentScannerImpl
         protected int fPosition;
         //Mark refers to the position
         protected int fMark;
-        
+
         protected int fLastDepth ;
-        
+
         //
         // Constructors
         //
-        
+
         /** Default constructor. */
         public ElementStack() {
             fElements = new QName[20];
@@ -2267,11 +2297,11 @@ public class XMLDocumentFragmentScannerImpl
                 fElements[i] = new QName();
             }
         } // <init>()
-        
+
         //
         // Public methods
         //
-        
+
         /**
          * Pushes an element on the stack.
          * <p>
@@ -2298,8 +2328,8 @@ public class XMLDocumentFragmentScannerImpl
             fElements[fDepth].setValues(element);
             return fElements[fDepth++];
         } // pushElement(QName):QName
-        
-        
+
+
         /** Note that this function is considerably different than nextElement()
          * This function just returns the previously stored elements
          */
@@ -2317,17 +2347,17 @@ public class XMLDocumentFragmentScannerImpl
             //return fElements[fPosition++];
             return fElements[fPosition];
         }
-        
+
         /** This function should be called only when element was skipped sucessfully.
          * 1. Increase the depth - because element was sucessfully skipped.
          *2. Store the position of the element token in array  "last opened tag" at depth.
          *3. increase the position counter so as to point to the next element in the array
          */
         public void push(){
-            
+
             fInt[++fDepth] = fPosition++;
         }
-        
+
         /** Check if the element scanned during the start element
          *matches the stored element.
          *
@@ -2385,7 +2415,7 @@ public class XMLDocumentFragmentScannerImpl
                 //sicne fInt[fDepth] contains pointer to the element array which are 0 based.
                 fInt[fDepth] = fCount - 1;
             }
-            
+
             //if number of elements becomes equal to the length of array -- stop the skipping
             //xxx: should we do "fCount == fInt.length"
             if (fCount == fElements.length) {
@@ -2412,8 +2442,8 @@ public class XMLDocumentFragmentScannerImpl
             fLastDepth = fDepth;
             return match;
         } // matchElement(QName):QName
-        
-        
+
+
         /**
          * Returns the next element on the stack.
          *
@@ -2433,12 +2463,12 @@ public class XMLDocumentFragmentScannerImpl
                     fElements[i] = new QName();
                 }
             }
-            
+
             return fElements[fDepth++];
-            
+
         } // pushElement(QName):QName
-        
-        
+
+
         /**
          * Pops an element off of the stack by setting the values of
          * the specified QName.
@@ -2465,7 +2495,7 @@ public class XMLDocumentFragmentScannerImpl
             }
             //element.setValues(fElements[--fDepth]);
         } // popElement(QName)
-        
+
         /** Reposition the stack. fInt [] contains all the opened tags at particular depth.
          * Transfer all the opened tags starting from depth '2' to the current depth and reposition them
          *as per the depth.
@@ -2480,16 +2510,16 @@ public class XMLDocumentFragmentScannerImpl
                 }
             }
         }
-        
+
         /** Clears the stack without throwing away existing QName objects. */
         public void clear() {
             fDepth = 0;
             fLastDepth = 0;
             fCount = 0 ;
             fPosition = fMark = 1;
-            
+
         } // clear()
-        
+
         /**
          * This function is as a result of optimization done for endElement --
          * we dont need to set the value for every end element encouterd.
@@ -2497,12 +2527,12 @@ public class XMLDocumentFragmentScannerImpl
          * the values will be set only if application need to know about the endElement
          * -- neeraj.bajaj@sun.com
          */
-        
+
         public QName getLastPoppedElement(){
             return fElements[fDepth];
         }
     } // class ElementStack
-    
+
     /**
      * Drives the parser to the next state/event on the input. Parser is guaranteed
      * to stop at the next state/event.
@@ -2518,8 +2548,8 @@ public class XMLDocumentFragmentScannerImpl
      * @author Neeraj Bajaj, Sun Microsystems
      */
     protected interface Driver {
-        
-        
+
+
         /**
          * Drives the parser to the next state/event on the input. Parser is guaranteed
          * to stop at the next state/event.
@@ -2536,11 +2566,11 @@ public class XMLDocumentFragmentScannerImpl
          * @throws IOException  Thrown on i/o error.
          * @throws XNIException Thrown on parse error.
          */
-        
+
         public int next() throws IOException, XNIException;
-        
+
     } // interface Driver
-    
+
     /**
      * Driver to handle content scanning. This driver is capable of reading
      * the fragment of XML document. When it has finished reading fragment
@@ -2558,20 +2588,20 @@ public class XMLDocumentFragmentScannerImpl
      */
     protected class FragmentContentDriver
             implements Driver {
-        
+
         //
         // Driver methods
         //
         private boolean fContinueDispatching = true;
         private boolean fScanningForMarkup = true;
-        
+
         /**
          *  decides the appropriate state of the parser
          */
         private void startOfMarkup() throws IOException {
             fMarkupDepth++;
             final int ch = fEntityScanner.peekChar();
-            
+
             switch(ch){
                 case '?' :{
                     setScannerState(SCANNER_STATE_PI);
@@ -2608,9 +2638,9 @@ public class XMLDocumentFragmentScannerImpl
                     }
                 }
             }
-            
+
         }//startOfMarkup
-        
+
         private void startOfContent() throws IOException {
             if (fEntityScanner.skipChar('<')) {
                 setScannerState(SCANNER_STATE_START_OF_MARKUP);
@@ -2621,8 +2651,8 @@ public class XMLDocumentFragmentScannerImpl
                 setScannerState(SCANNER_STATE_CHARACTER_DATA);
             }
         }//startOfContent
-        
-        
+
+
         /**
          *
          * SCANNER_STATE_CONTENT and SCANNER_STATE_START_OF_MARKUP are two super states of the parser.
@@ -2638,14 +2668,14 @@ public class XMLDocumentFragmentScannerImpl
          */
         public void decideSubState() throws IOException {
             while( fScannerState == SCANNER_STATE_CONTENT || fScannerState == SCANNER_STATE_START_OF_MARKUP){
-                
+
                 switch (fScannerState) {
-                    
+
                     case SCANNER_STATE_CONTENT: {
                         startOfContent() ;
                         break;
                     }
-                    
+
                     case SCANNER_STATE_START_OF_MARKUP: {
                         startOfMarkup() ;
                         break;
@@ -2653,7 +2683,7 @@ public class XMLDocumentFragmentScannerImpl
                 }
             }
         }//decideSubState
-        
+
         /**
          * Drives the parser to the next state/event on the input. Parser is guaranteed
          * to stop at the next state/event. Internally XML document
@@ -2671,18 +2701,18 @@ public class XMLDocumentFragmentScannerImpl
          * @throws IOException  Thrown on i/o error.
          * @throws XNIException Thrown on parse error.
          */
-        
+
         public int next() throws IOException, XNIException {
-           while (true) {
+            while (true) {
             try {
                 if(DEBUG_NEXT){
                     System.out.println("NOW IN FragmentContentDriver");
                     System.out.println("Entering the FragmentContentDriver with = " + getScannerStateName(fScannerState));
                 }
-                
+
                 //decide the actual sub state of the scanner.For more information refer to the javadoc of
                 //decideSubState.
-                
+
                 switch (fScannerState) {
                     case SCANNER_STATE_CONTENT: {
                         final int ch = fEntityScanner.peekChar();
@@ -2699,21 +2729,21 @@ public class XMLDocumentFragmentScannerImpl
                             break;
                         }
                     }
-                    
+
                     case SCANNER_STATE_START_OF_MARKUP: {
                         startOfMarkup();
                         break;
                     }//case: SCANNER_STATE_START_OF_MARKUP
-                    
+
                 }//end of switch
                 //decideSubState() ;
-                
+
                 //do some special handling if isCoalesce is set to true.
                 if(fIsCoalesce){
                     fUsebuffer = true ;
                     //if the last section was character data
                     if(fLastSectionWasCharacterData){
-                        
+
                         //if we dont encounter any CDATA or ENITY REFERENCE and current state is also not SCANNER_STATE_CHARACTER_DATA
                         //return the last scanned charactrer data.
                         if((fScannerState != SCANNER_STATE_CDATA) && (fScannerState != SCANNER_STATE_REFERENCE)
@@ -2731,26 +2761,26 @@ public class XMLDocumentFragmentScannerImpl
                         //return the CHARACTERS event.
                         if((fScannerState != SCANNER_STATE_CDATA) && (fScannerState != SCANNER_STATE_REFERENCE)
                         && (fScannerState != SCANNER_STATE_CHARACTER_DATA)){
-                            
+
                             fLastSectionWasCData = false;
                             fLastSectionWasEntityReference = false;
                             return XMLEvent.CHARACTERS;
                         }
                     }
                 }
-                
-                
+
+
                 if(DEBUG_NEXT){
                     System.out.println("Actual scanner state set by decideSubState is = " + getScannerStateName(fScannerState));
                 }
-                
+
                 switch(fScannerState){
-                    
+
                     case XMLEvent.START_DOCUMENT :
                         return XMLEvent.START_DOCUMENT;
-                        
+
                     case SCANNER_STATE_START_ELEMENT_TAG :{
-                        
+
                         //xxx this function returns true when element is empty.. can be linked to end element event.
                         //returns true if the element is empty
                         fEmptyElement = scanStartElement() ;
@@ -2763,7 +2793,7 @@ public class XMLDocumentFragmentScannerImpl
                         }
                         return XMLEvent.START_ELEMENT ;
                     }
-                    
+
                     case SCANNER_STATE_CHARACTER_DATA: {
                         if(DEBUG_COALESCE){
                             System.out.println("fLastSectionWasCData = " + fLastSectionWasCData);
@@ -2771,7 +2801,7 @@ public class XMLDocumentFragmentScannerImpl
                         }
                         //if last section was either entity reference or cdata or character data we should be using buffer
                         fUsebuffer = fLastSectionWasEntityReference || fLastSectionWasCData || fLastSectionWasCharacterData ;
-                        
+
                         //When coalesce is set to true and last state was REFERENCE or CDATA or CHARACTER_DATA, buffer should not be cleared.
                         if( fIsCoalesce && (fLastSectionWasEntityReference || fLastSectionWasCData || fLastSectionWasCharacterData) ){
                             fLastSectionWasEntityReference = false;
@@ -2782,10 +2812,10 @@ public class XMLDocumentFragmentScannerImpl
                             //clear the buffer
                             fContentBuffer.clear();
                         }
-                        
+
                         //set the fTempString length to 0 before passing it on to scanContent
                         //scanContent sets the correct co-ordinates as per the content read
-                        fTempString.length = 0;                        
+                        fTempString.length = 0;
                         int c = fEntityScanner.scanContent(fTempString);
                         if(DEBUG){
                             System.out.println("fTempString = " + fTempString);
@@ -2821,12 +2851,14 @@ public class XMLDocumentFragmentScannerImpl
                             if(DEBUG){
                                 System.out.println("NOT USING THE BUFFER, STRING = " + fTempString.toString());
                             }
+                            //check limit before returning event
+                            checkLimit(fContentBuffer);
                             if(dtdGrammarUtil!= null && dtdGrammarUtil.isIgnorableWhiteSpace(fContentBuffer)){
                                 if(DEBUG)System.out.println("Return SPACE EVENT");
                                 return XMLEvent.SPACE;
                             }else
                                 return XMLEvent.CHARACTERS;
-                            
+
                         } else{
                             fUsebuffer = true ;
                             if(DEBUG){
@@ -2855,7 +2887,7 @@ public class XMLDocumentFragmentScannerImpl
                             // could flush the buffer out - this happens when we're parsing an
                             // entity which ends with a ]
                             fInScanContent = true;
-                            
+
                             // We work on a single character basis to handle cases such as:
                             // ']]]>' which we might otherwise miss.
                             //
@@ -2871,11 +2903,11 @@ public class XMLDocumentFragmentScannerImpl
                             c = -1 ;
                             fInScanContent = false;
                         }
-                        
+
                         do{
                             //xxx: we should be using only one buffer..
                             // we need not to grow the buffer only when isCoalesce() is not true;
-                            
+
                             if (c == '<') {
                                 fEntityScanner.scanChar();
                                 setScannerState(SCANNER_STATE_START_OF_MARKUP);
@@ -2902,14 +2934,14 @@ public class XMLDocumentFragmentScannerImpl
                             //xxx: scanContent also gives character callback.
                             c = scanContent(fContentBuffer) ;
                             //we should not be iterating again if fIsCoalesce is not set to true
-                            
+
                             if(!fIsCoalesce){
                                 setScannerState(SCANNER_STATE_CONTENT);
                                 break;
                             }
-                            
+
                         }while(true);
-                        
+
                         //if (fDocumentHandler != null) {
                         //  fDocumentHandler.characters(fContentBuffer, null);
                         //}
@@ -2919,6 +2951,8 @@ public class XMLDocumentFragmentScannerImpl
                             fLastSectionWasCharacterData = true ;
                             continue;
                         }else{
+                            //check limit before returning event
+                            checkLimit(fContentBuffer);
                             if(dtdGrammarUtil!= null && dtdGrammarUtil.isIgnorableWhiteSpace(fContentBuffer)){
                                 if(DEBUG)System.out.println("Return SPACE EVENT");
                                 return XMLEvent.SPACE;
@@ -2926,7 +2960,7 @@ public class XMLDocumentFragmentScannerImpl
                                 return XMLEvent.CHARACTERS ;
                         }
                     }
-                    
+
                     case SCANNER_STATE_END_ELEMENT_TAG :{
                         if(fEmptyElement){
                             //set it back to false.
@@ -2935,7 +2969,7 @@ public class XMLDocumentFragmentScannerImpl
                             //check the case when there is comment after single element document
                             //<foo/> and some comment after this
                             return (fMarkupDepth == 0 && elementDepthIsZeroHook() ) ? XMLEvent.END_ELEMENT : XMLEvent.END_ELEMENT ;
-                            
+
                         } else if(scanEndElement() == 0) {
                             //It is last element of the document
                             if (elementDepthIsZeroHook()) {
@@ -2944,12 +2978,12 @@ public class XMLDocumentFragmentScannerImpl
                                 //xxx understand this point once again..
                                 return XMLEvent.END_ELEMENT ;
                             }
-                            
+
                         }
                         setScannerState(SCANNER_STATE_CONTENT);
                         return XMLEvent.END_ELEMENT ;
                     }
-                    
+
                     case SCANNER_STATE_COMMENT: { //SCANNER_STATE_COMMENT:
                         scanComment();
                         setScannerState(SCANNER_STATE_CONTENT);
@@ -2970,7 +3004,7 @@ public class XMLDocumentFragmentScannerImpl
                     case SCANNER_STATE_CDATA :{ //SCANNER_STATE_CDATA: {
                         //xxx: What if CDATA is the first event
                         //<foo><![CDATA[hello<><>]]>append</foo>
-                        
+
                         //we should not clear the buffer only when the last state was either SCANNER_STATE_REFERENCE or
                         //SCANNER_STATE_CHARACTER_DATA or SCANNER_STATE_REFERENCE
                         if(fIsCoalesce && ( fLastSectionWasEntityReference || fLastSectionWasCData || fLastSectionWasCharacterData)){
@@ -3002,11 +3036,11 @@ public class XMLDocumentFragmentScannerImpl
                             return XMLEvent.CHARACTERS;
                         }
                     }
-                    
+
                     case SCANNER_STATE_REFERENCE :{
                         fMarkupDepth++;
                         foundBuiltInRefs = false;
-                        
+
                         //we should not clear the buffer only when the last state was either CDATA or
                         //SCANNER_STATE_CHARACTER_DATA or SCANNER_STATE_REFERENCE
                         if(fIsCoalesce && ( fLastSectionWasEntityReference || fLastSectionWasCData || fLastSectionWasCharacterData)){
@@ -3037,13 +3071,13 @@ public class XMLDocumentFragmentScannerImpl
                                 setScannerState(SCANNER_STATE_CONTENT);
                                 return XMLEvent.CHARACTERS;
                             }
-                            
+
                             //if there was a text declaration, call next() it will be taken care.
                             if(fScannerState == SCANNER_STATE_TEXT_DECL){
                                 fLastSectionWasEntityReference = true ;
                                 continue;
                             }
-                            
+
                             if(fScannerState == SCANNER_STATE_REFERENCE){
                                 setScannerState(SCANNER_STATE_CONTENT);
                                 if (fReplaceEntityReferences && fEntityStore.isDeclaredEntity(fCurrentEntityName)) {
@@ -3059,7 +3093,7 @@ public class XMLDocumentFragmentScannerImpl
                         fLastSectionWasEntityReference = true ;
                         continue;
                     }
-                    
+
                     case SCANNER_STATE_TEXT_DECL: {
                         // scan text decl
                         if (fEntityScanner.skipString("<?xml")) {
@@ -3069,7 +3103,7 @@ public class XMLDocumentFragmentScannerImpl
                             if (isValidNameChar(fEntityScanner.peekChar())) {
                                 fStringBuffer.clear();
                                 fStringBuffer.append("xml");
-                                
+
                                 if (fNamespaces) {
                                     while (isValidNCName(fEntityScanner.peekChar())) {
                                         fStringBuffer.append((char)fEntityScanner.scanChar());
@@ -3083,7 +3117,7 @@ public class XMLDocumentFragmentScannerImpl
                                 fContentBuffer.clear();
                                 scanPIData(target, fContentBuffer);
                             }
-                            
+
                             // standard text declaration
                             else {
                                 //xxx: this function gives callback
@@ -3098,8 +3132,8 @@ public class XMLDocumentFragmentScannerImpl
                         //and when to allow adapter issue a callback.
                         continue;
                     }
-                    
-                    
+
+
                     case SCANNER_STATE_ROOT_ELEMENT: {
                         if (scanRootElementHook()) {
                             fEmptyElement = true;
@@ -3107,7 +3141,7 @@ public class XMLDocumentFragmentScannerImpl
                             return XMLEvent.START_ELEMENT;
                         }
                         setScannerState(SCANNER_STATE_CONTENT);
-                        return XMLEvent.START_ELEMENT ;                        
+                        return XMLEvent.START_ELEMENT ;
                     }
                     case SCANNER_STATE_CHAR_REFERENCE : {
                         fContentBuffer.clear();
@@ -3118,27 +3152,51 @@ public class XMLDocumentFragmentScannerImpl
                     }
                     default:
                         throw new XNIException("Scanner State " + fScannerState + " not Recognized ");
-                        
+
                 }//switch
             }
             // premature end of file
             catch (EOFException e) {
                 endOfFileHook(e);
                 return -1;
-            }            
-           } // while loop 
+            }
+            } //while loop
         }//next
-        
-        
+
+        /**
+         * Add the count of the content buffer and check if the accumulated
+         * value exceeds the limit
+         * @param buffer content buffer
+         */
+        protected void checkLimit(XMLStringBuffer buffer) {
+            if (fLimitAnalyzer.isTracking(fCurrentEntityName)) {
+                fLimitAnalyzer.addValue(Limit.GENEAL_ENTITY_SIZE_LIMIT, fCurrentEntityName, buffer.length);
+                if (fSecurityManager.isOverLimit(Limit.GENEAL_ENTITY_SIZE_LIMIT, fLimitAnalyzer)) {
+                    fSecurityManager.debugPrint(fLimitAnalyzer);
+                    reportFatalError("MaxEntitySizeLimit", new Object[]{fCurrentEntityName,
+                        fLimitAnalyzer.getValue(Limit.GENEAL_ENTITY_SIZE_LIMIT),
+                        fSecurityManager.getLimit(Limit.GENEAL_ENTITY_SIZE_LIMIT),
+                        fSecurityManager.getStateLiteral(Limit.GENEAL_ENTITY_SIZE_LIMIT)});
+                }
+                if (fSecurityManager.isOverLimit(Limit.TOTAL_ENTITY_SIZE_LIMIT, fLimitAnalyzer)) {
+                    fSecurityManager.debugPrint(fLimitAnalyzer);
+                    reportFatalError("TotalEntitySizeLimit",
+                        new Object[]{fLimitAnalyzer.getTotalValue(Limit.TOTAL_ENTITY_SIZE_LIMIT),
+                        fSecurityManager.getLimit(Limit.TOTAL_ENTITY_SIZE_LIMIT),
+                        fSecurityManager.getStateLiteral(Limit.TOTAL_ENTITY_SIZE_LIMIT)});
+                }
+            }
+        }
+
         //
         // Protected methods
         //
-        
+
         // hooks
-        
+
         // NOTE: These hook methods are added so that the full document
         //       scanner can share the majority of code with this class.
-        
+
         /**
          * Scan for DOCTYPE hook. This method is a hook for subclasses
          * to add code to handle scanning for a the "DOCTYPE" string
@@ -3151,7 +3209,7 @@ public class XMLDocumentFragmentScannerImpl
         throws IOException, XNIException {
             return false;
         } // scanForDoctypeHook():boolean
-        
+
         /**
          * Element depth iz zero. This methos is a hook for subclasses
          * to add code to handle when the element depth hits zero. When
@@ -3169,7 +3227,7 @@ public class XMLDocumentFragmentScannerImpl
         throws IOException, XNIException {
             return false;
         } // elementDepthIsZeroHook():boolean
-        
+
         /**
          * Scan for root element hook. This method is a hook for
          * subclasses to add code that handles scanning for the root
@@ -3186,7 +3244,7 @@ public class XMLDocumentFragmentScannerImpl
         throws IOException, XNIException {
             return false;
         } // scanRootElementHook():boolean
-        
+
         /**
          * End of file hook. This method is a hook for subclasses to
          * add code that handles the end of file. The end of file in
@@ -3196,24 +3254,24 @@ public class XMLDocumentFragmentScannerImpl
          */
         protected void endOfFileHook(EOFException e)
         throws IOException, XNIException {
-            
+
             // NOTE: An end of file is only only an error if we were
             //       in the middle of scanning some markup. -Ac
             if (fMarkupDepth != 0) {
                 reportFatalError("PrematureEOF", null);
             }
-            
+
         } // endOfFileHook()
-        
+
     } // class FragmentContentDriver
-    
+
     static void pr(String str) {
         System.out.println(str) ;
     }
-    
+
     protected boolean fUsebuffer ;
-    
-    /** this function gets an XMLString (which is used to store the attribute value) from the special pool 
+
+    /** this function gets an XMLString (which is used to store the attribute value) from the special pool
      *  maintained for attributes.
      *  fAttributeCacheUsedCount tracks the number of attributes that has been consumed from the pool.
      *  if all the attributes has been consumed, it adds a new XMLString inthe pool and returns the same
@@ -3221,7 +3279,7 @@ public class XMLDocumentFragmentScannerImpl
      *
      * @return XMLString XMLString used to store an attribute value.
      */
-    
+
     protected XMLString getString(){
         if(fAttributeCacheUsedCount < initialCacheCount || fAttributeCacheUsedCount < attributeValueCache.size()){
             return (XMLString)attributeValueCache.get(fAttributeCacheUsedCount++);
@@ -3236,7 +3294,7 @@ public class XMLDocumentFragmentScannerImpl
     /**
      * Implements XMLBufferListener interface.
      */
-    
+
     public void refresh(){
         refresh(0);
     }
@@ -3261,5 +3319,5 @@ public class XMLDocumentFragmentScannerImpl
             fUsebuffer = true;
         }
     }
-    
+
 } // class XMLDocumentFragmentScannerImpl

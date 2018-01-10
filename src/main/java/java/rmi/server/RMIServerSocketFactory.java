@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1998, 2001, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.rmi.server;
@@ -26,14 +44,13 @@ import java.net.*;
  * with a remote object registry so that clients can use custom socket
  * communication with a remote object registry.
  *
- * <p>An implementation of this interface 
+ * <p>An implementation of this interface
  * should implement {@link Object#equals} to return <code>true</code> when
  * passed an instance that represents the same (functionally equivalent)
  * server socket factory, and <code>false</code> otherwise (and it should also
  * implement {@link Object#hashCode} consistently with its
  * <code>Object.equals</code> implementation).
  *
- * @version %I%, %G%
  * @author  Ann Wollrath
  * @author  Peter Jones
  * @since   1.2
@@ -53,5 +70,5 @@ public interface RMIServerSocketFactory {
      * @since 1.2
      */
     public ServerSocket createServerSocket(int port)
-	throws IOException;
+        throws IOException;
 }

@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1995, 2006, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package org.omg.CORBA;
@@ -17,7 +35,6 @@ package org.omg.CORBA;
  *
  * @see <A href="../../../../technotes/guides/idl/jidlExceptions.html">documentation on
  * Java&nbsp;IDL exceptions</A>
- * @version     1.16, 09/09/97
  * @since       JDK1.2
  */
 
@@ -27,7 +44,7 @@ public final class FREE_MEM extends SystemException {
      * minor code of 0 and a completion state of COMPLETED_NO.
      */
     public FREE_MEM() {
-	this("");
+        this("");
     }
 
     /**

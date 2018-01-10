@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 1997, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.beans;
@@ -27,9 +45,9 @@ public class ParameterDescriptor extends FeatureDescriptor {
     /**
      * Package private dup constructor.
      * This must isolate the new object from any changes to the old object.
-     */	
+     */
     ParameterDescriptor(ParameterDescriptor old) {
-	super(old);
+        super(old);
     }
 
 }

@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- * 
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2004, 2005, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.management;
@@ -13,7 +31,7 @@ package javax.management;
  * @since 1.6
  */
 public interface DescriptorRead {
-   /** 
+   /**
     * Returns a copy of Descriptor.
     *
     * @return Descriptor associated with the component implementing this interface.

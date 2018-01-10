@@ -1,15 +1,19 @@
+/*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
 // DOMCatalogReader.java - Read XML Catalog files
 
 /*
  * Copyright 2001-2004 The Apache Software Foundation or its licensors,
  * as applicable.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,24 +23,21 @@
 
 package com.sun.org.apache.xml.internal.resolver.readers;
 
-import java.util.Hashtable;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.MalformedURLException;
-
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.ParserConfigurationException;
-
 import com.sun.org.apache.xml.internal.resolver.Catalog;
 import com.sun.org.apache.xml.internal.resolver.CatalogException;
-import com.sun.org.apache.xml.internal.resolver.readers.CatalogReader;
 import com.sun.org.apache.xml.internal.resolver.helpers.Namespaces;
-
-import org.xml.sax.SAXException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.Hashtable;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.*;
+import org.xml.sax.SAXException;
+import sun.reflect.misc.ReflectUtil;
 
 /**
  * A DOM-based CatalogReader.
@@ -67,7 +68,6 @@ import org.w3c.dom.*;
  * @author Norman Walsh
  * <a href="mailto:Norman.Walsh@Sun.COM">Norman.Walsh@Sun.COM</a>
  *
- * @version 1.0
  */
 public class DOMCatalogReader implements CatalogReader {
   /**
@@ -91,8 +91,8 @@ public class DOMCatalogReader implements CatalogReader {
    * for this kind of catalog.
    */
   public void setCatalogParser(String namespaceURI,
-			       String rootElement,
-			       String parserClass) {
+                               String rootElement,
+                               String parserClass) {
     if (namespaceURI == null) {
       namespaceMap.put(rootElement, parserClass);
     } else {
@@ -111,7 +111,7 @@ public class DOMCatalogReader implements CatalogReader {
    * @return The parser class.
    */
   public String getCatalogParser(String namespaceURI,
-				 String rootElement) {
+                                 String rootElement) {
     if (namespaceURI == null) {
       return (String) namespaceMap.get(rootElement);
     } else {
@@ -179,16 +179,16 @@ public class DOMCatalogReader implements CatalogReader {
     String localName    = Namespaces.getLocalName(root);
 
     String domParserClass = getCatalogParser(namespaceURI,
-					     localName);
+                                             localName);
 
     if (domParserClass == null) {
       if (namespaceURI == null) {
-	catalog.getCatalogManager().debug.message(1, "No Catalog parser for "
-						  + localName);
+        catalog.getCatalogManager().debug.message(1, "No Catalog parser for "
+                                                  + localName);
       } else {
-	catalog.getCatalogManager().debug.message(1, "No Catalog parser for "
-						  + "{" + namespaceURI + "}"
-						  + localName);
+        catalog.getCatalogManager().debug.message(1, "No Catalog parser for "
+                                                  + "{" + namespaceURI + "}"
+                                                  + localName);
       }
       return;
     }
@@ -196,7 +196,7 @@ public class DOMCatalogReader implements CatalogReader {
     DOMCatalogParser domParser = null;
 
     try {
-      domParser = (DOMCatalogParser) Class.forName(domParserClass).newInstance();
+      domParser = (DOMCatalogParser) ReflectUtil.forName(domParserClass).newInstance();
     } catch (ClassNotFoundException cnfe) {
       catalog.getCatalogManager().debug.message(1, "Cannot load XML Catalog Parser class", domParserClass);
       throw new CatalogException(CatalogException.UNPARSEABLE);

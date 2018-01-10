@@ -1,17 +1,11 @@
 /*
- * %Z%file      %M%
- * %Z%author    Sun Microsystems, Inc.
- * %Z%version   %I%
- * %Z%date      %D%
  *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
- *
  */
-
+// Copyright (c) 1995-96 by Cisco Systems, Inc.
 
 package com.sun.jmx.snmp;
-
 
 // java import
 //
@@ -30,7 +24,7 @@ import com.sun.jmx.snmp.SnmpStatusException;
  * The <CODE>SnmpOidDatabase</CODE> is a "repository" of <CODE>SnmpOidTable</CODE>.
  * It extends the <CODE>SnmpOidTable</CODE> interface in order to provide resolution of the MIB variables.
  * <P>
- * <p><b>This API is a Sun Microsystems internal API  and is subject 
+ * <p><b>This API is a Sun Microsystems internal API  and is subject
  * to change without notice.</b></p>
  * @see com.sun.jmx.snmp.SnmpOidTable
  */
@@ -55,7 +49,7 @@ public interface SnmpOidDatabase extends SnmpOidTable {
     public void removeAll();
 
     /**
-     * Searches for a MIB variable given its logical name and returns an <CODE>SnmpOidRecord</CODE> 
+     * Searches for a MIB variable given its logical name and returns an <CODE>SnmpOidRecord</CODE>
      * object containing information on the variable.
      * @param name The name of the MIB variable.
      * @return The <CODE>SnmpOidRecord</CODE> object containing information on the variable.
@@ -63,7 +57,7 @@ public interface SnmpOidDatabase extends SnmpOidTable {
     public SnmpOidRecord resolveVarName(String name) throws SnmpStatusException ;
 
     /**
-     * Searches for a MIB variable given its OID and returns an <CODE>SnmpOidRecord</CODE> object containing 
+     * Searches for a MIB variable given its OID and returns an <CODE>SnmpOidRecord</CODE> object containing
      * information on the variable.
      * @param oid The OID of the MIB variable.
      * @return The <CODE>SnmpOidRecord</CODE> object containing information on the variable.
@@ -75,5 +69,7 @@ public interface SnmpOidDatabase extends SnmpOidTable {
      * of this <CODE>SnmpOidDatabase</CODE>.
      * @return A vector of <CODE>SnmpOidTable</CODE> objects containing all the elements of this <CODE>SnmpOidDatabase</CODE>.
      */
-    public Vector getAllEntries() ;
+    public Vector<?> getAllEntries() ;
+    // We can't specify Vector<SnmpOidTable> because the subinterface SnmpOidTable
+    // overrides this method to return Vector<SnmpOidRecord>
 }

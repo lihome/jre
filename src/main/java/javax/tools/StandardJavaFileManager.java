@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
  * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.tools;
@@ -10,7 +28,6 @@ package javax.tools;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.*;
 
 /**
  * File manager based on {@linkplain File java.io.File}.  A common way

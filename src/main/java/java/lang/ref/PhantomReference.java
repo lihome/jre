@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2003, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.lang.ref;
@@ -28,7 +46,6 @@ package java.lang.ref;
  * object that is reachable via phantom references will remain so until all
  * such references are cleared or themselves become unreachable.
  *
- * @version  %I%, %G%
  * @author   Mark Reinhold
  * @since    1.2
  */
@@ -43,7 +60,7 @@ public class PhantomReference<T> extends Reference<T> {
      * @return  <code>null</code>
      */
     public T get() {
-	return null;
+        return null;
     }
 
     /**
@@ -60,7 +77,7 @@ public class PhantomReference<T> extends Reference<T> {
      *          or <tt>null</tt> if registration is not required
      */
     public PhantomReference(T referent, ReferenceQueue<? super T> q) {
-	super(referent, q);
+        super(referent, q);
     }
 
 }

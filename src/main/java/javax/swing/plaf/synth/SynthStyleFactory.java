@@ -1,15 +1,30 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2002, 2003, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 package javax.swing.plaf.synth;
 
-import java.awt.*;
-import java.util.*;
-import javax.swing.plaf.*;
-import javax.swing.*;
+import javax.swing.JComponent;
 
 /**
  * Factory used for obtaining <code>SynthStyle</code>s.  Each of the
@@ -39,7 +54,6 @@ import javax.swing.*;
  * @see SynthStyleFactory
  * @see SynthStyle
  *
- * @version %I%, %G%
  * @since 1.5
  * @author Scott Violet
  */

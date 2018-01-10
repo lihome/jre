@@ -1,15 +1,35 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, 2006, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.management;
 
 import com.sun.jmx.mbeanserver.Introspector;
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
+import sun.reflect.misc.ReflectUtil;
 
 /**
  * Static methods from the JMX API.  There are no instances of this class.
@@ -53,19 +73,19 @@ public class JMX {
      * maxValue}</a> field.
      */
     public static final String MAX_VALUE_FIELD = "maxValue";
-    
+
     /**
      * The name of the <a href="Descriptor.html#minValue">{@code
      * minValue}</a> field.
      */
     public static final String MIN_VALUE_FIELD = "minValue";
-    
+
     /**
      * The name of the <a href="Descriptor.html#mxbean">{@code
      * mxbean}</a> field.
      */
     public static final String MXBEAN_FIELD = "mxbean";
-    
+
     /**
      * The name of the <a href="Descriptor.html#openType">{@code
      * openType}</a> field.
@@ -142,9 +162,9 @@ public class JMX {
      * @return the new proxy instance.
      */
     public static <T> T newMBeanProxy(MBeanServerConnection connection,
-				      ObjectName objectName,
-				      Class<T> interfaceClass) {
-	return newMBeanProxy(connection, objectName, interfaceClass, false);
+                                      ObjectName objectName,
+                                      Class<T> interfaceClass) {
+        return newMBeanProxy(connection, objectName, interfaceClass, false);
     }
 
     /**
@@ -154,7 +174,7 @@ public class JMX {
      *
      * <p>This method behaves the same as {@link
      * #newMBeanProxy(MBeanServerConnection, ObjectName, Class)}, but
-     * additionally, if {@code notificationBroadcaster} is {@code
+     * additionally, if {@code notificationEmitter} is {@code
      * true}, then the MBean is assumed to be a {@link
      * NotificationBroadcaster} or {@link NotificationEmitter} and the
      * returned proxy will implement {@link NotificationEmitter} as
@@ -171,7 +191,7 @@ public class JMX {
      * {@code connection} to forward to.
      * @param interfaceClass the management interface that the MBean
      * exports, which will also be implemented by the returned proxy.
-     * @param notificationBroadcaster make the returned proxy
+     * @param notificationEmitter make the returned proxy
      * implement {@link NotificationEmitter} by forwarding its methods
      * via {@code connection}.
      *
@@ -182,14 +202,10 @@ public class JMX {
      * @return the new proxy instance.
      */
     public static <T> T newMBeanProxy(MBeanServerConnection connection,
-				      ObjectName objectName,
-				      Class<T> interfaceClass,
-				      boolean notificationBroadcaster) {
-	return MBeanServerInvocationHandler.newProxyInstance(
-		connection,
-		objectName,
-		interfaceClass,
-		notificationBroadcaster);
+                                      ObjectName objectName,
+                                      Class<T> interfaceClass,
+                                      boolean notificationEmitter) {
+        return createProxy(connection, objectName, interfaceClass, notificationEmitter, false);
     }
 
     /**
@@ -284,9 +300,9 @@ public class JMX {
      * @return the new proxy instance.
      */
     public static <T> T newMXBeanProxy(MBeanServerConnection connection,
-				       ObjectName objectName,
-				       Class<T> interfaceClass) {
-	return newMXBeanProxy(connection, objectName, interfaceClass, false);
+                                       ObjectName objectName,
+                                       Class<T> interfaceClass) {
+        return newMXBeanProxy(connection, objectName, interfaceClass, false);
     }
 
     /**
@@ -296,7 +312,7 @@ public class JMX {
      *
      * <p>This method behaves the same as {@link
      * #newMXBeanProxy(MBeanServerConnection, ObjectName, Class)}, but
-     * additionally, if {@code notificationBroadcaster} is {@code
+     * additionally, if {@code notificationEmitter} is {@code
      * true}, then the MXBean is assumed to be a {@link
      * NotificationBroadcaster} or {@link NotificationEmitter} and the
      * returned proxy will implement {@link NotificationEmitter} as
@@ -313,7 +329,7 @@ public class JMX {
      * {@code connection} to forward to.
      * @param interfaceClass the MXBean interface,
      * which will also be implemented by the returned proxy.
-     * @param notificationBroadcaster make the returned proxy
+     * @param notificationEmitter make the returned proxy
      * implement {@link NotificationEmitter} by forwarding its methods
      * via {@code connection}.
      *
@@ -324,31 +340,12 @@ public class JMX {
      * @return the new proxy instance.
      */
     public static <T> T newMXBeanProxy(MBeanServerConnection connection,
-				       ObjectName objectName,
-				       Class<T> interfaceClass,
-				       boolean notificationBroadcaster) {
-        // Check interface for MXBean compliance
-        //
-        try {
-            Introspector.testComplianceMXBeanInterface(interfaceClass);
-        } catch (NotCompliantMBeanException e) {
-            throw new IllegalArgumentException(e);
-        }
-	InvocationHandler handler = new MBeanServerInvocationHandler(
-		connection, objectName, true);
-	final Class[] interfaces;
-	if (notificationBroadcaster) {
-	    interfaces =
-		new Class<?>[] {interfaceClass, NotificationEmitter.class};
-	} else
-	    interfaces = new Class[] {interfaceClass};
-	Object proxy = Proxy.newProxyInstance(
-		interfaceClass.getClassLoader(),
-		interfaces,
-		handler);
-	return interfaceClass.cast(proxy);
+                                       ObjectName objectName,
+                                       Class<T> interfaceClass,
+                                       boolean notificationEmitter) {
+        return createProxy(connection, objectName, interfaceClass, notificationEmitter, true);
     }
-    
+
     /**
      * <p>Test whether an interface is an MXBean interface.
      * An interface is an MXBean interface if it is annotated
@@ -373,5 +370,66 @@ public class JMX {
         // We don't bother excluding the case where the name is
         // exactly the string "MXBean" since that would mean there
         // was no package name, which is pretty unlikely in practice.
+    }
+
+    /**
+     * Centralised M(X)Bean proxy creation code
+     * @param connection {@linkplain MBeanServerConnection} to use
+     * @param objectName M(X)Bean object name
+     * @param interfaceClass M(X)Bean interface class
+     * @param notificationEmitter Is a notification emitter?
+     * @param isMXBean Is an MXBean?
+     * @return Returns an M(X)Bean proxy generated for the provided interface class
+     * @throws SecurityException
+     * @throws IllegalArgumentException
+     */
+    private static <T> T createProxy(MBeanServerConnection connection,
+                                     ObjectName objectName,
+                                     Class<T> interfaceClass,
+                                     boolean notificationEmitter,
+                                     boolean isMXBean) {
+
+        if (System.getSecurityManager() != null) {
+            checkProxyInterface(interfaceClass);
+        }
+        try {
+            if (isMXBean) {
+                // Check interface for MXBean compliance
+                Introspector.testComplianceMXBeanInterface(interfaceClass);
+            } else {
+                // Check interface for MBean compliance
+                Introspector.testComplianceMBeanInterface(interfaceClass);
+            }
+        } catch (NotCompliantMBeanException e) {
+            throw new IllegalArgumentException(e);
+        }
+
+        InvocationHandler handler = new MBeanServerInvocationHandler(
+                connection, objectName, isMXBean);
+        final Class<?>[] interfaces;
+        if (notificationEmitter) {
+            interfaces =
+                new Class<?>[] {interfaceClass, NotificationEmitter.class};
+        } else
+            interfaces = new Class<?>[] {interfaceClass};
+
+        Object proxy = Proxy.newProxyInstance(
+                interfaceClass.getClassLoader(),
+                interfaces,
+                handler);
+        return interfaceClass.cast(proxy);
+    }
+
+    /**
+     * Checks for the M(X)Bean proxy interface being public and not restricted
+     * @param interfaceClass MBean proxy interface
+     * @throws SecurityException when the proxy interface comes from a restricted
+     *                           package or is not public
+     */
+    private static void checkProxyInterface(Class<?> interfaceClass) {
+        if (!Modifier.isPublic(interfaceClass.getModifiers())) {
+            throw new SecurityException("mbean proxy interface non-public");
+        }
+        ReflectUtil.checkPackageAccess(interfaceClass);
     }
 }

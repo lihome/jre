@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright  1999-2004 The Apache Software Foundation.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -45,9 +49,11 @@ import com.sun.org.apache.xml.internal.security.utils.UnsyncBufferedOutputStream
 import com.sun.org.apache.xml.internal.security.utils.XMLUtils;
 import com.sun.org.apache.xml.internal.security.utils.resolver.ResourceResolver;
 import com.sun.org.apache.xml.internal.security.utils.resolver.ResourceResolverSpi;
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 
@@ -71,14 +77,14 @@ import org.w3c.dom.Text;
  * <li>sign and checkSignatureValue methods are used to sign and validate the
  * signature. </li></ul>
  *
- * @author $Author: raul $
+ * @author $Author: mullan $
  */
 public final class XMLSignature extends SignatureElementProxy {
 
    /** {@link java.util.logging} logging facility */
-   static java.util.logging.Logger log = 
+   static java.util.logging.Logger log =
         java.util.logging.Logger.getLogger(XMLSignature.class.getName());
-   
+
    //J-
    /** MAC - Required HMAC-SHA1 */
    public static final String ALGO_ID_MAC_HMAC_SHA1 = Constants.SignatureSpecNS + "hmac-sha1";
@@ -111,6 +117,10 @@ public final class XMLSignature extends SignatureElementProxy {
    public static final String ALGO_ID_MAC_HMAC_SHA384 = Constants.MoreAlgorithmsSpecNS + "hmac-sha384";
    /** HMAC - Optional HMAC-SHA512 */
    public static final String ALGO_ID_MAC_HMAC_SHA512 = Constants.MoreAlgorithmsSpecNS + "hmac-sha512";
+   /**Signature - Optional ECDSAwithSHA1 */
+   public static final String ALGO_ID_SIGNATURE_ECDSA_SHA1 = "http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha1";
+
+
    //J+
 
    /** ds:Signature.ds:SignedInfo element */
@@ -125,6 +135,8 @@ public final class XMLSignature extends SignatureElementProxy {
     * to indicate that the References inside Manifests should be validated.
     */
    private boolean _followManifestsDuringValidation = false;
+
+private Element signatureValueElement;
 
   /**
     * This creates a new <CODE>ds:Signature</CODE> Element and adds an empty
@@ -191,6 +203,14 @@ public final class XMLSignature extends SignatureElementProxy {
 
       super(doc);
 
+      String xmlnsDsPrefix = getDefaultPrefix(Constants.SignatureSpecNS);
+      if (xmlnsDsPrefix == null) {
+         this._constructionElement.setAttributeNS
+            (Constants.NamespaceSpecNS, "xmlns", Constants.SignatureSpecNS);
+      } else {
+         this._constructionElement.setAttributeNS
+            (Constants.NamespaceSpecNS, "xmlns:" + xmlnsDsPrefix, Constants.SignatureSpecNS);
+      }
       XMLUtils.addReturnToElement(this._constructionElement);
 
       this._baseURI = BaseURI;
@@ -202,7 +222,7 @@ public final class XMLSignature extends SignatureElementProxy {
       XMLUtils.addReturnToElement(this._constructionElement);
 
       // create an empty SignatureValue; this is filled by setSignatureValueElement
-      Element signatureValueElement =
+      signatureValueElement =
          XMLUtils.createElementInSignatureSpace(this._doc,
                                                 Constants._TAG_SIGNATUREVALUE);
 
@@ -223,6 +243,14 @@ public final class XMLSignature extends SignatureElementProxy {
 
       super(doc);
 
+      String xmlnsDsPrefix = getDefaultPrefix(Constants.SignatureSpecNS);
+      if (xmlnsDsPrefix == null) {
+         this._constructionElement.setAttributeNS
+            (Constants.NamespaceSpecNS, "xmlns", Constants.SignatureSpecNS);
+      } else {
+         this._constructionElement.setAttributeNS
+            (Constants.NamespaceSpecNS, "xmlns:" + xmlnsDsPrefix, Constants.SignatureSpecNS);
+      }
       XMLUtils.addReturnToElement(this._constructionElement);
 
       this._baseURI = BaseURI;
@@ -232,7 +260,7 @@ public final class XMLSignature extends SignatureElementProxy {
       XMLUtils.addReturnToElement(this._constructionElement);
 
       // create an empty SignatureValue; this is filled by setSignatureValueElement
-      Element signatureValueElement =
+      signatureValueElement =
          XMLUtils.createElementInSignatureSpace(this._doc,
                                                 Constants._TAG_SIGNATUREVALUE);
 
@@ -255,8 +283,8 @@ public final class XMLSignature extends SignatureElementProxy {
       super(element, BaseURI);
 
       // check out SignedInfo child
-      Element signedInfoElem = XMLUtils.selectDsNode(this._constructionElement.getFirstChild(),
-                                  Constants._TAG_SIGNEDINFO,0);
+      Element signedInfoElem = XMLUtils.getNextElement(element.getFirstChild());// XMLUtils.selectDsNode(this._constructionElement.getFirstChild(),
+                                  //Constants._TAG_SIGNEDINFO,0);
 
       // check to see if it is there
       if (signedInfoElem == null) {
@@ -270,8 +298,8 @@ public final class XMLSignature extends SignatureElementProxy {
       this._signedInfo = new SignedInfo(signedInfoElem, BaseURI);
 
       // check out SignatureValue child
-      Element signatureValueElement = XMLUtils.selectDsNode(this._constructionElement.getFirstChild(),
-                                         Constants._TAG_SIGNATUREVALUE,0);
+      this.signatureValueElement =XMLUtils.getNextElement(signedInfoElem.getNextSibling()); //XMLUtils.selectDsNode(this._constructionElement.getFirstChild(),
+                                       //  Constants._TAG_SIGNATUREVALUE,0);
 
       // check to see if it exists
       if (signatureValueElement == null) {
@@ -280,14 +308,47 @@ public final class XMLSignature extends SignatureElementProxy {
 
          throw new XMLSignatureException("xml.WrongContent", exArgs);
       }
+      Attr signatureValueAttr = signatureValueElement.getAttributeNodeNS(null, "Id");
+      if (signatureValueAttr != null) {
+          signatureValueElement.setIdAttributeNode(signatureValueAttr, true);
+      }
 
       // <element ref="ds:KeyInfo" minOccurs="0"/>
-      Element keyInfoElem =XMLUtils.selectDsNode(this._constructionElement.getFirstChild(),
-                               Constants._TAG_KEYINFO,0);
+      Element keyInfoElem = XMLUtils.getNextElement(signatureValueElement.getNextSibling());//XMLUtils.selectDsNode(this._constructionElement.getFirstChild(),
+                              // Constants._TAG_KEYINFO,0);
 
       // If it exists use it, but it's not mandatory
-      if (keyInfoElem != null) {
+      if ((keyInfoElem != null) && (keyInfoElem.getNamespaceURI().equals(Constants.SignatureSpecNS) &&
+                  keyInfoElem.getLocalName().equals(Constants._TAG_KEYINFO)) ) {
          this._keyInfo = new KeyInfo(keyInfoElem, BaseURI);
+      }
+
+      // <element ref="ds:Object" minOccurs="0" maxOccurs="unbounded"/>
+      Element objectElem =
+          XMLUtils.getNextElement(signatureValueElement.getNextSibling());
+      while (objectElem != null) {
+          Attr objectAttr = objectElem.getAttributeNodeNS(null, "Id");
+          if (objectAttr != null) {
+              objectElem.setIdAttributeNode(objectAttr, true);
+          }
+
+          NodeList nodes = objectElem.getChildNodes();
+          int length = nodes.getLength();
+          // Register Ids of the Object child elements
+          for (int i = 0; i < length; i++) {
+              Node child = nodes.item(i);
+              if (child.getNodeType() == Node.ELEMENT_NODE) {
+                  Element childElem = (Element)child;
+                  String tag = childElem.getLocalName();
+                  if (tag.equals("Manifest")) {
+                      new Manifest(childElem, BaseURI);
+                  } else if (tag.equals("SignatureProperties")) {
+                      new SignatureProperties(childElem, BaseURI);
+                  }
+              }
+          }
+
+          objectElem = XMLUtils.getNextElement(objectElem.getNextSibling());
       }
    }
 
@@ -298,9 +359,8 @@ public final class XMLSignature extends SignatureElementProxy {
     */
    public void setId(String Id) {
 
-      if ((this._state == MODE_SIGN) && (Id != null)) {
-         this._constructionElement.setAttributeNS(null, Constants._ATT_ID, Id);
-         IdResolver.registerElementById(this._constructionElement, Id);
+      if (Id != null) {
+          setLocalIdAttribute(Constants._ATT_ID, Id);
       }
    }
 
@@ -332,9 +392,7 @@ public final class XMLSignature extends SignatureElementProxy {
    public byte[] getSignatureValue() throws XMLSignatureException {
 
       try {
-         Element signatureValueElem = XMLUtils.selectDsNode(this._constructionElement.getFirstChild(),
-                                         Constants._TAG_SIGNATUREVALUE,0);
-         byte[] signatureValue = Base64.decode(signatureValueElem);
+          byte[] signatureValue = Base64.decode(signatureValueElement);
 
          return signatureValue;
       } catch (Base64DecodingException ex) {
@@ -342,33 +400,28 @@ public final class XMLSignature extends SignatureElementProxy {
       }
    }
 
-   /**
-    * Base64 encodes and sets the bytes as the content of the SignatureValue
-    * Node.
-    *
-    * @param bytes bytes to be used by SignatureValue before Base64 encoding
-    */
-   private void setSignatureValueElement(byte[] bytes)
-   {
+    /**
+     * Base64 encodes and sets the bytes as the content of the SignatureValue
+     * Node.
+     *
+     * @param bytes bytes to be used by SignatureValue before Base64 encoding
+     */
+    private void setSignatureValueElement(byte[] bytes) {
 
-      if (this._state == MODE_SIGN) {
-         Element signatureValueElem = XMLUtils.selectDsNode(this._constructionElement.getFirstChild(),
-                                         Constants._TAG_SIGNATUREVALUE,0);
-         while (signatureValueElem.hasChildNodes()) {
-            signatureValueElem.removeChild(signatureValueElem.getFirstChild());
-         }
+        while (signatureValueElement.hasChildNodes()) {
+            signatureValueElement.removeChild
+                (signatureValueElement.getFirstChild());
+        }
 
-         String base64codedValue = Base64.encode(bytes);
+        String base64codedValue = Base64.encode(bytes);
 
-         if (base64codedValue.length() > 76) {
+        if (base64codedValue.length() > 76 && !XMLUtils.ignoreLineBreaks()) {
             base64codedValue = "\n" + base64codedValue + "\n";
-         }
+        }
 
-         Text t = this._doc.createTextNode(base64codedValue);
-
-         signatureValueElem.appendChild(t);
-      }
-   }
+        Text t = this._doc.createTextNode(base64codedValue);
+        signatureValueElement.appendChild(t);
+    }
 
    /**
     * Returns the KeyInfo child. If we are in signing mode and the KeyInfo
@@ -381,7 +434,7 @@ public final class XMLSignature extends SignatureElementProxy {
    public KeyInfo getKeyInfo() {
 
       // check to see if we are signing and if we have to create a keyinfo
-      if ((this._state == MODE_SIGN) && (this._keyInfo == null)) {
+      if ( (this._keyInfo == null)) {
 
          // create the KeyInfo
          this._keyInfo = new KeyInfo(this._doc);
@@ -391,20 +444,19 @@ public final class XMLSignature extends SignatureElementProxy {
          Element firstObject=null;
          Node sibling= this._constructionElement.getFirstChild();
          firstObject = XMLUtils.selectDsNode(sibling,Constants._TAG_OBJECT,0);
-	   	     
+
             if (firstObject != null) {
 
                // add it before the object
                this._constructionElement.insertBefore(keyInfoElement,
                                                       firstObject);
-               this._constructionElement
-                  .insertBefore(this._doc.createTextNode("\n"), firstObject);
+               XMLUtils.addReturnBeforeChild(this._constructionElement, firstObject);
             } else {
 
                // add it as the last element to the signature
                this._constructionElement.appendChild(keyInfoElement);
                XMLUtils.addReturnToElement(this._constructionElement);
-            }         
+            }
       }
 
       return this._keyInfo;
@@ -421,17 +473,17 @@ public final class XMLSignature extends SignatureElementProxy {
    public void appendObject(ObjectContainer object)
            throws XMLSignatureException {
 
-      try {
-         if (this._state != MODE_SIGN) {
-            throw new XMLSignatureException(
-               "signature.operationOnlyBeforeSign");
-         }
+      //try {
+         //if (this._state != MODE_SIGN) {
+           // throw new XMLSignatureException(
+             //  "signature.operationOnlyBeforeSign");
+         //}
 
          this._constructionElement.appendChild(object.getElement());
          XMLUtils.addReturnToElement(this._constructionElement);
-      } catch (XMLSecurityException ex) {
-         throw new XMLSignatureException("empty", ex);
-      }
+      //} catch (XMLSecurityException ex) {
+        // throw new XMLSignatureException("empty", ex);
+      //}
    }
 
    /**
@@ -477,22 +529,12 @@ public final class XMLSignature extends SignatureElementProxy {
       }
 
       try {
-         if (this._state == MODE_SIGN) {
-
-            // XMLUtils.indentSignature(this._constructionElement, "   ", 0);
-            // get the SignatureMethodElement
-            Element signatureMethodElement =
-               this._signedInfo.getSignatureMethodElement();
-
+        // if (this._state == MODE_SIGN) {
             //Create a SignatureAlgorithm object
-            SignatureAlgorithm sa =
-               new SignatureAlgorithm(signatureMethodElement,
-                                      this.getBaseURI());
-
+                SignedInfo si = this.getSignedInfo();
+            SignatureAlgorithm sa = si.getSignatureAlgorithm();
             // initialize SignatureAlgorithm for signing
             sa.initSign(signingKey);
-
-            SignedInfo si = this.getSignedInfo();
 
             // generate digest values for all References in this SignedInfo
             si.generateDigestValues();
@@ -509,7 +551,7 @@ public final class XMLSignature extends SignatureElementProxy {
 
             // set them on the SignateValue element
             this.setSignatureValueElement(jcebytes);
-         }
+         //}
       } catch (CanonicalizationException ex) {
          throw new XMLSignatureException("empty", ex);
       } catch (InvalidCanonicalizerException ex) {
@@ -555,11 +597,11 @@ public final class XMLSignature extends SignatureElementProxy {
 
          //check the values with the public key from the cert
          return this.checkSignatureValue(cert.getPublicKey());
-      } 
-      
+      }
+
       Object exArgs[] = { "Didn't get a certificate" };
       throw new XMLSignatureException("empty", exArgs);
-      
+
    }
 
    /**
@@ -580,52 +622,48 @@ public final class XMLSignature extends SignatureElementProxy {
 
          throw new XMLSignatureException("empty", exArgs);
       }
-
+      // all references inside the signedinfo need to be dereferenced and
+      // digested again to see if the outcome matches the stored value in the
+      // SignedInfo.
+      // If _followManifestsDuringValidation is true it will do the same for
+      // References inside a Manifest.
       try {
-
+         SignedInfo si=this.getSignedInfo();
          //create a SignatureAlgorithms from the SignatureMethod inside
          //SignedInfo. This is used to validate the signature.
-         SignatureAlgorithm sa =
-            new SignatureAlgorithm(this.getSignedInfo()
-               .getSignatureMethodElement(), this.getBaseURI());
-         if (true) {
-         	if (log.isLoggable(java.util.logging.Level.FINE))                                     log.log(java.util.logging.Level.FINE, "SignatureMethodURI = " + sa.getAlgorithmURI());
-         	if (log.isLoggable(java.util.logging.Level.FINE))                                     log.log(java.util.logging.Level.FINE, "jceSigAlgorithm    = " + sa.getJCEAlgorithmString());
-         	if (log.isLoggable(java.util.logging.Level.FINE))                                     log.log(java.util.logging.Level.FINE, "jceSigProvider     = " + sa.getJCEProviderName());
-         	if (log.isLoggable(java.util.logging.Level.FINE))                                     log.log(java.util.logging.Level.FINE, "PublicKey = " + pk);
+         SignatureAlgorithm sa =si.getSignatureAlgorithm();
+         if (log.isLoggable(java.util.logging.Level.FINE)) {
+                log.log(java.util.logging.Level.FINE, "SignatureMethodURI = " + sa.getAlgorithmURI());
+                log.log(java.util.logging.Level.FINE, "jceSigAlgorithm    = " + sa.getJCEAlgorithmString());
+                log.log(java.util.logging.Level.FINE, "jceSigProvider     = " + sa.getJCEProviderName());
+                log.log(java.util.logging.Level.FINE, "PublicKey = " + pk);
          }
          sa.initVerify(pk);
 
          // Get the canonicalized (normalized) SignedInfo
          SignerOutputStream so=new SignerOutputStream(sa);
          OutputStream bos=new UnsyncBufferedOutputStream(so);
-         this._signedInfo.signInOctectStream(bos);
+         si.signInOctectStream(bos);
          try {
-			bos.close();
-		} catch (IOException e) {
-			//Imposible
-		}
-         
+                bos.close();
+         } catch (IOException e) {
+                //Imposible
+         }
+
          //retrieve the byte[] from the stored signature
          byte sigBytes[] = this.getSignatureValue();
-
 
          //Have SignatureAlgorithm sign the input bytes and compare them to the
          //bytes that were stored in the signature.
          if (!sa.verify(sigBytes)) {
-	    return false;
-	 }
+            log.log(java.util.logging.Level.WARNING, "Signature verification failed.");
+            return false;
+         }
 
-         // all references inside the signedinfo need to be dereferenced and
-         // digested again to see if the outcome matches the stored value in the
-         // SignedInfo.
-         // If _followManifestsDuringValidation is true it will do the same for
-         // References inside a Manifest.
-         return this.getSignedInfo().verify
-		(this._followManifestsDuringValidation);
+         return si.verify(this._followManifestsDuringValidation);
       } catch (XMLSecurityException ex) {
          throw new XMLSignatureException("empty", ex);
-      } 
+      }
    }
 
    /**

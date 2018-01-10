@@ -1,12 +1,31 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2004, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.nio.channels;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.Set;
@@ -178,14 +197,13 @@ import java.util.Set;
  *
  * @author Mark Reinhold
  * @author JSR-51 Expert Group
- * @version %I%, %E%
  * @since 1.4
  *
  * @see SelectableChannel
  * @see SelectionKey
  */
 
-public abstract class Selector {
+public abstract class Selector implements Closeable {
 
     /**
      * Initializes a new instance of this class.
@@ -206,7 +224,7 @@ public abstract class Selector {
      *          If an I/O error occurs
      */
     public static Selector open() throws IOException {
-	return SelectorProvider.provider().openSelector();
+        return SelectorProvider.provider().openSelector();
     }
 
     /**
@@ -309,7 +327,7 @@ public abstract class Selector {
      *          If the value of the timeout argument is negative
      */
     public abstract int select(long timeout)
-	throws IOException;
+        throws IOException;
 
     /**
      * Selects a set of keys whose corresponding channels are ready for I/O

@@ -1,12 +1,16 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright 1999-2004 The Apache Software Foundation.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,12 +30,12 @@ import java.util.Vector;
 import java.util.ArrayList;
 
 /**
- * XSAllCM implements XSCMValidator and handles <all>
+ * XSAllCM implements XSCMValidator and handles &lt;all&gt;.
  *
- * @xerces.internal 
+ * @xerces.internal
  *
  * @author Pavani Mukthipudi, Sun Microsystems Inc.
- * @version $Id: XSAllCM.java,v 1.7 2009/07/28 15:18:11 spericas Exp $
+ * @version $Id: XSAllCM.java,v 1.10 2010-11-01 04:39:58 joehw Exp $
  */
 public class XSAllCM implements XSCMValidator {
 
@@ -121,7 +125,7 @@ public class XSAllCM implements XSCMValidator {
 
         // seen child
         currentState[0] = STATE_CHILD;
-        
+
         Object matchingDecl = null;
 
         for (int i = 0; i < fNumElements; i++) {
@@ -197,7 +201,7 @@ public class XSAllCM implements XSCMValidator {
      * Check which elements are valid to appear at this point. This method also
      * works if the state is in error, in which case it returns what should
      * have been seen.
-     * 
+     *
      * @param state  the current state
      * @return       a Vector whose entries are instances of
      *               either XSWildcardDecl or XSElementDecl.
@@ -218,4 +222,3 @@ public class XSAllCM implements XSCMValidator {
     }
 
 } // class XSAllCM
-

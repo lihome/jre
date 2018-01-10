@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- * 
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1999, 2003, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.management;
@@ -22,7 +40,7 @@ public class AttributeNotFoundException extends OperationsException {
      * Default constructor.
      */
     public AttributeNotFoundException() {
-	super();
+        super();
     }
 
     /**
@@ -31,7 +49,7 @@ public class AttributeNotFoundException extends OperationsException {
      * @param message detail message.
      */
     public AttributeNotFoundException(String message) {
-	super(message);
+        super(message);
     }
 
 }

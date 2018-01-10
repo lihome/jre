@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1995, 2008, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.io;
@@ -16,7 +34,6 @@ package java.io;
  * the interruption occurred.
  *
  * @author  unascribed
- * @version %I%, %G%
  * @see     java.io.InputStream
  * @see     java.io.OutputStream
  * @see     java.lang.Thread#interrupt()
@@ -24,12 +41,14 @@ package java.io;
  */
 public
 class InterruptedIOException extends IOException {
+    private static final long serialVersionUID = 4020568460727500567L;
+
     /**
      * Constructs an <code>InterruptedIOException</code> with
      * <code>null</code> as its error detail message.
      */
     public InterruptedIOException() {
-	super();
+        super();
     }
 
     /**
@@ -42,7 +61,7 @@ class InterruptedIOException extends IOException {
      * @param   s   the detail message.
      */
     public InterruptedIOException(String s) {
-	super(s);
+        super(s);
     }
 
     /**

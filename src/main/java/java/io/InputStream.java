@@ -1,6 +1,26 @@
 /*
- * Copyright (c) 2006, 2011, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1994, 2006, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.io;
@@ -13,7 +33,6 @@ package java.io;
  * must always provide a method that returns the next byte of input.
  *
  * @author  Arthur van Hoff
- * @version %I%, %G%
  * @see     java.io.BufferedInputStream
  * @see     java.io.ByteArrayInputStream
  * @see     java.io.DataInputStream
@@ -25,7 +44,7 @@ package java.io;
  */
 public abstract class InputStream implements Closeable {
 
-    // MAX_SKIP_BUFFER_SIZE is used to determine the maximum buffer skip to
+    // MAX_SKIP_BUFFER_SIZE is used to determine the maximum buffer size to
     // use when skipping.
     private static final int MAX_SKIP_BUFFER_SIZE = 2048;
 
@@ -70,7 +89,7 @@ public abstract class InputStream implements Closeable {
      *
      * @param      b   the buffer into which the data is read.
      * @return     the total number of bytes read into the buffer, or
-     *             <code>-1</code> is there is no more data because the end of
+     *             <code>-1</code> if there is no more data because the end of
      *             the stream has been reached.
      * @exception  IOException  If the first byte cannot be read for any reason
      * other than the end of the file, if the input stream has been closed, or
@@ -79,7 +98,7 @@ public abstract class InputStream implements Closeable {
      * @see        java.io.InputStream#read(byte[], int, int)
      */
     public int read(byte b[]) throws IOException {
-	return read(b, 0, b.length);
+        return read(b, 0, b.length);
     }
 
     /**
@@ -134,38 +153,38 @@ public abstract class InputStream implements Closeable {
      * other than end of file, or if the input stream has been closed, or if
      * some other I/O error occurs.
      * @exception  NullPointerException If <code>b</code> is <code>null</code>.
-     * @exception  IndexOutOfBoundsException If <code>off</code> is negative, 
-     * <code>len</code> is negative, or <code>len</code> is greater than 
+     * @exception  IndexOutOfBoundsException If <code>off</code> is negative,
+     * <code>len</code> is negative, or <code>len</code> is greater than
      * <code>b.length - off</code>
      * @see        java.io.InputStream#read()
      */
     public int read(byte b[], int off, int len) throws IOException {
-	if (b == null) {
-	    throw new NullPointerException();
-	} else if (off < 0 || len < 0 || len > b.length - off) {
-	    throw new IndexOutOfBoundsException();
-	} else if (len == 0) {
-	    return 0;
-	}
+        if (b == null) {
+            throw new NullPointerException();
+        } else if (off < 0 || len < 0 || len > b.length - off) {
+            throw new IndexOutOfBoundsException();
+        } else if (len == 0) {
+            return 0;
+        }
 
-	int c = read();
-	if (c == -1) {
-	    return -1;
-	}
-	b[off] = (byte)c;
+        int c = read();
+        if (c == -1) {
+            return -1;
+        }
+        b[off] = (byte)c;
 
-	int i = 1;
-	try {
-	    for (; i < len ; i++) {
-		c = read();
-		if (c == -1) {
-		    break;
-		}
-		b[off + i] = (byte)c;
-	    }
-	} catch (IOException ee) {
-	}
-	return i;
+        int i = 1;
+        try {
+            for (; i < len ; i++) {
+                c = read();
+                if (c == -1) {
+                    break;
+                }
+                b[off + i] = (byte)c;
+            }
+        } catch (IOException ee) {
+        }
+        return i;
     }
 
     /**
@@ -186,34 +205,32 @@ public abstract class InputStream implements Closeable {
      * @param      n   the number of bytes to be skipped.
      * @return     the actual number of bytes skipped.
      * @exception  IOException  if the stream does not support seek,
-     * 				or if some other I/O error occurs.
+     *                          or if some other I/O error occurs.
      */
     public long skip(long n) throws IOException {
 
-	long remaining = n;
-	int nr;
+        long remaining = n;
+        int nr;
 
-	if (n <= 0) {
-	    return 0;
-	}
-	
-	int size = (int)Math.min(MAX_SKIP_BUFFER_SIZE, remaining);
-	byte[] skipBuffer = new byte[size];
+        if (n <= 0) {
+            return 0;
+        }
 
-	while (remaining > 0) {
-	    nr = read(skipBuffer, 0, (int)Math.min(size, remaining));
-	    
-	    if (nr < 0) {
-		break;
-	    }
-	    remaining -= nr;
-	}
-	
-	return n - remaining;
+        int size = (int)Math.min(MAX_SKIP_BUFFER_SIZE, remaining);
+        byte[] skipBuffer = new byte[size];
+        while (remaining > 0) {
+            nr = read(skipBuffer, 0, (int)Math.min(size, remaining));
+            if (nr < 0) {
+                break;
+            }
+            remaining -= nr;
+        }
+
+        return n - remaining;
     }
 
     /**
-     * Returns an estimate of the number of bytes that can be read (or 
+     * Returns an estimate of the number of bytes that can be read (or
      * skipped over) from this input stream without blocking by the next
      * invocation of a method for this input stream. The next invocation
      * might be the same thread or another thread.  A single read or skip of this
@@ -239,7 +256,7 @@ public abstract class InputStream implements Closeable {
      * @exception  IOException if an I/O error occurs.
      */
     public int available() throws IOException {
-	return 0;
+        return 0;
     }
 
     /**
@@ -327,7 +344,7 @@ public abstract class InputStream implements Closeable {
      * @see     java.io.IOException
      */
     public synchronized void reset() throws IOException {
-	throw new IOException("mark/reset not supported");
+        throw new IOException("mark/reset not supported");
     }
 
     /**
@@ -343,7 +360,7 @@ public abstract class InputStream implements Closeable {
      * @see     java.io.InputStream#reset()
      */
     public boolean markSupported() {
-	return false;
+        return false;
     }
 
 }

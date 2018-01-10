@@ -1,13 +1,46 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+
+/*
+ *
+ *
+ *
+ *
+ *
+ * Written by Doug Lea with assistance from members of JCP JSR-166
+ * Expert Group and released to the public domain, as explained at
+ * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
 package java.util.concurrent;
-import java.util.*;
-import java.util.concurrent.locks.*;
+
+import java.util.AbstractQueue;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * An optionally-bounded {@linkplain BlockingDeque blocking deque} based on
@@ -57,7 +90,8 @@ public class LinkedBlockingDeque<E>
      * dequeued Nodes, and reachability does not necessarily have to
      * be of the kind understood by the GC.  We use the trick of
      * linking a Node that has just been dequeued to itself.  Such a
-     * self-link implicitly means to advance to head.
+     * self-link implicitly means to jump to "first" (for next links)
+     * or "last" (for prev links).
      */
 
     /*
@@ -71,11 +105,10 @@ public class LinkedBlockingDeque<E>
 
     /** Doubly-linked list node class */
     static final class Node<E> {
-       /**
-        * The item, or null if this node has been removed.
-        */
-
-	E item;
+        /**
+         * The item, or null if this node has been removed.
+         */
+        E item;
 
         /**
          * One of:
@@ -83,7 +116,6 @@ public class LinkedBlockingDeque<E>
          * - this Node, meaning the predecessor is tail
          * - null, meaning there is no predecessor
          */
-
         Node<E> prev;
 
         /**
@@ -92,32 +124,44 @@ public class LinkedBlockingDeque<E>
          * - this Node, meaning the successor is head
          * - null, meaning there is no successor
          */
-
         Node<E> next;
-        Node(E x, Node<E> p, Node<E> n) {
+
+        Node(E x) {
             item = x;
-            prev = p;
-            next = n;
         }
     }
 
-    /** Pointer to first node */
+    /**
+     * Pointer to first node.
+     * Invariant: (first == null && last == null) ||
+     *            (first.prev == null && first.item != null)
+     */
     transient Node<E> first;
-    /** Pointer to last node */
+
+    /**
+     * Pointer to last node.
+     * Invariant: (first == null && last == null) ||
+     *            (last.next == null && last.item != null)
+     */
     transient Node<E> last;
+
     /** Number of items in the deque */
     private transient int count;
+
     /** Maximum number of items in the deque */
     private final int capacity;
+
     /** Main lock guarding all access */
     final ReentrantLock lock = new ReentrantLock();
+
     /** Condition for waiting takes */
     private final Condition notEmpty = lock.newCondition();
+
     /** Condition for waiting puts */
     private final Condition notFull = lock.newCondition();
 
     /**
-     * Creates a <tt>LinkedBlockingDeque</tt> with a capacity of
+     * Creates a {@code LinkedBlockingDeque} with a capacity of
      * {@link Integer#MAX_VALUE}.
      */
     public LinkedBlockingDeque() {
@@ -125,10 +169,10 @@ public class LinkedBlockingDeque<E>
     }
 
     /**
-     * Creates a <tt>LinkedBlockingDeque</tt> with the given (fixed) capacity.
+     * Creates a {@code LinkedBlockingDeque} with the given (fixed) capacity.
      *
      * @param capacity the capacity of this deque
-     * @throws IllegalArgumentException if <tt>capacity</tt> is less than 1
+     * @throws IllegalArgumentException if {@code capacity} is less than 1
      */
     public LinkedBlockingDeque(int capacity) {
         if (capacity <= 0) throw new IllegalArgumentException();
@@ -136,7 +180,7 @@ public class LinkedBlockingDeque<E>
     }
 
     /**
-     * Creates a <tt>LinkedBlockingDeque</tt> with a capacity of
+     * Creates a {@code LinkedBlockingDeque} with a capacity of
      * {@link Integer#MAX_VALUE}, initially containing the elements of
      * the given collection, added in traversal order of the
      * collection's iterator.
@@ -153,7 +197,7 @@ public class LinkedBlockingDeque<E>
             for (E e : c) {
                 if (e == null)
                     throw new NullPointerException();
-                if (!linkLast(e))
+                if (!linkLast(new Node<E>(e)))
                     throw new IllegalStateException("Deque full");
             }
         } finally {
@@ -165,38 +209,38 @@ public class LinkedBlockingDeque<E>
     // Basic linking and unlinking operations, called only while holding lock
 
     /**
-     * Links e as first element, or returns false if full.
+     * Links node as first element, or returns false if full.
      */
-    private boolean linkFirst(E e) {
+    private boolean linkFirst(Node<E> node) {
         // assert lock.isHeldByCurrentThread();
         if (count >= capacity)
             return false;
         Node<E> f = first;
-        Node<E> x = new Node<E>(e, null, f);
-        first = x;
+        node.next = f;
+        first = node;
         if (last == null)
-            last = x;
+            last = node;
         else
-            f.prev = x;
+            f.prev = node;
         ++count;
         notEmpty.signal();
         return true;
     }
 
     /**
-     * Links e as last element, or returns false if full.
+     * Links node as last element, or returns false if full.
      */
-    private boolean linkLast(E e) {
+    private boolean linkLast(Node<E> node) {
         // assert lock.isHeldByCurrentThread();
         if (count >= capacity)
             return false;
         Node<E> l = last;
-        Node<E> x = new Node<E>(e, l, null);
-        last = x;
+        node.prev = l;
+        last = node;
         if (first == null)
-            first = x;
+            first = node;
         else
-            l.next = x;
+            l.next = node;
         ++count;
         notEmpty.signal();
         return true;
@@ -236,7 +280,6 @@ public class LinkedBlockingDeque<E>
         E item = l.item;
         l.item = null;
         l.prev = l; // help GC
-
         last = p;
         if (p == null)
             first = null;
@@ -248,21 +291,21 @@ public class LinkedBlockingDeque<E>
     }
 
     /**
-     * Unlinks x
+     * Unlinks x.
      */
     void unlink(Node<E> x) {
         // assert lock.isHeldByCurrentThread();
         Node<E> p = x.prev;
         Node<E> n = x.next;
         if (p == null) {
-           unlinkFirst();
+            unlinkFirst();
         } else if (n == null) {
-          unlinkLast();
+            unlinkLast();
         } else {
             p.next = n;
             n.prev = p;
             x.item = null;
-            // Don't mess with x's links. They may still be in use by
+            // Don't mess with x's links.  They may still be in use by
             // an iterator.
             --count;
             notFull.signal();
@@ -294,10 +337,11 @@ public class LinkedBlockingDeque<E>
      */
     public boolean offerFirst(E e) {
         if (e == null) throw new NullPointerException();
+        Node<E> node = new Node<E>(e);
         final ReentrantLock lock = this.lock;
         lock.lock();
         try {
-            return linkFirst(e);
+            return linkFirst(node);
         } finally {
             lock.unlock();
         }
@@ -308,10 +352,11 @@ public class LinkedBlockingDeque<E>
      */
     public boolean offerLast(E e) {
         if (e == null) throw new NullPointerException();
+        Node<E> node = new Node<E>(e);
         final ReentrantLock lock = this.lock;
         lock.lock();
         try {
-            return linkLast(e);
+            return linkLast(node);
         } finally {
             lock.unlock();
         }
@@ -323,10 +368,11 @@ public class LinkedBlockingDeque<E>
      */
     public void putFirst(E e) throws InterruptedException {
         if (e == null) throw new NullPointerException();
+        Node<E> node = new Node<E>(e);
         final ReentrantLock lock = this.lock;
         lock.lock();
         try {
-            while (!linkFirst(e))
+            while (!linkFirst(node))
                 notFull.await();
         } finally {
             lock.unlock();
@@ -339,10 +385,11 @@ public class LinkedBlockingDeque<E>
      */
     public void putLast(E e) throws InterruptedException {
         if (e == null) throw new NullPointerException();
+        Node<E> node = new Node<E>(e);
         final ReentrantLock lock = this.lock;
         lock.lock();
         try {
-            while (!linkLast(e))
+            while (!linkLast(node))
                 notFull.await();
         } finally {
             lock.unlock();
@@ -356,11 +403,12 @@ public class LinkedBlockingDeque<E>
     public boolean offerFirst(E e, long timeout, TimeUnit unit)
         throws InterruptedException {
         if (e == null) throw new NullPointerException();
-	long nanos = unit.toNanos(timeout);
+        Node<E> node = new Node<E>(e);
+        long nanos = unit.toNanos(timeout);
         final ReentrantLock lock = this.lock;
         lock.lockInterruptibly();
         try {
-             while (!linkFirst(e)) {
+            while (!linkFirst(node)) {
                 if (nanos <= 0)
                     return false;
                 nanos = notFull.awaitNanos(nanos);
@@ -378,11 +426,12 @@ public class LinkedBlockingDeque<E>
     public boolean offerLast(E e, long timeout, TimeUnit unit)
         throws InterruptedException {
         if (e == null) throw new NullPointerException();
-	long nanos = unit.toNanos(timeout);
+        Node<E> node = new Node<E>(e);
+        long nanos = unit.toNanos(timeout);
         final ReentrantLock lock = this.lock;
         lock.lockInterruptibly();
         try {
-            while (!linkLast(e)) {
+            while (!linkLast(node)) {
                 if (nanos <= 0)
                     return false;
                 nanos = notFull.awaitNanos(nanos);
@@ -459,7 +508,7 @@ public class LinkedBlockingDeque<E>
 
     public E pollFirst(long timeout, TimeUnit unit)
         throws InterruptedException {
-	long nanos = unit.toNanos(timeout);
+        long nanos = unit.toNanos(timeout);
         final ReentrantLock lock = this.lock;
         lock.lockInterruptibly();
         try {
@@ -469,7 +518,7 @@ public class LinkedBlockingDeque<E>
                     return null;
                 nanos = notEmpty.awaitNanos(nanos);
             }
-            return x;  
+            return x;
         } finally {
             lock.unlock();
         }
@@ -477,12 +526,12 @@ public class LinkedBlockingDeque<E>
 
     public E pollLast(long timeout, TimeUnit unit)
         throws InterruptedException {
-	long nanos = unit.toNanos(timeout);
+        long nanos = unit.toNanos(timeout);
         final ReentrantLock lock = this.lock;
         lock.lockInterruptibly();
         try {
-                E x;
-                while ( (x = unlinkLast()) == null) {
+            E x;
+            while ( (x = unlinkLast()) == null) {
                 if (nanos <= 0)
                     return null;
                 nanos = notEmpty.awaitNanos(nanos);
@@ -579,15 +628,15 @@ public class LinkedBlockingDeque<E>
      * @throws NullPointerException if the specified element is null
      */
     public boolean add(E e) {
-	addLast(e);
-	return true;
+        addLast(e);
+        return true;
     }
 
     /**
      * @throws NullPointerException if the specified element is null
      */
     public boolean offer(E e) {
-	return offerLast(e);
+        return offerLast(e);
     }
 
     /**
@@ -595,7 +644,7 @@ public class LinkedBlockingDeque<E>
      * @throws InterruptedException {@inheritDoc}
      */
     public void put(E e) throws InterruptedException {
-	putLast(e);
+        putLast(e);
     }
 
     /**
@@ -604,7 +653,7 @@ public class LinkedBlockingDeque<E>
      */
     public boolean offer(E e, long timeout, TimeUnit unit)
         throws InterruptedException {
-	return offerLast(e, timeout, unit);
+        return offerLast(e, timeout, unit);
     }
 
     /**
@@ -618,19 +667,19 @@ public class LinkedBlockingDeque<E>
      * @throws NoSuchElementException if this deque is empty
      */
     public E remove() {
-	return removeFirst();
+        return removeFirst();
     }
 
     public E poll() {
-	return pollFirst();
+        return pollFirst();
     }
 
     public E take() throws InterruptedException {
-	return takeFirst();
+        return takeFirst();
     }
 
     public E poll(long timeout, TimeUnit unit) throws InterruptedException {
-	return pollFirst(timeout, unit);
+        return pollFirst(timeout, unit);
     }
 
     /**
@@ -644,21 +693,21 @@ public class LinkedBlockingDeque<E>
      * @throws NoSuchElementException if this deque is empty
      */
     public E element() {
-	return getFirst();
+        return getFirst();
     }
 
     public E peek() {
-	return peekFirst();
+        return peekFirst();
     }
 
     /**
      * Returns the number of additional elements that this deque can ideally
      * (in the absence of memory or resource constraints) accept without
      * blocking. This is always equal to the initial capacity of this deque
-     * less the current <tt>size</tt> of this deque.
+     * less the current {@code size} of this deque.
      *
      * <p>Note that you <em>cannot</em> always tell if an attempt to insert
-     * an element will succeed by inspecting <tt>remainingCapacity</tt>
+     * an element will succeed by inspecting {@code remainingCapacity}
      * because it may be the case that another thread is about to
      * insert or remove an element.
      */
@@ -679,7 +728,7 @@ public class LinkedBlockingDeque<E>
      * @throws IllegalArgumentException      {@inheritDoc}
      */
     public int drainTo(Collection<? super E> c) {
-         return drainTo(c, Integer.MAX_VALUE);
+        return drainTo(c, Integer.MAX_VALUE);
     }
 
     /**
@@ -714,14 +763,14 @@ public class LinkedBlockingDeque<E>
      * @throws NullPointerException  {@inheritDoc}
      */
     public void push(E e) {
-	addFirst(e);
+        addFirst(e);
     }
 
     /**
      * @throws NoSuchElementException {@inheritDoc}
      */
     public E pop() {
-	return removeFirst();
+        return removeFirst();
     }
 
     // Collection methods
@@ -729,19 +778,19 @@ public class LinkedBlockingDeque<E>
     /**
      * Removes the first occurrence of the specified element from this deque.
      * If the deque does not contain the element, it is unchanged.
-     * More formally, removes the first element <tt>e</tt> such that
-     * <tt>o.equals(e)</tt> (if such an element exists).
-     * Returns <tt>true</tt> if this deque contained the specified element
+     * More formally, removes the first element {@code e} such that
+     * {@code o.equals(e)} (if such an element exists).
+     * Returns {@code true} if this deque contained the specified element
      * (or equivalently, if this deque changed as a result of the call).
      *
      * <p>This method is equivalent to
      * {@link #removeFirstOccurrence(Object) removeFirstOccurrence}.
      *
      * @param o element to be removed from this deque, if present
-     * @return <tt>true</tt> if this deque changed as a result of the call
+     * @return {@code true} if this deque changed as a result of the call
      */
     public boolean remove(Object o) {
-	return removeFirstOccurrence(o);
+        return removeFirstOccurrence(o);
     }
 
     /**
@@ -760,12 +809,12 @@ public class LinkedBlockingDeque<E>
     }
 
     /**
-     * Returns <tt>true</tt> if this deque contains the specified element.
-     * More formally, returns <tt>true</tt> if and only if this deque contains
-     * at least one element <tt>e</tt> such that <tt>o.equals(e)</tt>.
+     * Returns {@code true} if this deque contains the specified element.
+     * More formally, returns {@code true} if and only if this deque contains
+     * at least one element {@code e} such that {@code o.equals(e)}.
      *
      * @param o object to be checked for containment in this deque
-     * @return <tt>true</tt> if this deque contains the specified element
+     * @return {@code true} if this deque contains the specified element
      */
     public boolean contains(Object o) {
         if (o == null) return false;
@@ -779,7 +828,8 @@ public class LinkedBlockingDeque<E>
         } finally {
             lock.unlock();
         }
-     }
+    }
+
     /*
      * TODO: Add support for more efficient bulk operations.
      *
@@ -834,7 +884,7 @@ public class LinkedBlockingDeque<E>
      *
      * @return an array containing all of the elements in this deque
      */
-    // @SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")
     public Object[] toArray() {
         final ReentrantLock lock = this.lock;
         lock.lock();
@@ -859,22 +909,22 @@ public class LinkedBlockingDeque<E>
      * <p>If this deque fits in the specified array with room to spare
      * (i.e., the array has more elements than this deque), the element in
      * the array immediately following the end of the deque is set to
-     * <tt>null</tt>.
+     * {@code null}.
      *
      * <p>Like the {@link #toArray()} method, this method acts as bridge between
      * array-based and collection-based APIs.  Further, this method allows
      * precise control over the runtime type of the output array, and may,
      * under certain circumstances, be used to save allocation costs.
      *
-     * <p>Suppose <tt>x</tt> is a deque known to contain only strings.
+     * <p>Suppose {@code x} is a deque known to contain only strings.
      * The following code can be used to dump the deque into a newly
-     * allocated array of <tt>String</tt>:
+     * allocated array of {@code String}:
      *
      * <pre>
      *     String[] y = x.toArray(new String[0]);</pre>
      *
-     * Note that <tt>toArray(new Object[0])</tt> is identical in function to
-     * <tt>toArray()</tt>.
+     * Note that {@code toArray(new Object[0])} is identical in function to
+     * {@code toArray()}.
      *
      * @param a the array into which the elements of the deque are to
      *          be stored, if it is big enough; otherwise, a new array of the
@@ -885,14 +935,14 @@ public class LinkedBlockingDeque<E>
      *         this deque
      * @throws NullPointerException if the specified array is null
      */
-    // @SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")
     public <T> T[] toArray(T[] a) {
         final ReentrantLock lock = this.lock;
         lock.lock();
         try {
             if (a.length < count)
                 a = (T[])java.lang.reflect.Array.newInstance
-                (a.getClass().getComponentType(), count);
+                    (a.getClass().getComponentType(), count);
 
             int k = 0;
             for (Node<E> p = first; p != null; p = p.next)
@@ -909,7 +959,20 @@ public class LinkedBlockingDeque<E>
         final ReentrantLock lock = this.lock;
         lock.lock();
         try {
-            return super.toString();
+            Node<E> p = first;
+            if (p == null)
+                return "[]";
+
+            StringBuilder sb = new StringBuilder();
+            sb.append('[');
+            for (;;) {
+                E e = p.item;
+                sb.append(e == this ? "(this Collection)" : e);
+                p = p.next;
+                if (p == null)
+                    return sb.append(']').toString();
+                sb.append(',').append(' ');
+            }
         } finally {
             lock.unlock();
         }
@@ -941,11 +1004,13 @@ public class LinkedBlockingDeque<E>
     /**
      * Returns an iterator over the elements in this deque in proper sequence.
      * The elements will be returned in order from first (head) to last (tail).
-     * The returned <tt>Iterator</tt> is a "weakly consistent" iterator that
-     * will never throw {@link ConcurrentModificationException},
-     * and guarantees to traverse elements as they existed upon
-     * construction of the iterator, and may (but is not guaranteed to)
-     * reflect any modifications subsequent to construction.
+     *
+     * <p>The returned iterator is a "weakly consistent" iterator that
+     * will never throw {@link java.util.ConcurrentModificationException
+     * ConcurrentModificationException}, and guarantees to traverse
+     * elements as they existed upon construction of the iterator, and
+     * may (but is not guaranteed to) reflect any modifications
+     * subsequent to construction.
      *
      * @return an iterator over the elements in this deque in proper sequence
      */
@@ -957,11 +1022,15 @@ public class LinkedBlockingDeque<E>
      * Returns an iterator over the elements in this deque in reverse
      * sequential order.  The elements will be returned in order from
      * last (tail) to first (head).
-     * The returned <tt>Iterator</tt> is a "weakly consistent" iterator that
-     * will never throw {@link ConcurrentModificationException},
-     * and guarantees to traverse elements as they existed upon
-     * construction of the iterator, and may (but is not guaranteed to)
-     * reflect any modifications subsequent to construction.
+     *
+     * <p>The returned iterator is a "weakly consistent" iterator that
+     * will never throw {@link java.util.ConcurrentModificationException
+     * ConcurrentModificationException}, and guarantees to traverse
+     * elements as they existed upon construction of the iterator, and
+     * may (but is not guaranteed to) reflect any modifications
+     * subsequent to construction.
+     *
+     * @return an iterator over the elements in this deque in reverse order
      */
     public Iterator<E> descendingIterator() {
         return new DescendingItr();
@@ -992,6 +1061,7 @@ public class LinkedBlockingDeque<E>
 
         abstract Node<E> firstNode();
         abstract Node<E> nextNode(Node<E> n);
+
         AbstractItr() {
             // set to initial position
             final ReentrantLock lock = LinkedBlockingDeque.this.lock;
@@ -1005,24 +1075,34 @@ public class LinkedBlockingDeque<E>
         }
 
         /**
+         * Returns the successor node of the given non-null, but
+         * possibly previously deleted, node.
+         */
+        private Node<E> succ(Node<E> n) {
+            // Chains of deleted nodes ending in null or self-links
+            // are possible if multiple interior nodes are removed.
+            for (;;) {
+                Node<E> s = nextNode(n);
+                if (s == null)
+                    return null;
+                else if (s.item != null)
+                    return s;
+                else if (s == n)
+                    return firstNode();
+                else
+                    n = s;
+            }
+        }
+
+        /**
          * Advances next.
          */
-
         void advance() {
             final ReentrantLock lock = LinkedBlockingDeque.this.lock;
             lock.lock();
             try {
                 // assert next != null;
-                Node<E> s = nextNode(next);
-                if (s == next) {
-                    next = firstNode();
-                } else {
-                    // Skip over removed nodes.
-                    // May be necessary if multiple interior Nodes are removed.
-                    while (s != null && s.item == null)
-                        s = nextNode(s);
-                    next = s;
-                }
+                next = succ(next);
                 nextItem = (next == null) ? null : next.item;
             } finally {
                 lock.unlock();
@@ -1047,7 +1127,6 @@ public class LinkedBlockingDeque<E>
             if (n == null)
                 throw new IllegalStateException();
             lastRet = null;
-
             final ReentrantLock lock = LinkedBlockingDeque.this.lock;
             lock.lock();
             try {
@@ -1059,12 +1138,11 @@ public class LinkedBlockingDeque<E>
         }
     }
 
-     /** Forward iterator */
+    /** Forward iterator */
     private class Itr extends AbstractItr {
         Node<E> firstNode() { return first; }
         Node<E> nextNode(Node<E> n) { return n.next; }
     }
-
 
     /** Descending iterator */
     private class DescendingItr extends AbstractItr {
@@ -1076,7 +1154,7 @@ public class LinkedBlockingDeque<E>
      * Save the state of this deque to a stream (that is, serialize it).
      *
      * @serialData The capacity (int), followed by elements (each an
-     * <tt>Object</tt>) in the proper order, followed by a null
+     * {@code Object}) in the proper order, followed by a null
      * @param s the stream
      */
     private void writeObject(java.io.ObjectOutputStream s)
@@ -1109,7 +1187,7 @@ public class LinkedBlockingDeque<E>
         last = null;
         // Read in all elements and place in queue
         for (;;) {
-            // @SuppressWarnings("unchecked")
+            @SuppressWarnings("unchecked")
             E item = (E)s.readObject();
             if (item == null)
                 break;

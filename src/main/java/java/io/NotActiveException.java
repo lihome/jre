@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2005, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.io;
@@ -11,7 +29,6 @@ package java.io;
  * Thrown when serialization or deserialization is not active.
  *
  * @author  unascribed
- * @version %I%, %G%
  * @since   JDK1.1
  */
 public class NotActiveException extends ObjectStreamException {
@@ -24,13 +41,13 @@ public class NotActiveException extends ObjectStreamException {
      * @param reason  a String describing the reason for the exception.
      */
     public NotActiveException(String reason) {
-	super(reason);
+        super(reason);
     }
 
     /**
      * Constructor to create a new NotActiveException without a reason.
      */
     public NotActiveException() {
-	super();
+        super();
     }
 }

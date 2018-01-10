@@ -1,26 +1,26 @@
 /*
  * Copyright (c) 2004, 2013, Oracle and/or its affiliates. All rights reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
  *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.xml.soap;
@@ -30,9 +30,9 @@ import java.util.Properties;
 
 
 class FactoryFinder {
-    
+
     /**
-     * Creates an instance of the specified class using the specified 
+     * Creates an instance of the specified class using the specified
      * <code>ClassLoader</code> object.
      *
      * @exception SOAPException if the given class could not be found
@@ -40,7 +40,7 @@ class FactoryFinder {
      */
     private static Object newInstance(String className,
                                       ClassLoader classLoader)
-        throws SOAPException
+            throws SOAPException
     {
         try {
             Class spiClass = safeLoadClass(className, classLoader);
@@ -67,7 +67,7 @@ class FactoryFinder {
      * @exception SOAPException if there is a SOAP error
      */
     static Object find(String factoryId)
-        throws SOAPException
+            throws SOAPException
     {
         return find(factoryId, null, false);
     }
@@ -93,11 +93,11 @@ class FactoryFinder {
      * @exception SOAPException if there is a SOAP error
      */
     static Object find(String factoryId, String fallbackClassName)
-        throws SOAPException
+            throws SOAPException
     {
         return find(factoryId, fallbackClassName, true);
     }
-    
+
     /**
      * Finds the implementation <code>Class</code> object for the given
      * factory name, or if that fails, finds the <code>Class</code> object
@@ -123,7 +123,7 @@ class FactoryFinder {
      * @exception SOAPException if there is a SOAP error
      */
     static Object find(String factoryId, String defaultClassName,
-            boolean tryFallback) throws SOAPException {
+                       boolean tryFallback) throws SOAPException {
         ClassLoader classLoader;
         try {
             classLoader = Thread.currentThread().getContextClassLoader();
@@ -134,7 +134,7 @@ class FactoryFinder {
         // Use the system property first
         try {
             String systemProp =
-                System.getProperty( factoryId );
+                    System.getProperty( factoryId );
             if( systemProp!=null) {
                 return newInstance(systemProp, classLoader);
             }
@@ -145,7 +145,7 @@ class FactoryFinder {
         try {
             String javah=System.getProperty( "java.home" );
             String configFile = javah + File.separator +
-                "lib" + File.separator + "jaxm.properties";
+                    "lib" + File.separator + "jaxm.properties";
             File f=new File( configFile );
             if( f.exists()) {
                 Properties props=new Properties();
@@ -165,22 +165,22 @@ class FactoryFinder {
             } else {
                 is=classLoader.getResourceAsStream(serviceId);
             }
-        
+
             if( is!=null ) {
                 BufferedReader rd =
-                    new BufferedReader(new InputStreamReader(is, "UTF-8"));
-        
+                        new BufferedReader(new InputStreamReader(is, "UTF-8"));
+
                 String factoryClassName = rd.readLine();
                 rd.close();
 
                 if (factoryClassName != null &&
-                    ! "".equals(factoryClassName)) {
+                        ! "".equals(factoryClassName)) {
                     return newInstance(factoryClassName, classLoader);
                 }
             }
         } catch( Exception ex ) {
         }
-        
+
         // If not found and fallback should not be tried, return a null result.
         if (!tryFallback)
             return null;
@@ -189,11 +189,11 @@ class FactoryFinder {
         // (built in) factory if specified.
         if (defaultClassName == null) {
             throw new SOAPException(
-                "Provider for " + factoryId + " cannot be found", null);
+                    "Provider for " + factoryId + " cannot be found", null);
         }
         return newInstance(defaultClassName, classLoader);
     }
-    
+
     /**
      * Loads the class, provided that the calling thread has an access to the
      * class being loaded. If this is the specified default factory class and it
@@ -201,7 +201,7 @@ class FactoryFinder {
      * Class.forName() on it so it will be loaded by the bootstrap class loader.
      */
     private static Class safeLoadClass(String className,
-            ClassLoader classLoader)
+                                       ClassLoader classLoader)
             throws ClassNotFoundException {
         try {
             // make sure that the current thread has an access to the package of the given name.
@@ -219,7 +219,7 @@ class FactoryFinder {
                 return classLoader.loadClass(className);
         } catch (SecurityException se) {
             // (only) default implementation can be loaded
-            // using bootstrap class loader ...
+            // using bootstrap class loader:
             if (isDefaultImplementation(className))
                 return Class.forName(className);
 

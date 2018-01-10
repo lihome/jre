@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 1997, 2008, Oracle and/or its affiliates. All rights reserved.
- * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms. 
+ * Copyright (c) 2004, 2012, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
  *
@@ -22,12 +22,6 @@
  *
  *
  */
-/*
- * $Id: SOAPEnvelope.java,v 1.6 2005/04/05 22:42:05 mk125090 Exp $
- * $Revision: 1.6 $
- * $Date: 2005/04/05 22:42:05 $
- */
-
 
 package javax.xml.soap;
 

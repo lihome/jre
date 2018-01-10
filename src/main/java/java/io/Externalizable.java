@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2004, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.io;
@@ -38,7 +56,6 @@ import java.io.ObjectInput;
  * interface.<br>
  *
  * @author  unascribed
- * @version %I%, %G%
  * @see java.io.ObjectOutputStream
  * @see java.io.ObjectInputStream
  * @see java.io.ObjectOutput

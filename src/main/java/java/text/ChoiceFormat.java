@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2005, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 /*
@@ -118,8 +136,8 @@ import java.util.Arrays;
  * </pre>
  * </blockquote>
  * And the output result would be like the following:
- * <pre>
  * <blockquote>
+ * <pre>
  *   Format with -INF : is negative
  *   Format with -1.0 : is negative
  *   Format with 0 : is zero or fraction
@@ -144,7 +162,6 @@ import java.util.Arrays;
  *
  * @see          DecimalFormat
  * @see          MessageFormat
- * @version      1.22 09/21/98
  * @author       Mark Davis
  */
 public class ChoiceFormat extends NumberFormat {
@@ -591,7 +608,7 @@ public class ChoiceFormat extends NumberFormat {
         System.arraycopy(array, 0, newArray, 0, oldSize);
         return newArray;
     }
-    
+
     private String[] doubleArraySize(String[] array) {
         int oldSize = array.length;
         String[] newArray = new String[oldSize * 2];
@@ -600,4 +617,3 @@ public class ChoiceFormat extends NumberFormat {
     }
 
 }
-

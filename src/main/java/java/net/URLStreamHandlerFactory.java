@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1995, 1999, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.net;
@@ -15,7 +33,6 @@ package java.net;
  * <code>URLStreamHandler</code> for a specific protocol.
  *
  * @author  Arthur van Hoff
- * @version %I%, %G%
  * @see     java.net.URL
  * @see     java.net.URLStreamHandler
  * @since   JDK1.0

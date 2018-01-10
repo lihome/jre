@@ -1,12 +1,16 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright 2000-2005 The Apache Software Foundation.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,7 +27,10 @@ import com.sun.org.apache.xerces.internal.util.EntityResolverWrapper;
 import com.sun.org.apache.xerces.internal.util.EntityResolver2Wrapper;
 import com.sun.org.apache.xerces.internal.util.ErrorHandlerWrapper;
 import com.sun.org.apache.xerces.internal.util.SAXMessageFormatter;
+import com.sun.org.apache.xerces.internal.util.Status;
 import com.sun.org.apache.xerces.internal.util.SymbolTable;
+import com.sun.org.apache.xerces.internal.utils.XMLSecurityManager;
+import com.sun.org.apache.xerces.internal.utils.XMLSecurityPropertyManager;
 import com.sun.org.apache.xerces.internal.xni.XNIException;
 import com.sun.org.apache.xerces.internal.xni.grammars.XMLGrammarPool;
 import com.sun.org.apache.xerces.internal.xni.parser.XMLConfigurationException;
@@ -51,7 +58,7 @@ import org.xml.sax.helpers.LocatorImpl;
  * @author Arnaud  Le Hors, IBM
  * @author Andy Clark, IBM
  *
- * @version $Id: DOMParser.java,v 1.5 2007/07/19 04:38:54 ofung Exp $
+ * @version $Id: DOMParser.java,v 1.7 2010-11-01 04:40:09 joehw Exp $
  */
 public class DOMParser
     extends AbstractDOMParser {
@@ -59,9 +66,9 @@ public class DOMParser
     //
     // Constants
     //
-    
+
     // features
-    
+
     /** Feature identifier: EntityResolver2. */
     protected static final String USE_ENTITY_RESOLVER2 =
         Constants.SAX_FEATURE_PREFIX + Constants.USE_ENTITY_RESOLVER2_FEATURE;
@@ -69,11 +76,15 @@ public class DOMParser
     protected static final String REPORT_WHITESPACE =
             Constants.SUN_SCHEMA_FEATURE_PREFIX + Constants.SUN_REPORT_IGNORED_ELEMENT_CONTENT_WHITESPACE;
 
+    /** Property identifier: Security property manager. */
+    private static final String XML_SECURITY_PROPERTY_MANAGER =
+            Constants.XML_SECURITY_PROPERTY_MANAGER;
+
     // recognized features:
     private static final String[] RECOGNIZED_FEATURES = {
         REPORT_WHITESPACE
     };
-    
+
     // properties
 
     /** Property identifier: symbol table. */
@@ -89,13 +100,13 @@ public class DOMParser
         SYMBOL_TABLE,
         XMLGRAMMAR_POOL,
     };
-    
+
     //
     // Data
     //
-    
+
     // features
-    
+
     /** Use EntityResolver2. */
     protected boolean fUseEntityResolver2 = true;
 
@@ -327,7 +338,7 @@ public class DOMParser
                         ((EntityResolverWrapper) xmlEntityResolver).getEntityResolver();
                 }
                 else if (xmlEntityResolver instanceof EntityResolver2Wrapper) {
-                    entityResolver = 
+                    entityResolver =
                         ((EntityResolver2Wrapper) xmlEntityResolver).getEntityResolver();
                 }
             }
@@ -419,7 +430,7 @@ public class DOMParser
         throws SAXNotRecognizedException, SAXNotSupportedException {
 
         try {
-            
+
             // http://xml.org/sax/features/use-entity-resolver2
             //   controls whether the methods of an object implementing
             //   org.xml.sax.ext.EntityResolver2 will be used by the parser.
@@ -432,23 +443,23 @@ public class DOMParser
                 }
                 return;
             }
-            
+
             //
             // Default handling
             //
-            
+
             fConfiguration.setFeature(featureId, state);
         }
         catch (XMLConfigurationException e) {
             String identifier = e.getIdentifier();
-            if (e.getType() == XMLConfigurationException.NOT_RECOGNIZED) {
+            if (e.getType() == Status.NOT_RECOGNIZED) {
                 throw new SAXNotRecognizedException(
-                    SAXMessageFormatter.formatMessage(fConfiguration.getLocale(), 
+                    SAXMessageFormatter.formatMessage(fConfiguration.getLocale(),
                     "feature-not-recognized", new Object [] {identifier}));
             }
             else {
                 throw new SAXNotSupportedException(
-                    SAXMessageFormatter.formatMessage(fConfiguration.getLocale(), 
+                    SAXMessageFormatter.formatMessage(fConfiguration.getLocale(),
                     "feature-not-supported", new Object [] {identifier}));
             }
         }
@@ -481,23 +492,23 @@ public class DOMParser
             if (featureId.equals(USE_ENTITY_RESOLVER2)) {
                 return fUseEntityResolver2;
             }
-            
+
             //
             // Default handling
             //
-            
+
             return fConfiguration.getFeature(featureId);
         }
         catch (XMLConfigurationException e) {
             String identifier = e.getIdentifier();
-            if (e.getType() == XMLConfigurationException.NOT_RECOGNIZED) {
+            if (e.getType() == Status.NOT_RECOGNIZED) {
                 throw new SAXNotRecognizedException(
-                    SAXMessageFormatter.formatMessage(fConfiguration.getLocale(), 
+                    SAXMessageFormatter.formatMessage(fConfiguration.getLocale(),
                     "feature-not-recognized", new Object [] {identifier}));
             }
             else {
                 throw new SAXNotSupportedException(
-                    SAXMessageFormatter.formatMessage(fConfiguration.getLocale(), 
+                    SAXMessageFormatter.formatMessage(fConfiguration.getLocale(),
                     "feature-not-supported", new Object [] {identifier}));
             }
         }
@@ -521,20 +532,67 @@ public class DOMParser
      */
     public void setProperty(String propertyId, Object value)
         throws SAXNotRecognizedException, SAXNotSupportedException {
+        /**
+         * It's possible for users to set a security manager through the interface.
+         * If it's the old SecurityManager, convert it to the new XMLSecurityManager
+         */
+        if (propertyId.equals(Constants.SECURITY_MANAGER)) {
+            securityManager = XMLSecurityManager.convert(value, securityManager);
+            setProperty0(Constants.SECURITY_MANAGER, securityManager);
+            return;
+        }
+        if (propertyId.equals(Constants.XML_SECURITY_PROPERTY_MANAGER)) {
+            if (value == null) {
+                securityPropertyManager = new XMLSecurityPropertyManager();
+            } else {
+                securityPropertyManager = (XMLSecurityPropertyManager)value;
+            }
+            setProperty0(Constants.XML_SECURITY_PROPERTY_MANAGER, securityPropertyManager);
+            return;
+        }
 
+        if (securityManager == null) {
+            securityManager = new XMLSecurityManager(true);
+            setProperty0(Constants.SECURITY_MANAGER, securityManager);
+        }
+
+        if (securityPropertyManager == null) {
+            securityPropertyManager = new XMLSecurityPropertyManager();
+            setProperty0(Constants.XML_SECURITY_PROPERTY_MANAGER, securityPropertyManager);
+        }
+        int index = securityPropertyManager.getIndex(propertyId);
+
+        if (index > -1) {
+            /**
+             * this is a direct call to this parser, not a subclass since
+             * internally the support of this property is done through
+             * XMLSecurityPropertyManager
+             */
+            securityPropertyManager.setValue(index, XMLSecurityPropertyManager.State.APIPROPERTY, (String)value);
+        } else {
+            //check if the property is managed by security manager
+            if (!securityManager.setLimit(propertyId, XMLSecurityManager.State.APIPROPERTY, value)) {
+                //fall back to the default configuration to handle the property
+                setProperty0(propertyId, value);
+            }
+        }
+    }
+
+    public void setProperty0(String propertyId, Object value)
+        throws SAXNotRecognizedException, SAXNotSupportedException {
         try {
             fConfiguration.setProperty(propertyId, value);
         }
         catch (XMLConfigurationException e) {
             String identifier = e.getIdentifier();
-            if (e.getType() == XMLConfigurationException.NOT_RECOGNIZED) {
+            if (e.getType() == Status.NOT_RECOGNIZED) {
                 throw new SAXNotRecognizedException(
-                    SAXMessageFormatter.formatMessage(fConfiguration.getLocale(), 
+                    SAXMessageFormatter.formatMessage(fConfiguration.getLocale(),
                     "property-not-recognized", new Object [] {identifier}));
             }
             else {
                 throw new SAXNotSupportedException(
-                    SAXMessageFormatter.formatMessage(fConfiguration.getLocale(), 
+                    SAXMessageFormatter.formatMessage(fConfiguration.getLocale(),
                     "property-not-supported", new Object [] {identifier}));
             }
         }
@@ -574,25 +632,32 @@ public class DOMParser
        }
 
         try {
+            XMLSecurityPropertyManager spm = (XMLSecurityPropertyManager)
+                    fConfiguration.getProperty(XML_SECURITY_PROPERTY_MANAGER);
+            int index = spm.getIndex(propertyId);
+            if (index > -1) {
+                return spm.getValueByIndex(index);
+            }
+
             return fConfiguration.getProperty(propertyId);
         }
         catch (XMLConfigurationException e) {
             String identifier = e.getIdentifier();
-            if (e.getType() == XMLConfigurationException.NOT_RECOGNIZED) {
+            if (e.getType() == Status.NOT_RECOGNIZED) {
                 throw new SAXNotRecognizedException(
-                    SAXMessageFormatter.formatMessage(fConfiguration.getLocale(), 
+                    SAXMessageFormatter.formatMessage(fConfiguration.getLocale(),
                     "property-not-recognized", new Object [] {identifier}));
             }
             else {
                 throw new SAXNotSupportedException(
-                    SAXMessageFormatter.formatMessage(fConfiguration.getLocale(), 
+                    SAXMessageFormatter.formatMessage(fConfiguration.getLocale(),
                     "property-not-supported", new Object [] {identifier}));
             }
         }
 
     } // getProperty(String):Object
-    
-    /** 
+
+    /**
      * Returns this parser's XMLParserConfiguration.
      */
     public XMLParserConfiguration getXMLParserConfiguration() {

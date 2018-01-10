@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2001, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.awt.event;
@@ -23,7 +41,7 @@ import java.util.EventListener;
  * state changes by virtue of being iconified, maximized etc., the
  * <code>windowStateChanged</code> method in the listener object is
  * invoked, and the <code>WindowEvent</code> is passed to it.
- * 
+ *
  * @see java.awt.event.WindowAdapter
  * @see java.awt.event.WindowEvent
  *

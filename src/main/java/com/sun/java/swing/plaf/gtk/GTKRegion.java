@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2003, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 package com.sun.java.swing.plaf.gtk;
 
@@ -12,7 +30,6 @@ import javax.swing.plaf.synth.Region;
  * A typesafe enumeration of the distinct rendering portions specific
  * to GTK.
  *
- * @version %I%, %G%
  * @author Scott Violet
  */
 class GTKRegion extends Region {

@@ -1,31 +1,45 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2013, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.rmi.dgc;
 
-import java.io.*;
-import java.net.*;
 import java.rmi.server.UID;
-import java.security.*;
+import java.security.SecureRandom;
 
 /**
  * A VMID is a identifier that is unique across all Java virtual
  * machines.  VMIDs are used by the distributed garbage collector
  * to identify client VMs.
  *
- * @version	%I%, %G%
- * @author	Ann Wollrath
- * @author	Peter Jones
+ * @author      Ann Wollrath
+ * @author      Peter Jones
  */
 public final class VMID implements java.io.Serializable {
+    /** Array of bytes uniquely identifying this host */
+    private static final byte[] randomBytes;
 
-    /** array of bytes uniquely identifying this host */
-    private static byte[] localAddr = computeAddressHash();
-    
     /**
      * @serial array of bytes uniquely identifying host created on
      */
@@ -39,6 +53,14 @@ public final class VMID implements java.io.Serializable {
     /** indicate compatibility with JDK 1.1.x version of class */
     private static final long serialVersionUID = -538642295484486218L;
 
+    static {
+        // Generate 8 bytes of random data.
+        SecureRandom secureRandom = new SecureRandom();
+        byte bytes[] = new byte[8];
+        secureRandom.nextBytes(bytes);
+        randomBytes = bytes;
+    }
+
     /**
      * Create a new VMID.  Each new VMID returned from this constructor
      * is unique for all Java virtual machines under the following
@@ -48,8 +70,8 @@ public final class VMID implements java.io.Serializable {
      * for the lifetime of this object.  <p>
      */
     public VMID() {
-	addr = localAddr;
-	uid = new UID();
+        addr = randomBytes;
+        uid = new UID();
     }
 
     /**
@@ -60,14 +82,14 @@ public final class VMID implements java.io.Serializable {
      */
     @Deprecated
     public static boolean isUnique() {
-	return true;
+        return true;
     }
 
     /**
      * Compute hash code for this VMID.
      */
     public int hashCode() {
-	return uid.hashCode();
+        return uid.hashCode();
     }
 
     /**
@@ -75,86 +97,38 @@ public final class VMID implements java.io.Serializable {
      * same identifier.
      */
     public boolean equals(Object obj) {
-	if (obj instanceof VMID) {
-	    VMID vmid = (VMID) obj;
-	    if (!uid.equals(vmid.uid))
-		return false;
-	    if ((addr == null) ^ (vmid.addr == null))
-		return false;
-	    if (addr != null) {
-		if (addr.length != vmid.addr.length)
-		    return false;
-		for (int i = 0; i < addr.length; ++ i)
-		    if (addr[i] != vmid.addr[i])
-			return false;
-	    }
-	    return true;
-	} else {
-	    return false;
-	}
+        if (obj instanceof VMID) {
+            VMID vmid = (VMID) obj;
+            if (!uid.equals(vmid.uid))
+                return false;
+            if ((addr == null) ^ (vmid.addr == null))
+                return false;
+            if (addr != null) {
+                if (addr.length != vmid.addr.length)
+                    return false;
+                for (int i = 0; i < addr.length; ++ i)
+                    if (addr[i] != vmid.addr[i])
+                        return false;
+            }
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
      * Return string representation of this VMID.
      */
     public String toString() {
-	StringBuffer result = new StringBuffer();
-	if (addr != null)
-	    for (int i = 0; i < addr.length; ++ i) {
-		int x = (int) (addr[i] & 0xFF);
-		result.append((x < 0x10 ? "0" : "") +
-			      Integer.toString(x, 16));
-	    }
-	result.append(':');
-	result.append(uid.toString());
-	return result.toString();
-    }
-    
-    /**
-     * Compute the hash an IP address.  The hash is the first 8 bytes
-     * of the SHA digest of the IP address.
-     */
-    private static byte[] computeAddressHash() {
-
-	/*
-	 * Get the local host's IP address.
-	 */
-	byte[] addr = (byte[]) java.security.AccessController.doPrivileged(
-	    new PrivilegedAction() {
-	    public Object run() {
-		try {
-		    return InetAddress.getLocalHost().getAddress();
-		} catch (Exception e) {
-		}
-		return new byte[] { 0, 0, 0, 0 };
-	    }
-	});
-
-	byte[] addrHash;
-	final int ADDR_HASH_LENGTH = 8;
-	
-	try {
-	    /*
-	     * Calculate message digest of IP address using SHA.
-	     */
-	    MessageDigest md = MessageDigest.getInstance("SHA");
-	    ByteArrayOutputStream sink = new ByteArrayOutputStream(64);
-	    DataOutputStream out = new DataOutputStream(
-		new DigestOutputStream(sink, md));
-	    out.write(addr, 0, addr.length);
-	    out.flush();
-	    
-	    byte digest[] = md.digest();
-	    int hashlength = Math.min(ADDR_HASH_LENGTH, digest.length);
-	    addrHash = new byte[hashlength];
-	    System.arraycopy(digest, 0, addrHash, 0, hashlength);
-
-	} catch (IOException ignore) {
-	    /* can't happen, but be deterministic anyway. */
-	    addrHash = new byte[0];
-	} catch (NoSuchAlgorithmException complain) {
-	    throw new InternalError(complain.toString());
-	}
-	return addrHash;
+        StringBuffer result = new StringBuffer();
+        if (addr != null)
+            for (int i = 0; i < addr.length; ++ i) {
+                int x = (int) (addr[i] & 0xFF);
+                result.append((x < 0x10 ? "0" : "") +
+                              Integer.toString(x, 16));
+            }
+        result.append(':');
+        result.append(uid.toString());
+        return result.toString();
     }
 }

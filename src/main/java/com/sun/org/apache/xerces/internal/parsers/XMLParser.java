@@ -1,12 +1,16 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright 1999-2004 The Apache Software Foundation.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +23,8 @@ package com.sun.org.apache.xerces.internal.parsers;
 import java.io.IOException;
 
 import com.sun.org.apache.xerces.internal.impl.Constants;
+import com.sun.org.apache.xerces.internal.utils.XMLSecurityManager;
+import com.sun.org.apache.xerces.internal.utils.XMLSecurityPropertyManager;
 import com.sun.org.apache.xerces.internal.xni.XNIException;
 import com.sun.org.apache.xerces.internal.xni.parser.XMLInputSource;
 import com.sun.org.apache.xerces.internal.xni.parser.XMLParserConfiguration;
@@ -54,11 +60,11 @@ public abstract class XMLParser {
     // properties
 
     /** Property identifier: entity resolver. */
-    protected static final String ENTITY_RESOLVER = 
+    protected static final String ENTITY_RESOLVER =
         Constants.XERCES_PROPERTY_PREFIX + Constants.ENTITY_RESOLVER_PROPERTY;
 
     /** Property identifier: error handler. */
-    protected static final String ERROR_HANDLER = 
+    protected static final String ERROR_HANDLER =
         Constants.XERCES_PROPERTY_PREFIX + Constants.ERROR_HANDLER_PROPERTY;
 
     /** Recognized properties. */
@@ -74,6 +80,13 @@ public abstract class XMLParser {
     /** The parser configuration. */
     protected XMLParserConfiguration fConfiguration;
 
+    /** The XML Security Manager. */
+    XMLSecurityManager securityManager;
+
+    /** The XML Security Property Manager. */
+    XMLSecurityPropertyManager securityPropertyManager;
+
+
     //
     // Constructors
     //
@@ -81,12 +94,12 @@ public abstract class XMLParser {
     /**
      * Query the state of a feature.
      */
-    public boolean getFeature(String featureId) 
+    public boolean getFeature(String featureId)
             throws SAXNotSupportedException, SAXNotRecognizedException {
         return fConfiguration.getFeature(featureId);
 
     }
-    
+
     /**
      * Default Constructor.
      */
@@ -112,13 +125,22 @@ public abstract class XMLParser {
      * @exception XNIException
      * @exception java.io.IOException
      */
-    public void parse(XMLInputSource inputSource) 
+    public void parse(XMLInputSource inputSource)
         throws XNIException, IOException {
+        // null indicates that the parser is called directly, initialize them
+        if (securityManager == null) {
+            securityManager = new XMLSecurityManager(true);
+            fConfiguration.setProperty(Constants.SECURITY_MANAGER, securityManager);
+        }
+        if (securityPropertyManager == null) {
+            securityPropertyManager = new XMLSecurityPropertyManager();
+            fConfiguration.setProperty(Constants.XML_SECURITY_PROPERTY_MANAGER, securityPropertyManager);
+        }
 
         reset();
         fConfiguration.parse(inputSource);
 
-    } // parse(XMLInputSource) 
+    } // parse(XMLInputSource)
 
     //
     // Protected methods

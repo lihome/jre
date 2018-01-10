@@ -1,8 +1,26 @@
 /*
- *  %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2010, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.util;
@@ -95,12 +113,11 @@ import java.io.*;
  * @author  Josh Bloch
  * @author  Arthur van Hoff
  * @author  Neal Gafter
- * @version %I%, %G%
  * @see     Object#hashCode()
  * @see     Collection
- * @see	    Map
- * @see	    TreeMap
- * @see	    Hashtable
+ * @see     Map
+ * @see     TreeMap
+ * @see     Hashtable
  * @since   1.2
  */
 
@@ -112,7 +129,7 @@ public class HashMap<K,V>
     /**
      * The default initial capacity - MUST be a power of two.
      */
-    static final int DEFAULT_INITIAL_CAPACITY = 16;
+    static final int DEFAULT_INITIAL_CAPACITY = 1 << 4; // aka 16
 
     /**
      * The maximum capacity, used if a higher value is implicitly specified
@@ -127,9 +144,14 @@ public class HashMap<K,V>
     static final float DEFAULT_LOAD_FACTOR = 0.75f;
 
     /**
+     * An empty table instance to share when the table is not inflated.
+     */
+    static final Entry<?,?>[] EMPTY_TABLE = {};
+
+    /**
      * The table, resized as necessary. Length MUST Always be a power of two.
      */
-    transient Entry[] table;
+    transient Entry<K,V>[] table = (Entry<K,V>[]) EMPTY_TABLE;
 
     /**
      * The number of key-value mappings contained in this map.
@@ -140,6 +162,8 @@ public class HashMap<K,V>
      * The next size value at which to resize (capacity * load factor).
      * @serial
      */
+    // If table == EMPTY_TABLE then this is the initial capacity at which the
+    // table will be created when inflated.
     int threshold;
 
     /**
@@ -156,7 +180,63 @@ public class HashMap<K,V>
      * rehash).  This field is used to make iterators on Collection-views of
      * the HashMap fail-fast.  (See ConcurrentModificationException).
      */
-    transient volatile int modCount;
+    transient int modCount;
+
+    /**
+     * The default threshold of map capacity above which alternative hashing is
+     * used for String keys. Alternative hashing reduces the incidence of
+     * collisions due to weak hash code calculation for String keys.
+     * <p/>
+     * This value may be overridden by defining the system property
+     * {@code jdk.map.althashing.threshold}. A property value of {@code 1}
+     * forces alternative hashing to be used at all times whereas
+     * {@code -1} value ensures that alternative hashing is never used.
+     */
+    static final int ALTERNATIVE_HASHING_THRESHOLD_DEFAULT = Integer.MAX_VALUE;
+
+    /**
+     * holds values which can't be initialized until after VM is booted.
+     */
+    private static class Holder {
+
+        /**
+         * Table capacity above which to switch to use alternative hashing.
+         */
+        static final int ALTERNATIVE_HASHING_THRESHOLD;
+
+        static {
+            String altThreshold = java.security.AccessController.doPrivileged(
+                new sun.security.action.GetPropertyAction(
+                    "jdk.map.althashing.threshold"));
+
+            int threshold;
+            try {
+                threshold = (null != altThreshold)
+                        ? Integer.parseInt(altThreshold)
+                        : ALTERNATIVE_HASHING_THRESHOLD_DEFAULT;
+
+                // disable alternative hashing if -1
+                if (threshold == -1) {
+                    threshold = Integer.MAX_VALUE;
+                }
+
+                if (threshold < 0) {
+                    throw new IllegalArgumentException("value must be positive integer.");
+                }
+            } catch(IllegalArgumentException failed) {
+                throw new Error("Illegal value for 'jdk.map.althashing.threshold'", failed);
+            }
+
+            ALTERNATIVE_HASHING_THRESHOLD = threshold;
+        }
+    }
+
+    /**
+     * A randomizing value associated with this instance that is applied to
+     * hash code of keys to make hash collisions harder to find. If 0 then
+     * alternative hashing is disabled.
+     */
+    transient int hashSeed = 0;
 
     /**
      * Constructs an empty <tt>HashMap</tt> with the specified initial
@@ -177,14 +257,8 @@ public class HashMap<K,V>
             throw new IllegalArgumentException("Illegal load factor: " +
                                                loadFactor);
 
-        // Find a power of 2 >= initialCapacity
-        int capacity = 1;
-        while (capacity < initialCapacity)
-            capacity <<= 1;
-
         this.loadFactor = loadFactor;
-        threshold = (int)(capacity * loadFactor);
-        table = new Entry[capacity];
+        threshold = initialCapacity;
         init();
     }
 
@@ -204,10 +278,7 @@ public class HashMap<K,V>
      * (16) and the default load factor (0.75).
      */
     public HashMap() {
-        this.loadFactor = DEFAULT_LOAD_FACTOR;
-        threshold = (int)(DEFAULT_INITIAL_CAPACITY * DEFAULT_LOAD_FACTOR);
-        table = new Entry[DEFAULT_INITIAL_CAPACITY];
-        init();
+        this(DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR);
     }
 
     /**
@@ -222,7 +293,28 @@ public class HashMap<K,V>
     public HashMap(Map<? extends K, ? extends V> m) {
         this(Math.max((int) (m.size() / DEFAULT_LOAD_FACTOR) + 1,
                       DEFAULT_INITIAL_CAPACITY), DEFAULT_LOAD_FACTOR);
+        inflateTable(threshold);
+
         putAllForCreate(m);
+    }
+
+    private static int roundUpToPowerOf2(int number) {
+        // assert number >= 0 : "number must be non-negative";
+        return number >= MAXIMUM_CAPACITY
+                ? MAXIMUM_CAPACITY
+                : (number > 1) ? Integer.highestOneBit((number - 1) << 1) : 1;
+    }
+
+    /**
+     * Inflates the table.
+     */
+    private void inflateTable(int toSize) {
+        // Find a power of 2 >= toSize
+        int capacity = roundUpToPowerOf2(toSize);
+
+        threshold = (int) Math.min(capacity * loadFactor, MAXIMUM_CAPACITY + 1);
+        table = new Entry[capacity];
+        initHashSeedAsNeeded(capacity);
     }
 
     // internal utilities
@@ -238,13 +330,37 @@ public class HashMap<K,V>
     }
 
     /**
-     * Applies a supplemental hash function to a given hashCode, which
-     * defends against poor quality hash functions.  This is critical
-     * because HashMap uses power-of-two length hash tables, that
+     * Initialize the hashing mask value. We defer initialization until we
+     * really need it.
+     */
+    final boolean initHashSeedAsNeeded(int capacity) {
+        boolean currentAltHashing = hashSeed != 0;
+        boolean useAltHashing = sun.misc.VM.isBooted() &&
+                (capacity >= Holder.ALTERNATIVE_HASHING_THRESHOLD);
+        boolean switching = currentAltHashing ^ useAltHashing;
+        if (switching) {
+            hashSeed = useAltHashing
+                ? sun.misc.Hashing.randomHashSeed(this)
+                : 0;
+        }
+        return switching;
+    }
+
+    /**
+     * Retrieve object hash code and applies a supplemental hash function to the
+     * result hash, which defends against poor quality hash functions.  This is
+     * critical because HashMap uses power-of-two length hash tables, that
      * otherwise encounter collisions for hashCodes that do not differ
      * in lower bits. Note: Null keys always map to hash 0, thus index 0.
      */
-    static int hash(int h) {
+    final int hash(Object k) {
+        int h = hashSeed;
+        if (0 != h && k instanceof String) {
+            return sun.misc.Hashing.stringHash32((String) k);
+        }
+
+        h ^= k.hashCode();
+
         // This function ensures that hashCodes that differ only by
         // constant multiples at each bit position have a bounded
         // number of collisions (approximately 8 at default load factor).
@@ -256,6 +372,7 @@ public class HashMap<K,V>
      * Returns index for hash code h.
      */
     static int indexFor(int h, int length) {
+        // assert Integer.bitCount(length) == 1 : "length must be a non-zero power of 2";
         return h & (length-1);
     }
 
@@ -297,15 +414,9 @@ public class HashMap<K,V>
     public V get(Object key) {
         if (key == null)
             return getForNullKey();
-        int hash = hash(key.hashCode());
-        for (Entry<K,V> e = table[indexFor(hash, table.length)];
-             e != null;
-             e = e.next) {
-            Object k;
-            if (e.hash == hash && ((k = e.key) == key || key.equals(k)))
-                return e.value;
-        }
-        return null;
+        Entry<K,V> entry = getEntry(key);
+
+        return null == entry ? null : entry.getValue();
     }
 
     /**
@@ -316,6 +427,9 @@ public class HashMap<K,V>
      * others.
      */
     private V getForNullKey() {
+        if (size == 0) {
+            return null;
+        }
         for (Entry<K,V> e = table[0]; e != null; e = e.next) {
             if (e.key == null)
                 return e.value;
@@ -341,7 +455,11 @@ public class HashMap<K,V>
      * for the key.
      */
     final Entry<K,V> getEntry(Object key) {
-        int hash = (key == null) ? 0 : hash(key.hashCode());
+        if (size == 0) {
+            return null;
+        }
+
+        int hash = (key == null) ? 0 : hash(key);
         for (Entry<K,V> e = table[indexFor(hash, table.length)];
              e != null;
              e = e.next) {
@@ -352,7 +470,6 @@ public class HashMap<K,V>
         }
         return null;
     }
-
 
     /**
      * Associates the specified value with the specified key in this map.
@@ -367,9 +484,12 @@ public class HashMap<K,V>
      *         previously associated <tt>null</tt> with <tt>key</tt>.)
      */
     public V put(K key, V value) {
+        if (table == EMPTY_TABLE) {
+            inflateTable(threshold);
+        }
         if (key == null)
             return putForNullKey(value);
-        int hash = hash(key.hashCode());
+        int hash = hash(key);
         int i = indexFor(hash, table.length);
         for (Entry<K,V> e = table[i]; e != null; e = e.next) {
             Object k;
@@ -410,7 +530,7 @@ public class HashMap<K,V>
      * addEntry.
      */
     private void putForCreate(K key, V value) {
-        int hash = (key == null) ? 0 : hash(key.hashCode());
+        int hash = null == key ? 0 : hash(key);
         int i = indexFor(hash, table.length);
 
         /**
@@ -431,10 +551,8 @@ public class HashMap<K,V>
     }
 
     private void putAllForCreate(Map<? extends K, ? extends V> m) {
-        for (Iterator<? extends Map.Entry<? extends K, ? extends V>> i = m.entrySet().iterator(); i.hasNext(); ) {
-            Map.Entry<? extends K, ? extends V> e = i.next();
+        for (Map.Entry<? extends K, ? extends V> e : m.entrySet())
             putForCreate(e.getKey(), e.getValue());
-        }
     }
 
     /**
@@ -460,28 +578,26 @@ public class HashMap<K,V>
         }
 
         Entry[] newTable = new Entry[newCapacity];
-        transfer(newTable);
+        transfer(newTable, initHashSeedAsNeeded(newCapacity));
         table = newTable;
-        threshold = (int)(newCapacity * loadFactor);
+        threshold = (int)Math.min(newCapacity * loadFactor, MAXIMUM_CAPACITY + 1);
     }
 
     /**
      * Transfers all entries from current table to newTable.
      */
-    void transfer(Entry[] newTable) {
-        Entry[] src = table;
+    void transfer(Entry[] newTable, boolean rehash) {
         int newCapacity = newTable.length;
-        for (int j = 0; j < src.length; j++) {
-            Entry<K,V> e = src[j];
-            if (e != null) {
-                src[j] = null;
-                do {
-                    Entry<K,V> next = e.next;
-                    int i = indexFor(e.hash, newCapacity);
-                    e.next = newTable[i];
-                    newTable[i] = e;
-                    e = next;
-                } while (e != null);
+        for (Entry<K,V> e : table) {
+            while(null != e) {
+                Entry<K,V> next = e.next;
+                if (rehash) {
+                    e.hash = null == e.key ? 0 : hash(e.key);
+                }
+                int i = indexFor(e.hash, newCapacity);
+                e.next = newTable[i];
+                newTable[i] = e;
+                e = next;
             }
         }
     }
@@ -498,6 +614,10 @@ public class HashMap<K,V>
         int numKeysToBeAdded = m.size();
         if (numKeysToBeAdded == 0)
             return;
+
+        if (table == EMPTY_TABLE) {
+            inflateTable((int) Math.max(numKeysToBeAdded * loadFactor, threshold));
+        }
 
         /*
          * Expand the map if the map if the number of mappings to be added
@@ -519,10 +639,8 @@ public class HashMap<K,V>
                 resize(newCapacity);
         }
 
-        for (Iterator<? extends Map.Entry<? extends K, ? extends V>> i = m.entrySet().iterator(); i.hasNext(); ) {
-            Map.Entry<? extends K, ? extends V> e = i.next();
+        for (Map.Entry<? extends K, ? extends V> e : m.entrySet())
             put(e.getKey(), e.getValue());
-        }
     }
 
     /**
@@ -545,7 +663,10 @@ public class HashMap<K,V>
      * for this key.
      */
     final Entry<K,V> removeEntryForKey(Object key) {
-        int hash = (key == null) ? 0 : hash(key.hashCode());
+        if (size == 0) {
+            return null;
+        }
+        int hash = (key == null) ? 0 : hash(key);
         int i = indexFor(hash, table.length);
         Entry<K,V> prev = table[i];
         Entry<K,V> e = prev;
@@ -572,15 +693,16 @@ public class HashMap<K,V>
     }
 
     /**
-     * Special version of remove for EntrySet.
+     * Special version of remove for EntrySet using {@code Map.Entry.equals()}
+     * for matching.
      */
     final Entry<K,V> removeMapping(Object o) {
-        if (!(o instanceof Map.Entry))
+        if (size == 0 || !(o instanceof Map.Entry))
             return null;
 
         Map.Entry<K,V> entry = (Map.Entry<K,V>) o;
         Object key = entry.getKey();
-        int hash = (key == null) ? 0 : hash(key.hashCode());
+        int hash = (key == null) ? 0 : hash(key);
         int i = indexFor(hash, table.length);
         Entry<K,V> prev = table[i];
         Entry<K,V> e = prev;
@@ -610,9 +732,7 @@ public class HashMap<K,V>
      */
     public void clear() {
         modCount++;
-        Entry[] tab = table;
-        for (int i = 0; i < tab.length; i++)
-            tab[i] = null;
+        Arrays.fill(table, null);
         size = 0;
     }
 
@@ -625,27 +745,27 @@ public class HashMap<K,V>
      *         specified value
      */
     public boolean containsValue(Object value) {
-	if (value == null)
+        if (value == null)
             return containsNullValue();
 
-	Entry[] tab = table;
+        Entry[] tab = table;
         for (int i = 0; i < tab.length ; i++)
             for (Entry e = tab[i] ; e != null ; e = e.next)
                 if (value.equals(e.value))
                     return true;
-	return false;
+        return false;
     }
 
     /**
      * Special-case code for containsValue with null argument
      */
     private boolean containsNullValue() {
-	Entry[] tab = table;
+        Entry[] tab = table;
         for (int i = 0; i < tab.length ; i++)
             for (Entry e = tab[i] ; e != null ; e = e.next)
                 if (e.value == null)
                     return true;
-	return false;
+        return false;
     }
 
     /**
@@ -656,12 +776,19 @@ public class HashMap<K,V>
      */
     public Object clone() {
         HashMap<K,V> result = null;
-	try {
-	    result = (HashMap<K,V>)super.clone();
-	} catch (CloneNotSupportedException e) {
-	    // assert false;
-	}
-        result.table = new Entry[table.length];
+        try {
+            result = (HashMap<K,V>)super.clone();
+        } catch (CloneNotSupportedException e) {
+            // assert false;
+        }
+        if (result.table != EMPTY_TABLE) {
+            result.inflateTable(Math.min(
+                (int) Math.min(
+                    size * Math.min(1 / loadFactor, 4.0f),
+                    // we have limits...
+                    HashMap.MAXIMUM_CAPACITY),
+               table.length));
+        }
         result.entrySet = null;
         result.modCount = 0;
         result.size = 0;
@@ -675,7 +802,7 @@ public class HashMap<K,V>
         final K key;
         V value;
         Entry<K,V> next;
-        final int hash;
+        int hash;
 
         /**
          * Creates new entry.
@@ -696,7 +823,7 @@ public class HashMap<K,V>
         }
 
         public final V setValue(V newValue) {
-	    V oldValue = value;
+            V oldValue = value;
             value = newValue;
             return oldValue;
         }
@@ -717,8 +844,7 @@ public class HashMap<K,V>
         }
 
         public final int hashCode() {
-            return (key==null   ? 0 : key.hashCode()) ^
-                   (value==null ? 0 : value.hashCode());
+            return Objects.hashCode(getKey()) ^ Objects.hashCode(getValue());
         }
 
         public final String toString() {
@@ -749,10 +875,13 @@ public class HashMap<K,V>
      * Subclass overrides this to alter the behavior of put method.
      */
     void addEntry(int hash, K key, V value, int bucketIndex) {
-	Entry<K,V> e = table[bucketIndex];
-        table[bucketIndex] = new Entry<K,V>(hash, key, value, e);
-        if (size++ >= threshold)
+        if ((size >= threshold) && (null != table[bucketIndex])) {
             resize(2 * table.length);
+            hash = (null != key) ? hash(key) : 0;
+            bucketIndex = indexFor(hash, table.length);
+        }
+
+        createEntry(hash, key, value, bucketIndex);
     }
 
     /**
@@ -764,16 +893,16 @@ public class HashMap<K,V>
      * clone, and readObject.
      */
     void createEntry(int hash, K key, V value, int bucketIndex) {
-	Entry<K,V> e = table[bucketIndex];
-        table[bucketIndex] = new Entry<K,V>(hash, key, value, e);
+        Entry<K,V> e = table[bucketIndex];
+        table[bucketIndex] = new Entry<>(hash, key, value, e);
         size++;
     }
 
     private abstract class HashIterator<E> implements Iterator<E> {
-        Entry<K,V> next;	// next entry to return
-        int expectedModCount;	// For fast-fail
-        int index;		// current slot
-        Entry<K,V> current;	// current entry
+        Entry<K,V> next;        // next entry to return
+        int expectedModCount;   // For fast-fail
+        int index;              // current slot
+        Entry<K,V> current;     // current entry
 
         HashIterator() {
             expectedModCount = modCount;
@@ -800,7 +929,7 @@ public class HashMap<K,V>
                 while (index < t.length && (next = t[index++]) == null)
                     ;
             }
-	    current = e;
+            current = e;
             return e;
         }
 
@@ -814,7 +943,6 @@ public class HashMap<K,V>
             HashMap.this.removeEntryForKey(k);
             expectedModCount = modCount;
         }
-
     }
 
     private final class ValueIterator extends HashIterator<V> {
@@ -937,7 +1065,7 @@ public class HashMap<K,V>
      * @return a set view of the mappings contained in this map
      */
     public Set<Map.Entry<K,V>> entrySet() {
-	return entrySet0();
+        return entrySet0();
     }
 
     private Set<Map.Entry<K,V>> entrySet0() {
@@ -972,64 +1100,86 @@ public class HashMap<K,V>
      * serialize it).
      *
      * @serialData The <i>capacity</i> of the HashMap (the length of the
-     *		   bucket array) is emitted (int), followed by the
-     *		   <i>size</i> (an int, the number of key-value
-     *		   mappings), followed by the key (Object) and value (Object)
-     *		   for each key-value mapping.  The key-value mappings are
-     *		   emitted in no particular order.
+     *             bucket array) is emitted (int), followed by the
+     *             <i>size</i> (an int, the number of key-value
+     *             mappings), followed by the key (Object) and value (Object)
+     *             for each key-value mapping.  The key-value mappings are
+     *             emitted in no particular order.
      */
     private void writeObject(java.io.ObjectOutputStream s)
         throws IOException
     {
-	Iterator<Map.Entry<K,V>> i =
-	    (size > 0) ? entrySet0().iterator() : null;
+        // Write out the threshold, loadfactor, and any hidden stuff
+        s.defaultWriteObject();
 
-	// Write out the threshold, loadfactor, and any hidden stuff
-	s.defaultWriteObject();
+        // Write out number of buckets
+        if (table==EMPTY_TABLE) {
+            s.writeInt(roundUpToPowerOf2(threshold));
+        } else {
+           s.writeInt(table.length);
+        }
 
-	// Write out number of buckets
-	s.writeInt(table.length);
-
-	// Write out size (number of Mappings)
-	s.writeInt(size);
+        // Write out size (number of Mappings)
+        s.writeInt(size);
 
         // Write out keys and values (alternating)
-	if (i != null) {
-	    while (i.hasNext()) {
-		Map.Entry<K,V> e = i.next();
-		s.writeObject(e.getKey());
-		s.writeObject(e.getValue());
-	    }
+        if (size > 0) {
+            for(Map.Entry<K,V> e : entrySet0()) {
+                s.writeObject(e.getKey());
+                s.writeObject(e.getValue());
+            }
         }
     }
 
     private static final long serialVersionUID = 362498820763181265L;
 
     /**
-     * Reconstitute the <tt>HashMap</tt> instance from a stream (i.e.,
+     * Reconstitute the {@code HashMap} instance from a stream (i.e.,
      * deserialize it).
      */
     private void readObject(java.io.ObjectInputStream s)
          throws IOException, ClassNotFoundException
     {
-	// Read in the threshold, loadfactor, and any hidden stuff
-	s.defaultReadObject();
+        // Read in the threshold (ignored), loadfactor, and any hidden stuff
+        s.defaultReadObject();
+        if (loadFactor <= 0 || Float.isNaN(loadFactor)) {
+            throw new InvalidObjectException("Illegal load factor: " +
+                                               loadFactor);
+        }
 
-	// Read in number of buckets and allocate the bucket array;
-	int numBuckets = s.readInt();
-	table = new Entry[numBuckets];
+        // set other fields that need values
+        table = (Entry<K,V>[]) EMPTY_TABLE;
+
+        // Read in number of buckets
+        s.readInt(); // ignored.
+
+        // Read number of mappings
+        int mappings = s.readInt();
+        if (mappings < 0)
+            throw new InvalidObjectException("Illegal mappings count: " +
+                                               mappings);
+
+        // capacity chosen by number of mappings and desired load (if >= 0.25)
+        int capacity = (int) Math.min(
+                    mappings * Math.min(1 / loadFactor, 4.0f),
+                    // we have limits...
+                    HashMap.MAXIMUM_CAPACITY);
+
+        // allocate the bucket array;
+        if (mappings > 0) {
+            inflateTable(capacity);
+        } else {
+            threshold = capacity;
+        }
 
         init();  // Give subclass a chance to do its thing.
 
-	// Read in size (number of Mappings)
-	int size = s.readInt();
-
-	// Read the keys and values, and put the mappings in the HashMap
-	for (int i=0; i<size; i++) {
-	    K key = (K) s.readObject();
-	    V value = (V) s.readObject();
-	    putForCreate(key, value);
-	}
+        // Read the keys and values, and put the mappings in the HashMap
+        for (int i = 0; i < mappings; i++) {
+            K key = (K) s.readObject();
+            V value = (V) s.readObject();
+            putForCreate(key, value);
+        }
     }
 
     // These methods are used when serializing HashSets

@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2006, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.accessibility;
@@ -12,15 +30,15 @@ import java.awt.*;
 import javax.swing.text.*;
 
 /**
- * <P>The AccessibleEditableText interface should be implemented by all 
- * classes that present editable textual information on the display.  
- * Along with the AccessibleText interface, this interface provides 
- * the standard mechanism for an assistive technology to access 
- * that text via its content, attributes, and spatial location.  
- * Applications can determine if an object supports the AccessibleEditableText 
+ * <P>The AccessibleEditableText interface should be implemented by all
+ * classes that present editable textual information on the display.
+ * Along with the AccessibleText interface, this interface provides
+ * the standard mechanism for an assistive technology to access
+ * that text via its content, attributes, and spatial location.
+ * Applications can determine if an object supports the AccessibleEditableText
  * interface by first obtaining its AccessibleContext (see {@link Accessible})
- * and then calling the {@link AccessibleContext#getAccessibleEditableText} 
- * method of AccessibleContext.  If the return value is not null, the object 
+ * and then calling the {@link AccessibleContext#getAccessibleEditableText}
+ * method of AccessibleContext.  If the return value is not null, the object
  * supports this interface.
  *
  * @see Accessible
@@ -29,8 +47,7 @@ import javax.swing.text.*;
  * @see AccessibleContext#getAccessibleText
  * @see AccessibleContext#getAccessibleEditableText
  *
- * @version	%I% %W%
- * @author	Lynn Monsanto
+ * @author      Lynn Monsanto
  * @since 1.4
  */
 
@@ -46,7 +63,7 @@ public interface AccessibleEditableText extends AccessibleText {
     /**
      * Inserts the specified string at the given index/
      *
-     * @param index the index in the text where the string will 
+     * @param index the index in the text where the string will
      * be inserted
      * @param s the string to insert in the text
      */
@@ -54,7 +71,7 @@ public interface AccessibleEditableText extends AccessibleText {
 
     /**
      * Returns the text string between two indices.
-     * 
+     *
      * @param startIndex the starting index in the text
      * @param endIndex the ending index in the text
      * @return the text string between the indices

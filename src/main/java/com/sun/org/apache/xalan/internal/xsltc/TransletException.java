@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright 2001-2004 The Apache Software Foundation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,15 +34,15 @@ public final class TransletException extends SAXException {
     static final long serialVersionUID = -878916829521217293L;
 
     public TransletException() {
-	super("Translet error");
+        super("Translet error");
     }
-    
+
     public TransletException(Exception e) {
-	super(e.toString());
+        super(e.toString());
         initCause(e);
     }
-    
+
     public TransletException(String message) {
-	super(message);
+        super(message);
     }
 }

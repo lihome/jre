@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1999, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.naming;
@@ -17,7 +35,6 @@ package javax.naming;
   *
   * @author Rosanna Lee
   * @author Scott Seligman
-  * @version %I% %E%
   *
   * @see Context#bind
   * @see Context#rebind
@@ -34,11 +51,11 @@ public class NameAlreadyBoundException extends NamingException {
      * explanation supplied. All other fields default to null.
      *
      *
-     * @param	explanation	Possibly null additional detail about this exception.
+     * @param   explanation     Possibly null additional detail about this exception.
      * @see java.lang.Throwable#getMessage
      */
     public NameAlreadyBoundException(String explanation) {
-	super(explanation);
+        super(explanation);
     }
 
     /**
@@ -46,7 +63,7 @@ public class NameAlreadyBoundException extends NamingException {
       * All fields are set to null;
       */
     public NameAlreadyBoundException() {
-	super();
+        super();
     }
 
     /**

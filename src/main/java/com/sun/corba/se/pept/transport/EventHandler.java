@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- * 
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2003, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package com.sun.corba.se.pept.transport;
@@ -17,7 +35,7 @@ import com.sun.corba.se.spi.orbutil.threadpool.Work;
  *
  * This should only be registered with ONE selector.
  */
-public interface EventHandler 
+public interface EventHandler
 {
     public void setUseSelectThreadToWait(boolean x);
     public boolean shouldUseSelectThreadToWait();
@@ -47,11 +65,3 @@ public interface EventHandler
 }
 
 // End of file.
-
-
-
-
-
-
-
-

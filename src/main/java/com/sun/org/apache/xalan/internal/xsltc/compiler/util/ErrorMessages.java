@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright 2001-2004 The Apache Software Foundation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -86,13 +90,13 @@ public class ErrorMessages extends ListResourceBundle {
  */
 
     // These message should be read from a locale-specific resource bundle
-    /** Get the lookup table for error messages.   
+    /** Get the lookup table for error messages.
      *
      * @return The message lookup table.
      */
     public Object[][] getContents()
     {
-      return new Object[][] { 
+      return new Object[][] {
         {ErrorMsg.MULTIPLE_STYLESHEET_ERR,
         "More than one stylesheet defined in the same file."},
 
@@ -448,6 +452,12 @@ public class ErrorMessages extends ListResourceBundle {
         "Could not find stylesheet target ''{0}''."},
 
         /*
+         * Note to translators:  access to the stylesheet target is denied
+         */
+        {ErrorMsg.ACCESSING_XSLT_TARGET_ERR,
+        "Could not read stylesheet target ''{0}'', because ''{1}'' access is not allowed due to restriction set by the accessExternalStylesheet property."},
+
+        /*
          * Note to translators:  This message represents an internal error in
          * condition in XSLTC.  The substitution text is the class name in XSLTC
          * that is missing some functionality.
@@ -592,6 +602,9 @@ public class ErrorMessages extends ListResourceBundle {
         {ErrorMsg.JAXP_INVALID_ATTR_ERR,
         "TransformerFactory does not recognise attribute ''{0}''."},
 
+        {ErrorMsg.JAXP_INVALID_ATTR_VALUE_ERR,
+        "Incorrect value specified for ''{0}'' attribute."},
+
         /*
          * Note to translators:  "setResult()" and "startDocument()" are Java
          * method names that should not be translated.
@@ -648,7 +661,7 @@ public class ErrorMessages extends ListResourceBundle {
          */
         {ErrorMsg.XSLTC_SOURCE_ERR,
         "XSLTCSource.build() called without systemId being set."},
-        
+
         { ErrorMsg.ER_RESULT_NULL,
             "Result should not be null"},
 
@@ -657,7 +670,7 @@ public class ErrorMessages extends ListResourceBundle {
          * of setParameter must be a valid Java Object.
          */
         {ErrorMsg.JAXP_INVALID_SET_PARAM_VALUE,
-        "The value of param {0} must be a valid Java Object"},            
+        "The value of param {0} must be a valid Java Object"},
 
 
         {ErrorMsg.COMPILE_STDIN_ERR,
@@ -842,7 +855,7 @@ public class ErrorMessages extends ListResourceBundle {
          */
         {ErrorMsg.ERROR_MSG,
         "ERROR:  ''{0}''"},
-        
+
         /*
          * Note to translators:  The substitution text is the name of a class.
          */
@@ -901,7 +914,7 @@ public class ErrorMessages extends ListResourceBundle {
          */
         {ErrorMsg.RUNTIME_ERROR_KEY,
         "Translet errors:"},
-        
+
         /*
          * Note to translators:  An attribute whose value is constrained to
          * be a "QName" or a list of "QNames" had a value that was incorrect.
@@ -909,7 +922,7 @@ public class ErrorMessages extends ListResourceBundle {
          * substitution text contains the actual value of the attribute.
          */
         {ErrorMsg.INVALID_QNAME_ERR,
-        "An attribute whose value must be a QName or whitespace-separated list of QNames had the value ''{0}''"}, 
+        "An attribute whose value must be a QName or whitespace-separated list of QNames had the value ''{0}''"},
 
         /*
          * Note to translators:  An attribute whose value is required to
@@ -932,21 +945,81 @@ public class ErrorMessages extends ListResourceBundle {
          */
         {ErrorMsg.INVALID_METHOD_IN_OUTPUT,
         "The method attribute of an <xsl:output> element had the value ''{0}''.  The value must be one of ''xml'', ''html'', ''text'', or qname-but-not-ncname"},
-        
+
         {ErrorMsg.JAXP_GET_FEATURE_NULL_NAME,
         "The feature name cannot be null in TransformerFactory.getFeature(String name)."},
-        
+
         {ErrorMsg.JAXP_SET_FEATURE_NULL_NAME,
         "The feature name cannot be null in TransformerFactory.setFeature(String name, boolean value)."},
 
         {ErrorMsg.JAXP_UNSUPPORTED_FEATURE,
         "Cannot set the feature ''{0}'' on this TransformerFactory."},
 
-        {ErrorMsg.DESERIALIZE_TRANSLET_ERR, "When Java security is enabled, " +
-         		"support for deserializing TemplatesImpl is disabled." +
-         		"This can be overridden by setting the jdk.xml.enableTemplatesImplDeserialization" +
-         		" system property to true."}
+        {ErrorMsg.JAXP_SECUREPROCESSING_FEATURE,
+        "FEATURE_SECURE_PROCESSING: Cannot set the feature to false when security manager is present."},
+
+        /*
+         * Note to translators:  This message describes an internal error in the
+         * processor.  The term "byte code" is a Java technical term for the
+         * executable code in a Java method, and "try-catch-finally block"
+         * refers to the Java keywords with those names.  "Outlined" is a
+         * technical term internal to XSLTC and should not be translated.
+         */
+        {ErrorMsg.OUTLINE_ERR_TRY_CATCH,
+         "Internal XSLTC error:  the generated byte code contains a " +
+         "try-catch-finally block and cannot be outlined."},
+
+        /*
+         * Note to translators:  This message describes an internal error in the
+         * processor.  The terms "OutlineableChunkStart" and
+         * "OutlineableChunkEnd" are the names of classes internal to XSLTC and
+         * should not be translated.  The message indicates that for every
+         * "start" there must be a corresponding "end", and vice versa, and
+         * that if one of a pair of "start" and "end" appears between another
+         * pair of corresponding "start" and "end", then the other half of the
+         * pair must also be between that same enclosing pair.
+         */
+        {ErrorMsg.OUTLINE_ERR_UNBALANCED_MARKERS,
+         "Internal XSLTC error:  OutlineableChunkStart and " +
+         "OutlineableChunkEnd markers must be balanced and properly nested."},
+
+        /*
+         * Note to translators:  This message describes an internal error in the
+         * processor.  The term "byte code" is a Java technical term for the
+         * executable code in a Java method.  The "method" that is being
+         * referred to is a Java method in a translet that XSLTC is generating
+         * in processing a stylesheet.  The "instruction" that is being
+         * referred to is one of the instrutions in the Java byte code in that
+         * method.  "Outlined" is a technical term internal to XSLTC and
+         * should not be translated.
+         */
+        {ErrorMsg.OUTLINE_ERR_DELETED_TARGET,
+         "Internal XSLTC error:  an instruction that was part of a block of " +
+         "byte code that was outlined is still referred to in the original " +
+         "method."
+        },
+
+
+        /*
+         * Note to translators:  This message describes an internal error in the
+         * processor.  The "method" that is being referred to is a Java method
+         * in a translet that XSLTC is generating.
+         *
+         */
+        {ErrorMsg.OUTLINE_ERR_METHOD_TOO_BIG,
+         "Internal XSLTC error:  a method in the translet exceeds the Java " +
+         "Virtual Machine limitation on the length of a method of 64 " +
+         "kilobytes.  This is usually caused by templates in a stylesheet " +
+         "that are very large.  Try restructuring your stylesheet to use " +
+         "smaller templates."
+        },
+
+         {ErrorMsg.DESERIALIZE_TRANSLET_ERR, "When Java security is enabled, " +
+                        "support for deserializing TemplatesImpl is disabled." +
+                        "This can be overridden by setting the jdk.xml.enableTemplatesImplDeserialization" +
+                        " system property to true."}
 
     };
+
     }
 }

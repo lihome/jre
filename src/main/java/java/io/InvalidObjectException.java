@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2005, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.io;
@@ -15,7 +33,6 @@ package java.io;
  * @since JDK1.1
  *
  * @author  unascribed
- * @version %I%, %G%
  * @since   JDK1.1
  */
 public class InvalidObjectException extends ObjectStreamException {
@@ -29,6 +46,6 @@ public class InvalidObjectException extends ObjectStreamException {
      * @see ObjectInputValidation
      */
     public  InvalidObjectException(String reason) {
-	super(reason);
+        super(reason);
     }
 }

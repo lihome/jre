@@ -1,12 +1,31 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2010, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 package javax.swing.text;
 
-import sun.reflect.misc.ConstructorUtil;
+import sun.reflect.misc.ReflectUtil;
+import sun.swing.SwingUtilities2;
 
 import java.io.Serializable;
 import java.lang.reflect.*;
@@ -38,7 +57,6 @@ import javax.swing.text.*;
  *
  * @see javax.swing.JFormattedTextField.AbstractFormatter
  *
- * @version %I% %G%
  * @since 1.4
  */
 public class DefaultFormatter extends JFormattedTextField.AbstractFormatter
@@ -53,7 +71,7 @@ public class DefaultFormatter extends JFormattedTextField.AbstractFormatter
     private boolean commitOnEdit;
 
     /** Class used to create new instances. */
-    private Class valueClass;
+    private Class<?> valueClass;
 
     /** NavigationFilter that forwards calls back to DefaultFormatter. */
     private NavigationFilter navigationFilter;
@@ -181,7 +199,7 @@ public class DefaultFormatter extends JFormattedTextField.AbstractFormatter
     }
 
     /**
-     * Sets that class that is used to create new Objects. If the 
+     * Sets that class that is used to create new Objects. If the
      * passed in class does not have a single argument constructor that
      * takes a String, String values will be used.
      *
@@ -204,7 +222,7 @@ public class DefaultFormatter extends JFormattedTextField.AbstractFormatter
     /**
      * Converts the passed in String into an instance of
      * <code>getValueClass</code> by way of the constructor that
-     * takes a String argument. If <code>getValueClass</code> 
+     * takes a String argument. If <code>getValueClass</code>
      * returns null, the Class of the current value in the
      * <code>JFormattedTextField</code> will be used. If this is null, a
      * String will be returned. If the constructor thows an exception, a
@@ -216,7 +234,7 @@ public class DefaultFormatter extends JFormattedTextField.AbstractFormatter
      * @return Object representation of text
      */
     public Object stringToValue(String string) throws ParseException {
-        Class vc = getValueClass();
+        Class<?> vc = getValueClass();
         JFormattedTextField ftf = getFormattedTextField();
 
         if (vc == null && ftf != null) {
@@ -230,7 +248,9 @@ public class DefaultFormatter extends JFormattedTextField.AbstractFormatter
             Constructor cons;
 
             try {
-                cons = ConstructorUtil.getConstructor(vc, new Class[]{String.class});
+                ReflectUtil.checkPackageAccess(vc);
+                SwingUtilities2.checkAccess(vc.getModifiers());
+                cons = vc.getConstructor(new Class[]{String.class});
 
             } catch (NoSuchMethodException nsme) {
                 cons = null;
@@ -238,6 +258,7 @@ public class DefaultFormatter extends JFormattedTextField.AbstractFormatter
 
             if (cons != null) {
                 try {
+                    SwingUtilities2.checkAccess(cons.getModifiers());
                     return cons.newInstance(new Object[] { string });
                 } catch (Throwable ex) {
                     throw new ParseException("Error creating instance", 0);
@@ -248,7 +269,7 @@ public class DefaultFormatter extends JFormattedTextField.AbstractFormatter
     }
 
     /**
-     * Converts the passed in Object into a String by way of the 
+     * Converts the passed in Object into a String by way of the
      * <code>toString</code> method.
      *
      * @throws ParseException if there is an error in the conversion
@@ -555,7 +576,9 @@ public class DefaultFormatter extends JFormattedTextField.AbstractFormatter
             direction = -1;
         }
 
-        if (getOverwriteMode() && rh.text != null) {
+        if (getOverwriteMode() && rh.text != null &&
+            getFormattedTextField().getSelectedText() == null)
+        {
             rh.length = Math.min(Math.max(rh.length, rh.text.length()),
                                  rh.fb.getDocument().getLength() - rh.offset);
         }
@@ -661,23 +684,23 @@ public class DefaultFormatter extends JFormattedTextField.AbstractFormatter
     private class DefaultNavigationFilter extends NavigationFilter
                              implements Serializable {
         public void setDot(FilterBypass fb, int dot, Position.Bias bias) {
-	    JTextComponent tc = DefaultFormatter.this.getFormattedTextField();
+            JTextComponent tc = DefaultFormatter.this.getFormattedTextField();
             if (tc.composedTextExists()) {
-		// bypass the filter
+                // bypass the filter
                 fb.setDot(dot, bias);
-	    } else {
+            } else {
                 DefaultFormatter.this.setDot(fb, dot, bias);
-	    }
+            }
         }
 
         public void moveDot(FilterBypass fb, int dot, Position.Bias bias) {
-	    JTextComponent tc = DefaultFormatter.this.getFormattedTextField();
+            JTextComponent tc = DefaultFormatter.this.getFormattedTextField();
             if (tc.composedTextExists()) {
-		// bypass the filter
+                // bypass the filter
                 fb.moveDot(dot, bias);
-	    } else {
+            } else {
                 DefaultFormatter.this.moveDot(fb, dot, bias);
-	    }
+            }
         }
 
         public int getNextVisualPositionFrom(JTextComponent text, int pos,
@@ -686,13 +709,13 @@ public class DefaultFormatter extends JFormattedTextField.AbstractFormatter
                                              Position.Bias[] biasRet)
                                            throws BadLocationException {
             if (text.composedTextExists()) {
-		// forward the call to the UI directly
-		return text.getUI().getNextVisualPositionFrom(
-			text, pos, bias, direction, biasRet);
-	    } else {
-		return DefaultFormatter.this.getNextVisualPositionFrom(
-			text, pos, bias, direction, biasRet);
-	    }
+                // forward the call to the UI directly
+                return text.getUI().getNextVisualPositionFrom(
+                        text, pos, bias, direction, biasRet);
+            } else {
+                return DefaultFormatter.this.getNextVisualPositionFrom(
+                        text, pos, bias, direction, biasRet);
+            }
         }
     }
 
@@ -705,39 +728,39 @@ public class DefaultFormatter extends JFormattedTextField.AbstractFormatter
                              Serializable {
         public void remove(FilterBypass fb, int offset, int length) throws
                               BadLocationException {
-	    JTextComponent tc = DefaultFormatter.this.getFormattedTextField();
-	    if (tc.composedTextExists()) {
-		// bypass the filter
-		fb.remove(offset, length);
-	    } else {
-		DefaultFormatter.this.replace(fb, offset, length, null, null);
-	    }
+            JTextComponent tc = DefaultFormatter.this.getFormattedTextField();
+            if (tc.composedTextExists()) {
+                // bypass the filter
+                fb.remove(offset, length);
+            } else {
+                DefaultFormatter.this.replace(fb, offset, length, null, null);
+            }
         }
 
         public void insertString(FilterBypass fb, int offset,
                                  String string, AttributeSet attr) throws
                               BadLocationException {
-	    JTextComponent tc = DefaultFormatter.this.getFormattedTextField();
-	    if (tc.composedTextExists() || 
-		Utilities.isComposedTextAttributeDefined(attr)) {
-		// bypass the filter
-		fb.insertString(offset, string, attr);
-	    } else {
-		DefaultFormatter.this.replace(fb, offset, 0, string, attr);
-	    }
+            JTextComponent tc = DefaultFormatter.this.getFormattedTextField();
+            if (tc.composedTextExists() ||
+                Utilities.isComposedTextAttributeDefined(attr)) {
+                // bypass the filter
+                fb.insertString(offset, string, attr);
+            } else {
+                DefaultFormatter.this.replace(fb, offset, 0, string, attr);
+            }
         }
 
         public void replace(FilterBypass fb, int offset, int length,
                                  String text, AttributeSet attr) throws
                               BadLocationException {
-	    JTextComponent tc = DefaultFormatter.this.getFormattedTextField();
-	    if (tc.composedTextExists() || 
-		Utilities.isComposedTextAttributeDefined(attr)) {
-		// bypass the filter
-		fb.replace(offset, length, text, attr);
-	    } else {
-		DefaultFormatter.this.replace(fb, offset, length, text, attr);
-	    }
+            JTextComponent tc = DefaultFormatter.this.getFormattedTextField();
+            if (tc.composedTextExists() ||
+                Utilities.isComposedTextAttributeDefined(attr)) {
+                // bypass the filter
+                fb.replace(offset, length, text, attr);
+            } else {
+                DefaultFormatter.this.replace(fb, offset, length, text, attr);
+            }
         }
     }
 }

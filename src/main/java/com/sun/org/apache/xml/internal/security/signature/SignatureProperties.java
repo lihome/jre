@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright  1999-2004 The Apache Software Foundation.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,13 +20,12 @@
  */
 package com.sun.org.apache.xml.internal.security.signature;
 
-
-
 import com.sun.org.apache.xml.internal.security.exceptions.XMLSecurityException;
 import com.sun.org.apache.xml.internal.security.utils.Constants;
 import com.sun.org.apache.xml.internal.security.utils.IdResolver;
 import com.sun.org.apache.xml.internal.security.utils.SignatureElementProxy;
 import com.sun.org.apache.xml.internal.security.utils.XMLUtils;
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -37,10 +40,6 @@ import org.w3c.dom.Element;
  *
  */
 public class SignatureProperties extends SignatureElementProxy {
-
-   /** {@link java.util.logging} logging facility */
-    static java.util.logging.Logger log = 
-        java.util.logging.Logger.getLogger(SignatureProperties.class.getName());
 
    /**
     * Constructor SignatureProperties
@@ -63,6 +62,21 @@ public class SignatureProperties extends SignatureElementProxy {
    public SignatureProperties(Element element, String BaseURI)
            throws XMLSecurityException {
       super(element, BaseURI);
+
+      Attr attr = element.getAttributeNodeNS(null, "Id");
+      if (attr != null) {
+          element.setIdAttributeNode(attr, true);
+      }
+
+      int length = getLength();
+      for (int i = 0; i < length; i++) {
+          Element propertyElem =
+              XMLUtils.selectDsNode(getElement(), Constants._TAG_SIGNATUREPROPERTY, i);
+          Attr propertyAttr = propertyElem.getAttributeNodeNS(null, "Id");
+          if (propertyAttr != null) {
+              propertyElem.setIdAttributeNode(propertyAttr, true);
+          }
+      }
    }
 
    /**
@@ -71,7 +85,7 @@ public class SignatureProperties extends SignatureElementProxy {
     * @return the number of SignatureProperty elements
     */
    public int getLength() {
-      
+
          Element[] propertyElems =
             XMLUtils.selectDsNodes(this._constructionElement,
                                      Constants._TAG_SIGNATUREPROPERTY
@@ -89,16 +103,16 @@ public class SignatureProperties extends SignatureElementProxy {
     * @throws XMLSignatureException
     */
    public SignatureProperty item(int i) throws XMLSignatureException {
-   	  try {
+          try {
          Element propertyElem =
-            XMLUtils.selectDsNode(this._constructionElement, 
-                                 Constants._TAG_SIGNATUREPROPERTY, 
+            XMLUtils.selectDsNode(this._constructionElement,
+                                 Constants._TAG_SIGNATUREPROPERTY,
                                  i );
 
          if (propertyElem == null) {
             return null;
-         } 
-         return new SignatureProperty(propertyElem, this._baseURI);               
+         }
+         return new SignatureProperty(propertyElem, this._baseURI);
       } catch (XMLSecurityException ex) {
          throw new XMLSignatureException("empty", ex);
       }
@@ -111,9 +125,8 @@ public class SignatureProperties extends SignatureElementProxy {
     */
    public void setId(String Id) {
 
-      if ((this._state == MODE_SIGN) && (Id != null)) {
-         this._constructionElement.setAttributeNS(null, Constants._ATT_ID, Id);
-         IdResolver.registerElementById(this._constructionElement, Id);
+      if (Id != null) {
+          setLocalIdAttribute(Constants._ATT_ID, Id);
       }
    }
 

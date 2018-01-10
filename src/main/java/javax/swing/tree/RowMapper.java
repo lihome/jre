@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 1998, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.swing.tree;
@@ -13,7 +31,6 @@ import javax.swing.tree.TreePath;
  * Defines the requirements for an object that translates paths in
  * the tree into display rows.
  *
- * @version %I% %G%
  * @author Scott Violet
  */
 public interface RowMapper

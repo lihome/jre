@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright 2001-2004 The Apache Software Foundation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +29,7 @@ import javax.xml.transform.Templates;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
 import javax.xml.transform.sax.TemplatesHandler;
-
+import com.sun.org.apache.xalan.internal.XalanConstants;
 import com.sun.org.apache.xalan.internal.xsltc.compiler.CompilerException;
 import com.sun.org.apache.xalan.internal.xsltc.compiler.Parser;
 import com.sun.org.apache.xalan.internal.xsltc.compiler.SourceLoader;
@@ -85,16 +89,29 @@ public class TemplatesHandlerImpl
      * Default constructor
      */
     protected TemplatesHandlerImpl(int indentNumber,
-	TransformerFactoryImpl tfactory)
+        TransformerFactoryImpl tfactory)
     {
-	_indentNumber = indentNumber;
-	_tfactory = tfactory;
+        _indentNumber = indentNumber;
+        _tfactory = tfactory;
 
         // Instantiate XSLTC and get reference to parser object
-        XSLTC xsltc = new XSLTC(tfactory.useServicesMechnism());
+        XSLTC xsltc = new XSLTC(tfactory.useServicesMechnism(), tfactory.getFeatureManager());
         if (tfactory.getFeature(XMLConstants.FEATURE_SECURE_PROCESSING))
             xsltc.setSecureProcessing(true);
-       
+
+        xsltc.setProperty(XMLConstants.ACCESS_EXTERNAL_STYLESHEET,
+                (String)tfactory.getAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET));
+        xsltc.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD,
+                (String)tfactory.getAttribute(XMLConstants.ACCESS_EXTERNAL_DTD));
+        xsltc.setProperty(XalanConstants.SECURITY_MANAGER,
+                tfactory.getAttribute(XalanConstants.SECURITY_MANAGER));
+
+
+        if ("true".equals(tfactory.getAttribute(TransformerFactoryImpl.ENABLE_INLINING)))
+            xsltc.setTemplateInlining(true);
+        else
+            xsltc.setTemplateInlining(false);
+
         _parser = xsltc.getParser();
     }
 
@@ -105,7 +122,7 @@ public class TemplatesHandlerImpl
      * @return The systemID that was set with setSystemId(String id)
      */
     public String getSystemId() {
-	return _systemId;
+        return _systemId;
     }
 
     /**
@@ -115,14 +132,14 @@ public class TemplatesHandlerImpl
      * @param id Base URI for this stylesheet
      */
     public void setSystemId(String id) {
-	_systemId = id;
+        _systemId = id;
     }
 
     /**
      * Store URIResolver needed for Transformers.
      */
     public void setURIResolver(URIResolver resolver) {
-	_uriResolver = resolver;
+        _uriResolver = resolver;
     }
 
     /**
@@ -148,17 +165,17 @@ public class TemplatesHandlerImpl
      * @return An InputSource with the loaded document
      */
     public InputSource loadSource(String href, String context, XSLTC xsltc) {
-	try {
-	    // A _uriResolver must be set if this method is called
-	    final Source source = _uriResolver.resolve(href, context);
-	    if (source != null) {
-		return Util.getInputSource(xsltc, source);
-	    }
-	}
-	catch (TransformerException e) {
-	    // Falls through
-	}
-	return null;
+        try {
+            // A _uriResolver must be set if this method is called
+            final Source source = _uriResolver.resolve(href, context);
+            if (source != null) {
+                return Util.getInputSource(xsltc, source);
+            }
+        }
+        catch (TransformerException e) {
+            // Falls through
+        }
+        return null;
     }
 
     // -- ContentHandler --------------------------------------------------
@@ -184,7 +201,7 @@ public class TemplatesHandlerImpl
             XSLTC xsltc = _parser.getXSLTC();
 
             // Set the translet class name if not already set
-            String transletName = null;
+            String transletName;
             if (_systemId != null) {
                 transletName = Util.baseName(_systemId);
             }
@@ -205,6 +222,11 @@ public class TemplatesHandlerImpl
                 stylesheet = _parser.makeStylesheet(root);
                 stylesheet.setSystemId(_systemId);
                 stylesheet.setParentStylesheet(null);
+
+                if (xsltc.getTemplateInlining())
+                   stylesheet.setTemplateInlining(true);
+                else
+                   stylesheet.setTemplateInlining(false);
 
                 // Set a document loader (for xsl:include/import) if defined
                 if (_uriResolver != null) {
@@ -328,5 +350,3 @@ public class TemplatesHandlerImpl
         _parser.setDocumentLocator(locator);
     }
 }
-
-

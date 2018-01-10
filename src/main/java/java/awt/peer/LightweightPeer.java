@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 1998, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.awt.peer;
@@ -19,7 +37,6 @@ package java.awt.peer;
  * nor invoke any of the peer methods directly on the peer
  * instances.
  *
- * @version %I% %G%
  * @author Timothy Prinzing
  */
 public interface LightweightPeer extends ComponentPeer {

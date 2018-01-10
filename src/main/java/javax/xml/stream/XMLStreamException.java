@@ -1,3 +1,31 @@
+/*
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+
+/*
+ * Copyright (c) 2009 by Oracle Corporation. All Rights Reserved.
+ */
+
 package javax.xml.stream;
 
 /**
@@ -8,15 +36,16 @@ package javax.xml.stream;
  * @author Copyright (c) 2009 by Oracle Corporation. All Rights Reserved.
  * @since 1.6
  */
+
 public class XMLStreamException extends Exception {
 
   protected Throwable nested;
   protected Location location;
-  
+
   /**
    * Default constructor
    */
-  public XMLStreamException(){ 
+  public XMLStreamException(){
     super();
   }
 
@@ -55,7 +84,7 @@ public class XMLStreamException extends Exception {
    *
    * @param th a nested exception
    * @param msg the message to report
-   * @param location the location of the error 
+   * @param location the location of the error
    */
   public XMLStreamException(String msg, Location location, Throwable th) {
     super("ParseError at [row,col]:["+location.getLineNumber()+","+
@@ -69,16 +98,16 @@ public class XMLStreamException extends Exception {
    * Construct an exception with the assocated message, exception and location.
    *
    * @param msg the message to report
-   * @param location the location of the error 
+   * @param location the location of the error
    */
-  public XMLStreamException(String msg, 
+  public XMLStreamException(String msg,
                             Location location) {
     super("ParseError at [row,col]:["+location.getLineNumber()+","+
           location.getColumnNumber()+"]\n"+
           "Message: "+msg);
     this.location = location;
   }
-  
+
 
   /**
    * Gets the nested exception.

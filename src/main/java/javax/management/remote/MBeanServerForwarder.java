@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- * 
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2003, 2007, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.management.remote;
@@ -18,7 +36,6 @@ import javax.management.MBeanServer;
  * Examples include security checking and logging.</p>
  *
  * @since 1.5
- * @since.unbundled 1.0
  */
 public interface MBeanServerForwarder extends MBeanServer {
 

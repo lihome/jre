@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright  1999-2004 The Apache Software Foundation.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,6 +25,8 @@ package com.sun.org.apache.xml.internal.security.keys;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.crypto.SecretKey;
@@ -48,6 +54,7 @@ import com.sun.org.apache.xml.internal.security.utils.Constants;
 import com.sun.org.apache.xml.internal.security.utils.IdResolver;
 import com.sun.org.apache.xml.internal.security.utils.SignatureElementProxy;
 import com.sun.org.apache.xml.internal.security.utils.XMLUtils;
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -84,15 +91,22 @@ import org.w3c.dom.NodeList;
  * The <CODE>containsXXX()</CODE> methods return <I>whether</I> the KeyInfo
  * contains the corresponding type.
  *
- * @author $Author: raul $
+ * @author $Author: mullan $
  */
 public class KeyInfo extends SignatureElementProxy {
 
    /** {@link java.util.logging} logging facility */
-    static java.util.logging.Logger log = 
+    static java.util.logging.Logger log =
         java.util.logging.Logger.getLogger(KeyInfo.class.getName());
+    List<X509Data> x509Datas=null;
+    List<EncryptedKey> encryptedKeys=null;
 
-
+    static final List<StorageResolver> nullList;
+    static {
+        List<StorageResolver> list = new ArrayList<StorageResolver>(1);
+        list.add(null);
+        nullList = Collections.unmodifiableList(list);
+    }
 
    /**
     * Constructor KeyInfo
@@ -104,7 +118,6 @@ public class KeyInfo extends SignatureElementProxy {
 
       XMLUtils.addReturnToElement(this._constructionElement);
 
-
    }
 
    /**
@@ -115,9 +128,12 @@ public class KeyInfo extends SignatureElementProxy {
     * @throws XMLSecurityException
     */
    public KeyInfo(Element element, String BaseURI) throws XMLSecurityException {
-
       super(element, BaseURI);
 
+      Attr attr = element.getAttributeNodeNS(null, "Id");
+      if (attr != null) {
+          element.setIdAttributeNode(attr, true);
+      }
    }
 
    /**
@@ -127,9 +143,8 @@ public class KeyInfo extends SignatureElementProxy {
     */
    public void setId(String Id) {
 
-      if ((this._state == MODE_SIGN) && (Id != null)) {
-         this._constructionElement.setAttributeNS(null, Constants._ATT_ID, Id);
-         IdResolver.registerElementById(this._constructionElement, Id);
+      if (Id != null) {
+          setLocalIdAttribute(Constants._ATT_ID, Id);
       }
    }
 
@@ -158,10 +173,8 @@ public class KeyInfo extends SignatureElementProxy {
     */
    public void add(KeyName keyname) {
 
-      if (this._state == MODE_SIGN) {
          this._constructionElement.appendChild(keyname.getElement());
          XMLUtils.addReturnToElement(this._constructionElement);
-      }
    }
 
    /**
@@ -215,11 +228,8 @@ public class KeyInfo extends SignatureElementProxy {
     * @param keyvalue
     */
    public void add(KeyValue keyvalue) {
-
-      if (this._state == MODE_SIGN) {
          this._constructionElement.appendChild(keyvalue.getElement());
          XMLUtils.addReturnToElement(this._constructionElement);
-      }
    }
 
    /**
@@ -237,11 +247,8 @@ public class KeyInfo extends SignatureElementProxy {
     * @param mgmtdata
     */
    public void add(MgmtData mgmtdata) {
-
-      if (this._state == MODE_SIGN) {
          this._constructionElement.appendChild(mgmtdata.getElement());
          XMLUtils.addReturnToElement(this._constructionElement);
-      }
    }
 
    /**
@@ -250,11 +257,8 @@ public class KeyInfo extends SignatureElementProxy {
     * @param pgpdata
     */
    public void add(PGPData pgpdata) {
-
-      if (this._state == MODE_SIGN) {
          this._constructionElement.appendChild(pgpdata.getElement());
          XMLUtils.addReturnToElement(this._constructionElement);
-      }
    }
 
    /**
@@ -275,11 +279,8 @@ public class KeyInfo extends SignatureElementProxy {
     * @param retrievalmethod
     */
    public void add(RetrievalMethod retrievalmethod) {
-
-      if (this._state == MODE_SIGN) {
          this._constructionElement.appendChild(retrievalmethod.getElement());
          XMLUtils.addReturnToElement(this._constructionElement);
-      }
    }
 
    /**
@@ -288,11 +289,8 @@ public class KeyInfo extends SignatureElementProxy {
     * @param spkidata
     */
    public void add(SPKIData spkidata) {
-
-      if (this._state == MODE_SIGN) {
          this._constructionElement.appendChild(spkidata.getElement());
          XMLUtils.addReturnToElement(this._constructionElement);
-      }
    }
 
    /**
@@ -301,29 +299,28 @@ public class KeyInfo extends SignatureElementProxy {
     * @param x509data
     */
    public void add(X509Data x509data) {
-
-      if (this._state == MODE_SIGN) {
+          if (x509Datas==null)
+                  x509Datas=new ArrayList<X509Data>();
+          x509Datas.add(x509data);
          this._constructionElement.appendChild(x509data.getElement());
          XMLUtils.addReturnToElement(this._constructionElement);
-      }
    }
 
-	/**
-	 * Method addEncryptedKey
-	 *
-	 * @param encryptedKey
-	 * @throws XMLEncryptionException
-	 */
+        /**
+         * Method addEncryptedKey
+         *
+         * @param encryptedKey
+         * @throws XMLEncryptionException
+         */
 
-	public void add(EncryptedKey encryptedKey) 
-		throws XMLEncryptionException {
-
-		if (this._state == MODE_SIGN) {
-			XMLCipher cipher = XMLCipher.getInstance();
-			this._constructionElement.appendChild(cipher.martial(encryptedKey));
-		}
-
-	}
+        public void add(EncryptedKey encryptedKey)
+                throws XMLEncryptionException {
+                        if (encryptedKeys==null)
+                                encryptedKeys=new ArrayList<EncryptedKey>();
+                        encryptedKeys.add(encryptedKey);
+                        XMLCipher cipher = XMLCipher.getInstance();
+                        this._constructionElement.appendChild(cipher.martial(encryptedKey));
+        }
 
    /**
     * Method addUnknownElement
@@ -331,11 +328,8 @@ public class KeyInfo extends SignatureElementProxy {
     * @param element
     */
    public void addUnknownElement(Element element) {
-
-      if (this._state == MODE_SIGN) {
          this._constructionElement.appendChild(element);
          XMLUtils.addReturnToElement(this._constructionElement);
-      }
    }
 
    /**
@@ -399,6 +393,9 @@ public class KeyInfo extends SignatureElementProxy {
     *@return the number of the X509Data tags
     */
    public int lengthX509Data() {
+           if (x509Datas!=null) {
+                   return x509Datas.size();
+           }
       return this.length(Constants.SignatureSpecNS, Constants._TAG_X509DATA);
    }
 
@@ -443,8 +440,8 @@ public class KeyInfo extends SignatureElementProxy {
 
       if (e != null) {
          return new KeyName(e, this._baseURI);
-      } 
-      return null;      
+      }
+      return null;
    }
 
    /**
@@ -461,8 +458,8 @@ public class KeyInfo extends SignatureElementProxy {
 
       if (e != null) {
          return new KeyValue(e, this._baseURI);
-      } 
-      return null;      
+      }
+      return null;
    }
 
    /**
@@ -479,8 +476,8 @@ public class KeyInfo extends SignatureElementProxy {
 
       if (e != null) {
          return new MgmtData(e, this._baseURI);
-      } 
-       return null;      
+      }
+       return null;
    }
 
    /**
@@ -497,8 +494,8 @@ public class KeyInfo extends SignatureElementProxy {
 
       if (e != null) {
          return new PGPData(e, this._baseURI);
-      } 
-      return null;      
+      }
+      return null;
    }
 
    /**
@@ -516,7 +513,7 @@ public class KeyInfo extends SignatureElementProxy {
 
       if (e != null) {
          return new RetrievalMethod(e, this._baseURI);
-      } 
+      }
       return null;
    }
 
@@ -534,8 +531,8 @@ public class KeyInfo extends SignatureElementProxy {
 
       if (e != null) {
          return new SPKIData(e, this._baseURI);
-      } 
-      return null;     
+      }
+      return null;
    }
 
    /**
@@ -546,36 +543,40 @@ public class KeyInfo extends SignatureElementProxy {
     * @throws XMLSecurityException
     */
    public X509Data itemX509Data(int i) throws XMLSecurityException {
-
+           if (x509Datas!=null) {
+                   return x509Datas.get(i);
+           }
       Element e = XMLUtils.selectDsNode(this._constructionElement.getFirstChild(),
                                                 Constants._TAG_X509DATA,i);
 
       if (e != null) {
          return new X509Data(e, this._baseURI);
-      } 
+      }
       return null;
    }
 
    /**
-	* Method itemEncryptedKey
-	*
-	* @param i
-	* @return the asked EncryptedKey element, null if the index is too big
-	* @throws XMLSecurityException
-	*/
+        * Method itemEncryptedKey
+        *
+        * @param i
+        * @return the asked EncryptedKey element, null if the index is too big
+        * @throws XMLSecurityException
+        */
 
-	public EncryptedKey itemEncryptedKey(int i) throws XMLSecurityException {
+        public EncryptedKey itemEncryptedKey(int i) throws XMLSecurityException {
+                if (encryptedKeys!=null) {
+                        return encryptedKeys.get(i);
+                }
+                Element e =
+                        XMLUtils.selectXencNode(this._constructionElement.getFirstChild(),
+                                                                                  EncryptionConstants._TAG_ENCRYPTEDKEY,i);
 
-		Element e = 
-			XMLUtils.selectXencNode(this._constructionElement.getFirstChild(),
-										  EncryptionConstants._TAG_ENCRYPTEDKEY,i);
-
-		if (e != null) {
-			XMLCipher cipher = XMLCipher.getInstance();
-			cipher.init(XMLCipher.UNWRAP_MODE, null);
-			return cipher.loadEncryptedKey(e);
-		}
-		return null;
+                if (e != null) {
+                        XMLCipher cipher = XMLCipher.getInstance();
+                        cipher.init(XMLCipher.UNWRAP_MODE, null);
+                        return cipher.loadEncryptedKey(e);
+                }
+                return null;
    }
 
    /**
@@ -703,77 +704,54 @@ public class KeyInfo extends SignatureElementProxy {
       PublicKey pk = this.getPublicKeyFromInternalResolvers();
 
       if (pk != null) {
-         if (log.isLoggable(java.util.logging.Level.FINE))                                     log.log(java.util.logging.Level.FINE, "I could find a key using the per-KeyInfo key resolvers");
+         log.log(java.util.logging.Level.FINE, "I could find a key using the per-KeyInfo key resolvers");
 
          return pk;
-      } 
-      if (log.isLoggable(java.util.logging.Level.FINE))                                     log.log(java.util.logging.Level.FINE, "I couldn't find a key using the per-KeyInfo key resolvers");      
+      }
+      log.log(java.util.logging.Level.FINE, "I couldn't find a key using the per-KeyInfo key resolvers");
 
       pk = this.getPublicKeyFromStaticResolvers();
 
       if (pk != null) {
-         if (log.isLoggable(java.util.logging.Level.FINE))                                     log.log(java.util.logging.Level.FINE, "I could find a key using the system-wide key resolvers");
+         log.log(java.util.logging.Level.FINE, "I could find a key using the system-wide key resolvers");
 
          return pk;
       }
-      if (log.isLoggable(java.util.logging.Level.FINE))                                     log.log(java.util.logging.Level.FINE, "I couldn't find a key using the system-wide key resolvers");      
+      log.log(java.util.logging.Level.FINE, "I couldn't find a key using the system-wide key resolvers");
 
       return null;
    }
 
-   /**
-    * Searches the library wide keyresolvers for public keys
-    *
-    * @return The publick contained in this Node.
-    * @throws KeyResolverException
-    */
-   PublicKey getPublicKeyFromStaticResolvers() throws KeyResolverException {
-
-      for (int i = 0; i < KeyResolver.length(); i++) {
-         KeyResolver keyResolver = KeyResolver.item(i);
-         Node currentChild=this._constructionElement.getFirstChild();
-         while (currentChild!=null)      {       
-            if (currentChild.getNodeType() == Node.ELEMENT_NODE) {
-               if (this._storageResolvers.size() == 0) {
-
-                  // if we do not have storage resolvers, we verify with null
-                  StorageResolver storage = null;
-
-                  if (keyResolver.canResolve((Element) currentChild,
-                                             this.getBaseURI(), storage)) {
-                     PublicKey pk =
-                        keyResolver.resolvePublicKey((Element) currentChild,
-                                                     this.getBaseURI(),
-                                                     storage);
-
-                     if (pk != null) {
-                        return pk;
-                     }
-                  }
-               } else {
-                  for (int k = 0; k < this._storageResolvers.size(); k++) {
-                     StorageResolver storage =
-                        (StorageResolver) this._storageResolvers.get(k);
-
-                     if (keyResolver.canResolve((Element) currentChild,
-                                                this.getBaseURI(), storage)) {
+    /**
+     * Searches the library wide keyresolvers for public keys
+     *
+     * @return The public key contained in this Node.
+     * @throws KeyResolverException
+     */
+    PublicKey getPublicKeyFromStaticResolvers() throws KeyResolverException {
+        Iterator<KeyResolverSpi> it = KeyResolver.iterator();
+        while (it.hasNext()) {
+            KeyResolverSpi keyResolver = it.next();
+            Node currentChild = this._constructionElement.getFirstChild();
+            String uri = this.getBaseURI();
+            while (currentChild != null) {
+                if (currentChild.getNodeType() == Node.ELEMENT_NODE) {
+                    for (StorageResolver storage : _storageResolvers) {
                         PublicKey pk =
-                           keyResolver.resolvePublicKey((Element) currentChild,
-                                                        this.getBaseURI(),
-                                                        storage);
+                            keyResolver.engineLookupAndResolvePublicKey(
+                                (Element) currentChild, uri, storage
+                            );
 
                         if (pk != null) {
-                           return pk;
+                            return pk;
                         }
-                     }
-                  }
-               }               
+                    }
+                }
+                currentChild = currentChild.getNextSibling();
             }
-            currentChild=currentChild.getNextSibling();
-         }      
-      }
-      return null;
-   }
+        }
+        return null;
+    }
 
    /**
     * Searches the per-KeyInfo keyresolvers for public keys
@@ -782,50 +760,27 @@ public class KeyInfo extends SignatureElementProxy {
     * @throws KeyResolverException
     */
    PublicKey getPublicKeyFromInternalResolvers() throws KeyResolverException {
-
-      for (int i = 0; i < this.lengthInternalKeyResolver(); i++) {
+          int length=lengthInternalKeyResolver();
+          int storageLength=this._storageResolvers.size();
+      for (int i = 0; i < length; i++) {
          KeyResolverSpi keyResolver = this.itemInternalKeyResolver(i);
-         if (true)
-         	if (log.isLoggable(java.util.logging.Level.FINE))                                     log.log(java.util.logging.Level.FINE, "Try " + keyResolver.getClass().getName());
+         if (log.isLoggable(java.util.logging.Level.FINE))
+                log.log(java.util.logging.Level.FINE, "Try " + keyResolver.getClass().getName());
 
          Node currentChild=this._constructionElement.getFirstChild();
-         while (currentChild!=null)      {    
+         String uri=this.getBaseURI();
+         while (currentChild!=null)      {
             if (currentChild.getNodeType() == Node.ELEMENT_NODE) {
-               if (this._storageResolvers.size() == 0) {
-
-                  // if we do not have storage resolvers, we verify with null
-                  StorageResolver storage = null;
-
-                  if (keyResolver.engineCanResolve((Element) currentChild,
-                                                   this.getBaseURI(),
-                                                   storage)) {
-                     PublicKey pk =
-                        keyResolver
-                           .engineResolvePublicKey((Element) currentChild, this
-                              .getBaseURI(), storage);
+               for (int k = 0; k < storageLength; k++) {
+                   StorageResolver storage =
+                       this._storageResolvers.get(k);
+                   PublicKey pk = keyResolver
+                           .engineLookupAndResolvePublicKey((Element) currentChild, uri, storage);
 
                      if (pk != null) {
-                        return pk;
+                         return pk;
                      }
                   }
-               } else {
-                  for (int k = 0; k < this._storageResolvers.size(); k++) {
-                     StorageResolver storage =
-                        (StorageResolver) this._storageResolvers.get(k);
-
-                     if (keyResolver.engineCanResolve((Element) currentChild,
-                                                      this.getBaseURI(),
-                                                      storage)) {
-                        PublicKey pk = keyResolver
-                           .engineResolvePublicKey((Element) currentChild, this
-                              .getBaseURI(), storage);
-
-                        if (pk != null) {
-                           return pk;
-                        }
-                     }
-                  }
-               }
             }
             currentChild=currentChild.getNextSibling();
          }
@@ -846,152 +801,108 @@ public class KeyInfo extends SignatureElementProxy {
       X509Certificate cert = this.getX509CertificateFromInternalResolvers();
 
       if (cert != null) {
-         if (log.isLoggable(java.util.logging.Level.FINE))                                     log.log(java.util.logging.Level.FINE, 
+         log.log(java.util.logging.Level.FINE,
             "I could find a X509Certificate using the per-KeyInfo key resolvers");
 
          return cert;
-      } 
-      if (log.isLoggable(java.util.logging.Level.FINE))                                     log.log(java.util.logging.Level.FINE, 
+      }
+      log.log(java.util.logging.Level.FINE,
             "I couldn't find a X509Certificate using the per-KeyInfo key resolvers");
-      
+
 
       // Then use the system-wide Resolvers
       cert = this.getX509CertificateFromStaticResolvers();
 
       if (cert != null) {
-         if (log.isLoggable(java.util.logging.Level.FINE))                                     log.log(java.util.logging.Level.FINE, 
+         log.log(java.util.logging.Level.FINE,
             "I could find a X509Certificate using the system-wide key resolvers");
 
          return cert;
-      } 
-      if (log.isLoggable(java.util.logging.Level.FINE))                                     log.log(java.util.logging.Level.FINE, 
+      }
+      log.log(java.util.logging.Level.FINE,
             "I couldn't find a X509Certificate using the system-wide key resolvers");
-      
+
 
       return null;
    }
 
-   /**
-    * This method uses each System-wide {@link KeyResolver} to search the
-    * child elements. Each combination of {@link KeyResolver} and child element
-    * is checked against all {@link StorageResolver}s.
-    *
-    * @return The certificate contined in this KeyInfo
-    * @throws KeyResolverException
-    */
-   X509Certificate getX509CertificateFromStaticResolvers()
-           throws KeyResolverException {
-      if (true)
-      	if (log.isLoggable(java.util.logging.Level.FINE))                                     log.log(java.util.logging.Level.FINE, "Start getX509CertificateFromStaticResolvers() with "
-                + KeyResolver.length() + " resolvers");
-
-      for (int i = 0; i < KeyResolver.length(); i++) {
-         KeyResolver keyResolver = KeyResolver.item(i);
-         Node currentChild=this._constructionElement.getFirstChild();
-         while (currentChild!=null)      {       
-            if (currentChild.getNodeType() == Node.ELEMENT_NODE) {
-               if (this._storageResolvers.size() == 0) {
-
-                  // if we do not have storage resolvers, we verify with null
-                  StorageResolver storage = null;
-
-                  if (keyResolver.canResolve((Element) currentChild,
-                                             this.getBaseURI(), storage)) {
-                     X509Certificate cert =
-                        keyResolver
-                           .resolveX509Certificate((Element) currentChild, this
-                              .getBaseURI(), storage);
-
-                     if (cert != null) {
-                        return cert;
-                     }
-                  }
-               } else {
-                  for (int k = 0; k < this._storageResolvers.size(); k++) {
-                     StorageResolver storage =
-                        (StorageResolver) this._storageResolvers.get(k);
-
-                     if (keyResolver.canResolve((Element) currentChild,
-                                                this.getBaseURI(), storage)) {
-                        X509Certificate cert = keyResolver
-                           .resolveX509Certificate((Element) currentChild, this
-                              .getBaseURI(), storage);
-
-                        if (cert != null) {
-                           return cert;
-                        }
-                     }
-                  }
-               }               
+    /**
+     * This method uses each System-wide {@link KeyResolver} to search the
+     * child elements. Each combination of {@link KeyResolver} and child element
+     * is checked against all {@link StorageResolver}s.
+     *
+     * @return The certificate contained in this KeyInfo
+     * @throws KeyResolverException
+     */
+    X509Certificate getX509CertificateFromStaticResolvers()
+        throws KeyResolverException {
+        if (log.isLoggable(java.util.logging.Level.FINE)) {
+            log.log(java.util.logging.Level.FINE,
+                "Start getX509CertificateFromStaticResolvers() with " + KeyResolver.length()
+                + " resolvers"
+            );
+        }
+        String uri = this.getBaseURI();
+        Iterator<KeyResolverSpi> it = KeyResolver.iterator();
+        while (it.hasNext()) {
+            KeyResolverSpi keyResolver = it.next();
+            X509Certificate cert = applyCurrentResolver(uri, keyResolver);
+            if (cert != null) {
+                return cert;
             }
-            currentChild=currentChild.getNextSibling();
-         }      
-      }
-      return null;
-   }
+        }
+        return null;
+    }
 
-   /**
-    * Method getX509CertificateFromInternalResolvers
-    *
-    * @return The certificate contined in this KeyInfo
-    * @throws KeyResolverException
-    */
-   X509Certificate getX509CertificateFromInternalResolvers()
-           throws KeyResolverException {
-      if (true)
-      	if (log.isLoggable(java.util.logging.Level.FINE))                                     log.log(java.util.logging.Level.FINE, "Start getX509CertificateFromInternalResolvers() with "
-                + this.lengthInternalKeyResolver() + " resolvers");
-
-      for (int i = 0; i < this.lengthInternalKeyResolver(); i++) {
-         KeyResolverSpi keyResolver = this.itemInternalKeyResolver(i);
-         if (true)
-         	if (log.isLoggable(java.util.logging.Level.FINE))                                     log.log(java.util.logging.Level.FINE, "Try " + keyResolver.getClass().getName());
-
-         Node currentChild=this._constructionElement.getFirstChild();
-         while (currentChild!=null)      {    
+    private X509Certificate applyCurrentResolver(
+        String uri, KeyResolverSpi keyResolver
+    ) throws KeyResolverException {
+        Node currentChild = this._constructionElement.getFirstChild();
+        while (currentChild != null)      {
             if (currentChild.getNodeType() == Node.ELEMENT_NODE) {
-               if (this._storageResolvers.size() == 0) {
+                for (StorageResolver storage : _storageResolvers) {
+                    X509Certificate cert =
+                        keyResolver.engineLookupResolveX509Certificate(
+                            (Element) currentChild, uri, storage
+                        );
 
-                  // if we do not have storage resolvers, we verify with null
-                  StorageResolver storage = null;
-
-                  if (keyResolver.engineCanResolve((Element) currentChild,
-                                                   this.getBaseURI(),
-                                                   storage)) {
-                     X509Certificate cert =
-                        keyResolver.engineResolveX509Certificate(
-                           (Element) currentChild, this.getBaseURI(), storage);
-
-                     if (cert != null) {
+                    if (cert != null) {
                         return cert;
-                     }
-                  }
-               } else {
-                  for (int k = 0; k < this._storageResolvers.size(); k++) {
-                     StorageResolver storage =
-                        (StorageResolver) this._storageResolvers.get(k);
-
-                     if (keyResolver.engineCanResolve((Element) currentChild,
-                                                      this.getBaseURI(),
-                                                      storage)) {
-                        X509Certificate cert =
-                           keyResolver.engineResolveX509Certificate(
-                              (Element) currentChild, this.getBaseURI(),
-                              storage);
-
-                        if (cert != null) {
-                           return cert;
-                        }
-                     }
-                  }
-               }
+                    }
+                }
             }
-            currentChild=currentChild.getNextSibling();
-         }
-      }
+            currentChild = currentChild.getNextSibling();
+        }
+        return null;
+    }
 
-      return null;
-   }
+    /**
+     * Method getX509CertificateFromInternalResolvers
+     *
+     * @return The certificate contined in this KeyInfo
+     * @throws KeyResolverException
+     */
+    X509Certificate getX509CertificateFromInternalResolvers()
+        throws KeyResolverException {
+        if (log.isLoggable(java.util.logging.Level.FINE)) {
+            log.log(java.util.logging.Level.FINE,
+                "Start getX509CertificateFromInternalResolvers() with "
+                + this.lengthInternalKeyResolver() + " resolvers"
+            );
+        }
+        String uri = this.getBaseURI();
+        for (KeyResolverSpi keyResolver : _internalKeyResolvers) {
+            if (log.isLoggable(java.util.logging.Level.FINE)) {
+                log.log(java.util.logging.Level.FINE, "Try " + keyResolver.getClass().getName());
+            }
+            X509Certificate cert = applyCurrentResolver(uri, keyResolver);
+            if (cert != null) {
+                return cert;
+            }
+        }
+
+        return null;
+    }
 
    /**
     * This method returns a secret (symmetric) key. This is for XML Encryption.
@@ -1002,22 +913,22 @@ public class KeyInfo extends SignatureElementProxy {
       SecretKey sk = this.getSecretKeyFromInternalResolvers();
 
       if (sk != null) {
-         if (log.isLoggable(java.util.logging.Level.FINE))                                     log.log(java.util.logging.Level.FINE, "I could find a secret key using the per-KeyInfo key resolvers");
+         log.log(java.util.logging.Level.FINE, "I could find a secret key using the per-KeyInfo key resolvers");
 
          return sk;
-      } 
-      if (log.isLoggable(java.util.logging.Level.FINE))                                     log.log(java.util.logging.Level.FINE, "I couldn't find a secret key using the per-KeyInfo key resolvers");
-      
+      }
+      log.log(java.util.logging.Level.FINE, "I couldn't find a secret key using the per-KeyInfo key resolvers");
+
 
       sk = this.getSecretKeyFromStaticResolvers();
 
       if (sk != null) {
-         if (log.isLoggable(java.util.logging.Level.FINE))                                     log.log(java.util.logging.Level.FINE, "I could find a secret key using the system-wide key resolvers");
+         log.log(java.util.logging.Level.FINE, "I could find a secret key using the system-wide key resolvers");
 
          return sk;
-      } 
-      if (log.isLoggable(java.util.logging.Level.FINE))                                     log.log(java.util.logging.Level.FINE, "I couldn't find a secret key using the system-wide key resolvers");
-      
+      }
+      log.log(java.util.logging.Level.FINE, "I couldn't find a secret key using the system-wide key resolvers");
+
 
       return null;
    }
@@ -1030,47 +941,29 @@ public class KeyInfo extends SignatureElementProxy {
     */
 
    SecretKey getSecretKeyFromStaticResolvers() throws KeyResolverException {
-
-      for (int i = 0; i < KeyResolver.length(); i++) {
-         KeyResolver keyResolver = KeyResolver.item(i);
+          final int length=KeyResolver.length();
+          int storageLength=this._storageResolvers.size();
+          Iterator<KeyResolverSpi> it = KeyResolver.iterator();
+      for (int i = 0; i < length; i++) {
+         KeyResolverSpi keyResolver = it.next();
 
          Node currentChild=this._constructionElement.getFirstChild();
-         while (currentChild!=null)      {    
+         String uri=this.getBaseURI();
+         while (currentChild!=null)      {
             if (currentChild.getNodeType() == Node.ELEMENT_NODE) {
-               if (this._storageResolvers.size() == 0) {
+                  for (int k = 0; k < storageLength; k++) {
+                     StorageResolver storage =
+                        this._storageResolvers.get(k);
 
-                  // if we do not have storage resolvers, we verify with null
-                  StorageResolver storage = null;
-
-                  if (keyResolver.canResolve((Element) currentChild,
-                                             this.getBaseURI(), storage)) {
-                     SecretKey sk  =
-                        keyResolver.resolveSecretKey((Element) currentChild,
-                                                     this.getBaseURI(),
-                                                     storage);
+                     SecretKey sk =
+                           keyResolver.engineLookupAndResolveSecretKey((Element) currentChild,
+                                                        uri,
+                                                        storage);
 
                      if (sk != null) {
                         return sk;
                      }
                   }
-               } else {
-                  for (int k = 0; k < this._storageResolvers.size(); k++) {
-                     StorageResolver storage =
-                        (StorageResolver) this._storageResolvers.get(k);
-
-                     if (keyResolver.canResolve((Element) currentChild,
-                                                this.getBaseURI(), storage)) {
-                        SecretKey sk =
-                           keyResolver.resolveSecretKey((Element) currentChild,
-                                                        this.getBaseURI(),
-                                                        storage);
-
-                        if (sk != null) {
-                           return sk;
-                        }
-                     }
-                  }
-               }
             }
             currentChild=currentChild.getNextSibling();
          }
@@ -1086,51 +979,28 @@ public class KeyInfo extends SignatureElementProxy {
     */
 
    SecretKey getSecretKeyFromInternalResolvers() throws KeyResolverException {
-
+           int storageLength=this._storageResolvers.size();
       for (int i = 0; i < this.lengthInternalKeyResolver(); i++) {
          KeyResolverSpi keyResolver = this.itemInternalKeyResolver(i);
-         if (true)
-         	if (log.isLoggable(java.util.logging.Level.FINE))                                     log.log(java.util.logging.Level.FINE, "Try " + keyResolver.getClass().getName());
+         if (log.isLoggable(java.util.logging.Level.FINE))
+                log.log(java.util.logging.Level.FINE, "Try " + keyResolver.getClass().getName());
 
          Node currentChild=this._constructionElement.getFirstChild();
-         while (currentChild!=null)      {    
+         String uri=this.getBaseURI();
+         while (currentChild!=null)      {
             if (currentChild.getNodeType() == Node.ELEMENT_NODE) {
-               if (this._storageResolvers.size() == 0) {
+               for (int k = 0; k < storageLength; k++) {
+                     StorageResolver storage =
+                        this._storageResolvers.get(k);
 
-                  // if we do not have storage resolvers, we verify with null
-                  StorageResolver storage = null;
-
-                  if (keyResolver.engineCanResolve((Element) currentChild,
-                                                   this.getBaseURI(),
-                                                   storage)) {
-                     SecretKey sk =
-                        keyResolver
-                           .engineResolveSecretKey((Element) currentChild, this
-                              .getBaseURI(), storage);
+                     SecretKey sk = keyResolver
+                           .engineLookupAndResolveSecretKey((Element) currentChild, uri, storage);
 
                      if (sk != null) {
                         return sk;
                      }
-                  }
-               } else {
-                  for (int k = 0; k < this._storageResolvers.size(); k++) {
-                     StorageResolver storage =
-                        (StorageResolver) this._storageResolvers.get(k);
-
-                     if (keyResolver.engineCanResolve((Element) currentChild,
-                                                      this.getBaseURI(),
-                                                      storage)) {
-                        SecretKey sk = keyResolver
-                           .engineResolveSecretKey((Element) currentChild, this
-                              .getBaseURI(), storage);
-
-                        if (sk != null) {
-                           return sk;
-                        }
-                     }
-                  }
-               }
-            }
+                }
+             }
             currentChild=currentChild.getNextSibling();
          }
       }
@@ -1141,7 +1011,7 @@ public class KeyInfo extends SignatureElementProxy {
    /**
     * Stores the individual (per-KeyInfo) {@link KeyResolver}s
     */
-   List _internalKeyResolvers = new ArrayList();
+   List<KeyResolverSpi> _internalKeyResolvers = new ArrayList<KeyResolverSpi>();
 
    /**
     * This method is used to add a custom {@link KeyResolverSpi} to a KeyInfo
@@ -1150,6 +1020,9 @@ public class KeyInfo extends SignatureElementProxy {
     * @param realKeyResolver
     */
    public void registerInternalKeyResolver(KeyResolverSpi realKeyResolver) {
+           if (_internalKeyResolvers==null) {
+                   _internalKeyResolvers=new ArrayList<KeyResolverSpi>();
+           }
       this._internalKeyResolvers.add(realKeyResolver);
    }
 
@@ -1158,6 +1031,8 @@ public class KeyInfo extends SignatureElementProxy {
     * @return the length of the key
     */
    int lengthInternalKeyResolver() {
+           if (_internalKeyResolvers==null)
+                   return 0;
       return this._internalKeyResolvers.size();
    }
 
@@ -1168,11 +1043,11 @@ public class KeyInfo extends SignatureElementProxy {
     * @return the KeyResolverSpi for the index.
     */
    KeyResolverSpi itemInternalKeyResolver(int i) {
-      return (KeyResolverSpi) this._internalKeyResolvers.get(i);
+      return this._internalKeyResolvers.get(i);
    }
 
    /** Field _storageResolvers */
-   List _storageResolvers = new ArrayList();
+   private List<StorageResolver> _storageResolvers = nullList;
 
    /**
     * Method addStorageResolver
@@ -1180,19 +1055,11 @@ public class KeyInfo extends SignatureElementProxy {
     * @param storageResolver
     */
    public void addStorageResolver(StorageResolver storageResolver) {
-
-      if (storageResolver != null) {
+           if  (_storageResolvers == nullList  ){
+                   _storageResolvers=new ArrayList<StorageResolver>();
+           }
          this._storageResolvers.add(storageResolver);
-      }
-   }
 
-   /**
-    * Method getStorageResolvers
-    *
-    * @return the internalStorages
-    */
-   List getStorageResolvers() {
-      return this._storageResolvers;
    }
 
    //J-

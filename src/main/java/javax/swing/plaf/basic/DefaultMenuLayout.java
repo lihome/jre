@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1998, 2008, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.swing.plaf.basic;
@@ -16,25 +34,24 @@ import java.awt.Dimension;
 /**
  * The default layout manager for Popup menus and menubars.  This
  * class is an extension of BoxLayout which adds the UIResource tag
- * so that plauggable L&Fs can distinguish it from user-installed
+ * so that pluggable L&Fs can distinguish it from user-installed
  * layout managers on menus.
  *
- * @version %I% %G%
  * @author Georges Saab
  */
 
 public class DefaultMenuLayout extends BoxLayout implements UIResource {
     public DefaultMenuLayout(Container target, int axis) {
-	super(target, axis);
+        super(target, axis);
     }
 
     public Dimension preferredLayoutSize(Container target) {
         if (target instanceof JPopupMenu) {
-         JPopupMenu popupMenu = (JPopupMenu) target;
+            JPopupMenu popupMenu = (JPopupMenu) target;
             sun.swing.MenuItemLayoutHelper.clearUsedClientProperties(popupMenu);
-	 if (popupMenu.getComponentCount() == 0) {
-	     return new Dimension(0, 0);
-	 }
+            if (popupMenu.getComponentCount() == 0) {
+                return new Dimension(0, 0);
+            }
         }
 
         // Make BoxLayout recalculate cached preferred sizes

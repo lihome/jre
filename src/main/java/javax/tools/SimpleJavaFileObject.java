@@ -1,15 +1,32 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, 2006, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.tools;
 
 import java.io.*;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.CharBuffer;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.NestingKind;
@@ -194,6 +211,6 @@ public class SimpleJavaFileObject implements JavaFileObject {
 
     @Override
     public String toString() {
-        return uri + " from " + getClass().getSimpleName();
+        return getClass().getName() + "[" + toUri() + "]";
     }
 }

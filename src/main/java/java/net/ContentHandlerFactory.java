@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1995, 1997, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.net;
@@ -16,7 +34,6 @@ package java.net;
  * to create a <code>ContentHandler</code> for a MIME type.
  *
  * @author  James Gosling
- * @version %I%, %G%
  * @see     java.net.ContentHandler
  * @see     java.net.URLStreamHandler
  * @since   JDK1.0

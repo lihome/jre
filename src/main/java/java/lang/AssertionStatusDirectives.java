@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2006, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.lang;
@@ -10,7 +28,7 @@ package java.lang;
 /**
  * A collection of assertion status directives (such as "enable assertions
  * in package p" or "disable assertions in class c").  This class is used by
- * the JVM to communicate the assertion status directives implied by 
+ * the JVM to communicate the assertion status directives implied by
  * the <tt>java</tt> command line flags <tt>-enableassertions</tt>
  * (<tt>-ea</tt>) and <tt>-disableassertions</tt> (<tt>-da</tt>).
  *

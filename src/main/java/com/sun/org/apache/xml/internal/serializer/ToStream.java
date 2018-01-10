@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright 2001-2004 The Apache Software Foundation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +18,7 @@
  * limitations under the License.
  */
 /*
- * $Id: ToStream.java,v 1.5.2.2 2007/01/23 06:25:59 joehw Exp $
+ * $Id: ToStream.java,v 1.4 2005/11/10 06:43:26 suresh_emailid Exp $
  */
 package com.sun.org.apache.xml.internal.serializer;
 
@@ -43,9 +47,9 @@ import org.xml.sax.SAXException;
 //import com.sun.media.sound.IESecurity;
 
 /**
- * This abstract class is a base class for other stream 
+ * This abstract class is a base class for other stream
  * serializers (xml, html, text ...) that write output to a stream.
- * 
+ *
  * @xsl.usage internal
  */
 abstract public class ToStream extends SerializerBase
@@ -65,12 +69,12 @@ abstract public class ToStream extends SerializerBase
      * that every character is in the encoding. This is useful
      * for a serializer that is in temporary output state and has
      * no associated encoding. A serializer in final output state
-     * will have an encoding, and will worry about whether 
+     * will have an encoding, and will worry about whether
      * single chars or surrogate pairs of high/low chars form
-     * characters in the output encoding. 
+     * characters in the output encoding.
      */
     EncodingInfo m_encodingInfo = new EncodingInfo(null,null);
-    
+
     /**
      * Method reference to the sun.io.CharToByteConverter#canConvert method
      * for this encoding.  Invalid if m_charToByteConverter is null.
@@ -90,35 +94,35 @@ abstract public class ToStream extends SerializerBase
      * encoding.
      */
     Object m_charToByteConverter = null;
- 
- 
+
+
     /**
      * Stack to keep track of whether or not we need to
      * preserve whitespace.
-     * 
+     *
      * Used to push/pop values used for the field m_ispreserve, but
      * m_ispreserve is only relevant if m_doIndent is true.
      * If m_doIndent is false this field has no impact.
-     * 
+     *
      */
     protected BoolStack m_preserves = new BoolStack();
 
     /**
      * State flag to tell if preservation of whitespace
-     * is important. 
-     * 
+     * is important.
+     *
      * Used only in shouldIndent() but only if m_doIndent is true.
      * If m_doIndent is false this flag has no impact.
-     * 
+     *
      */
     protected boolean m_ispreserve = false;
 
     /**
      * State flag that tells if the previous node processed
      * was text, so we can tell if we should preserve whitespace.
-     * 
+     *
      * Used in endDocument() and shouldIndent() but
-     * only if m_doIndent is true. 
+     * only if m_doIndent is true.
      * If m_doIndent is false this flag has no impact.
      */
     protected boolean m_isprevtext = false;
@@ -138,11 +142,11 @@ abstract public class ToStream extends SerializerBase
      */
     protected char[] m_lineSep =
         SecuritySupport.getSystemProperty("line.separator").toCharArray();
-        
+
     /**
      * True if the the system line separator is to be used.
-     */    
-    protected boolean m_lineSepUse = true;    
+     */
+    protected boolean m_lineSepUse = true;
 
     /**
      * The length of the line seperator, since the write is done
@@ -166,7 +170,7 @@ abstract public class ToStream extends SerializerBase
 
     /**
      * Flag to signal that a newline should be added.
-     * 
+     *
      * Used only in indent() which is called only if m_doIndent is true.
      * If m_doIndent is false this flag has no impact.
      */
@@ -189,13 +193,13 @@ abstract public class ToStream extends SerializerBase
      * remembers if we are in between the startCDATA() and endCDATA() callbacks
      */
     protected boolean m_cdataStartCalled = false;
-    
+
     /**
      * If this flag is true DTD entity references are not left as-is,
      * which is exiting older behavior.
      */
     private boolean m_expandDTDEntities = true;
-  
+
 
     /**
      * Default constructor
@@ -259,7 +263,7 @@ abstract public class ToStream extends SerializerBase
     }
 
     /**
-     * Taken from XSLTC 
+     * Taken from XSLTC
      */
     private boolean m_escaping = true;
 
@@ -289,8 +293,8 @@ abstract public class ToStream extends SerializerBase
                 }
                 else
                 {
-                    // Flush always. 
-                    // Not a great thing if the writer was created 
+                    // Flush always.
+                    // Not a great thing if the writer was created
                     // by this class, but don't have a choice.
                     writer.flush();
                 }
@@ -323,13 +327,13 @@ abstract public class ToStream extends SerializerBase
 
     /**
      *   Report an element type declaration.
-     *  
+     *
      *   <p>The content model will consist of the string "EMPTY", the
      *   string "ANY", or a parenthesised group, optionally followed
      *   by an occurrence indicator.  The model will be normalized so
      *   that all whitespace is removed,and will include the enclosing
      *   parentheses.</p>
-     *  
+     *
      *   @param name The element type name.
      *   @param model The content model as a normalized string.
      *   @exception SAXException The application may raise an exception.
@@ -457,15 +461,15 @@ abstract public class ToStream extends SerializerBase
 
         m_shouldFlush = shouldFlush;
 
-        
+
         // if we are tracing events we need to trace what
         // characters are written to the output writer.
         if (m_tracer != null
          && !(writer instanceof SerializerTraceWriter)  )
             m_writer = new SerializerTraceWriter(writer, m_tracer);
         else
-            m_writer = writer;        
-        
+            m_writer = writer;
+
 
         m_format = format;
         //        m_cdataSectionNames =
@@ -480,9 +484,9 @@ abstract public class ToStream extends SerializerBase
                 format));
         setIndent(
             OutputPropertyUtils.getBooleanProperty(OutputKeys.INDENT, format));
-            
+
         {
-            String sep = 
+            String sep =
                     format.getProperty(OutputPropertiesFactory.S_KEY_LINE_SEPARATOR);
             if (sep != null) {
                 m_lineSep = sep.toCharArray();
@@ -517,7 +521,7 @@ abstract public class ToStream extends SerializerBase
                 m_spaceBeforeClose = true;
         }
 
-        /* 
+        /*
          * This code is added for XML 1.1 Version output.
          */
         String version = getVersion();
@@ -539,7 +543,7 @@ abstract public class ToStream extends SerializerBase
 
         m_isUTF8 = encoding.equals(Encodings.DEFAULT_MIME_ENCODING);
 
-        // Access this only from the Hashtable level... we don't want to 
+        // Access this only from the Hashtable level... we don't want to
         // get default properties.
         String entitiesFileName =
             (String) format.get(OutputPropertiesFactory.S_KEY_ENTITIES);
@@ -547,9 +551,9 @@ abstract public class ToStream extends SerializerBase
         if (null != entitiesFileName)
         {
 
-            String method = 
+            String method =
                 (String) format.get(OutputKeys.METHOD);
-            
+
             m_charInfo = CharInfo.getCharInfo(entitiesFileName, method);
         }
 
@@ -574,7 +578,7 @@ abstract public class ToStream extends SerializerBase
      * @param format The output format
      * @param defaultProperties true if the properties are the default
      * properties
-     * 
+     *
      * @throws UnsupportedEncodingException The encoding specified   in the
      * output format is not supported
      */
@@ -608,11 +612,11 @@ abstract public class ToStream extends SerializerBase
             //            }
             //            else
             //            {
-            //                // Not sure what to do in this case.  I'm going to be conservative 
+            //                // Not sure what to do in this case.  I'm going to be conservative
             //                // and not buffer.
             //                init(new WriterToUTF8(output), format, defaultProperties, true);
             //            }
-         
+
 
                 init(
                     new WriterToUTF8Buffered(output),
@@ -674,8 +678,8 @@ abstract public class ToStream extends SerializerBase
      * @param writer The output writer stream
      */
     public void setWriter(Writer writer)
-    {        
-        // if we are tracing events we need to trace what 
+    {
+        // if we are tracing events we need to trace what
         // characters are written to the output writer.
         if (m_tracer != null
          && !(writer instanceof SerializerTraceWriter)  )
@@ -683,16 +687,16 @@ abstract public class ToStream extends SerializerBase
         else
             m_writer = writer;
     }
-    
+
     /**
      * Set if the operating systems end-of-line line separator should
-     * be used when serializing.  If set false NL character 
+     * be used when serializing.  If set false NL character
      * (decimal 10) is left alone, otherwise the new-line will be replaced on
      * output with the systems line separator. For example on UNIX this is
      * NL, while on Windows it is two characters, CR NL, where CR is the
      * carriage-return (decimal 13).
-     *  
-     * @param use_sytem_line_break True if an input NL is replaced with the 
+     *
+     * @param use_sytem_line_break True if an input NL is replaced with the
      * operating systems end-of-line separator.
      * @return The previously set value of the serializer.
      */
@@ -750,7 +754,7 @@ abstract public class ToStream extends SerializerBase
     /**
      * Might print a newline character and the indentation amount
      * of the given depth.
-     * 
+     *
      * @param depth the indentation depth (element nesting depth)
      *
      * @throws org.xml.sax.SAXException if an error occurs during writing.
@@ -768,7 +772,7 @@ abstract public class ToStream extends SerializerBase
             printSpace(depth * m_indentAmount);
 
     }
-    
+
     /**
      * Indent at the current element nesting depth.
      * @throws IOException
@@ -885,13 +889,13 @@ abstract public class ToStream extends SerializerBase
     {
         try {
             DTDprolog();
-            
-            m_writer.write("<!ENTITY ");            
+
+            m_writer.write("<!ENTITY ");
             m_writer.write(name);
             if (publicId != null) {
                 m_writer.write(" PUBLIC \"");
                 m_writer.write(publicId);
-  
+
             }
             else {
                 m_writer.write(" SYSTEM \"");
@@ -914,19 +918,19 @@ abstract public class ToStream extends SerializerBase
         final boolean ret;
         if (ch < 127)
         {
-            // This is the old/fast code here, but is this 
+            // This is the old/fast code here, but is this
             // correct for all encodings?
             if (ch >= 0x20 || (0x0A == ch || 0x0D == ch || 0x09 == ch))
                 ret= true;
             else
                 ret = false;
         }
-        else {            
+        else {
             ret = m_encodingInfo.isInEncoding(ch);
         }
-        return ret;        
+        return ret;
     }
-    
+
     /**
      * Once a surrogate has been detected, write out the pair of
      * characters if it is in the encoding, or if there is no
@@ -946,8 +950,8 @@ abstract public class ToStream extends SerializerBase
      * @return 0 if the pair of characters was written out as-is,
      * the unicode code point of the character represented by
      * the surrogate pair if an entity reference with that value
-     * was written out. 
-     * 
+     * was written out.
+     *
      * @throws IOException
      * @throws org.xml.sax.SAXException if invalid UTF-16 surrogate detected.
      */
@@ -962,7 +966,7 @@ abstract public class ToStream extends SerializerBase
                     MsgKey.ER_INVALID_UTF16_SURROGATE,
                     new Object[] { Integer.toHexString((int) c)}));
         }
-        
+
         final char high = c;
         final char low = ch[i+1];
         if (!Encodings.isLowUTF16Surrogate(low)) {
@@ -976,7 +980,7 @@ abstract public class ToStream extends SerializerBase
         }
 
         final java.io.Writer writer = m_writer;
-                
+
         // If we make it to here we have a valid high, low surrogate pair
         if (m_encodingInfo.isInEncoding(c,low)) {
             // If the character formed by the surrogate pair
@@ -989,7 +993,7 @@ abstract public class ToStream extends SerializerBase
             // a surrogate pair, so write out as an entity ref
             final String encoding = getEncoding();
             if (encoding != null) {
-                /* The output encoding is known, 
+                /* The output encoding is known,
                  * so somthing is wrong.
                   */
                 codePoint = Encodings.toCodePoint(high, low);
@@ -1069,7 +1073,7 @@ abstract public class ToStream extends SerializerBase
      * @param start The start position in the array.
      * @param length The number of characters to read from the array.
      * @param isCData true if a CDATA block should be built around the characters.
-     * @param useSystemLineSeparator true if the operating systems 
+     * @param useSystemLineSeparator true if the operating systems
      * end-of-line separator should be output rather than a new-line character.
      *
      * @throws IOException
@@ -1100,7 +1104,7 @@ abstract public class ToStream extends SerializerBase
                 if (m_cdataTagOpen)
                     closeCDATA();
 
-                // This needs to go into a function... 
+                // This needs to go into a function...
                 if (Encodings.isHighUTF16Surrogate(c))
                 {
                     writeUTF16Surrogate(c, ch, i, end);
@@ -1146,7 +1150,7 @@ abstract public class ToStream extends SerializerBase
                     writer.write(c);
                 }
 
-                // This needs to go into a function... 
+                // This needs to go into a function...
                 else if (Encodings.isHighUTF16Surrogate(c))
                 {
                     if (m_cdataTagOpen)
@@ -1246,7 +1250,7 @@ abstract public class ToStream extends SerializerBase
 
             /* Write out the CDATA opening delimiter only if
              * we are supposed to, and if we are not already in
-             * the middle of a CDATA section  
+             * the middle of a CDATA section
              */
             if (writeCDataBrackets && !m_cdataTagOpen)
             {
@@ -1263,15 +1267,15 @@ abstract public class ToStream extends SerializerBase
                 writeNormalizedChars(ch, start, length, true, m_lineSepUse);
 
             /* used to always write out CDATA closing delimiter here,
-             * but now we delay, so that we can merge CDATA sections on output.    
+             * but now we delay, so that we can merge CDATA sections on output.
              * need to write closing delimiter later
              */
             if (writeCDataBrackets)
             {
                 /* if the CDATA section ends with ] don't leave it open
                  * as there is a chance that an adjacent CDATA sections
-                 * starts with ]>.  
-                 * We don't want to merge ]] with > , or ] with ]> 
+                 * starts with ]>.
+                 * We don't want to merge ]] with > , or ] with ]>
                  */
                 if (ch[start + length - 1] == ']')
                     closeCDATA();
@@ -1367,10 +1371,10 @@ abstract public class ToStream extends SerializerBase
     public void characters(final char chars[], final int start, final int length)
         throws org.xml.sax.SAXException
     {
-        // It does not make sense to continue with rest of the method if the number of 
+        // It does not make sense to continue with rest of the method if the number of
         // characters to read from array is 0.
         // Section 7.6.1 of XSLT 1.0 (http://www.w3.org/TR/xslt#value-of) suggest no text node
-        // is created if string is empty.	
+        // is created if string is empty.
         if (length == 0 || (m_inEntityRef && !m_expandDTDEntities))
             return;
         if (m_elemContext.m_startTagOpen)
@@ -1385,7 +1389,7 @@ abstract public class ToStream extends SerializerBase
 
         if (m_cdataStartCalled || m_elemContext.m_isCdataSection)
         {
-            /* either due to startCDATA() being called or due to 
+            /* either due to startCDATA() being called or due to
              * cdata-section-elements atribute, we need this as cdata
              */
             cdata(chars, start, length);
@@ -1414,20 +1418,20 @@ abstract public class ToStream extends SerializerBase
             m_elemContext.m_startTagOpen = false;
         }
 
-        
+
         try
         {
             int i;
             char ch1;
             int startClean;
-            
-            // skip any leading whitspace 
+
+            // skip any leading whitspace
             // don't go off the end and use a hand inlined version
             // of isWhitespace(ch)
             final int end = start + length;
             int lastDirty = start - 1; // last character that needed processing
             for (i = start;
-                ((i < end)                
+                ((i < end)
                     && ((ch1 = chars[i]) == 0x20
                         || (ch1 == 0xA && m_lineSepUse)
                         || ch1 == 0xD
@@ -1437,7 +1441,7 @@ abstract public class ToStream extends SerializerBase
                 /*
                  * We are processing leading whitespace, but are doing the same
                  * processing for dirty characters here as for non-whitespace.
-                 * 
+                 *
                  */
                 if (!m_charInfo.isTextASCIIClean(ch1))
                 {
@@ -1447,37 +1451,37 @@ abstract public class ToStream extends SerializerBase
             }
             /* If there is some non-whitespace, mark that we may need
              * to preserve this. This is only important if we have indentation on.
-             */            
-            if (i < end) 
+             */
+            if (i < end)
                 m_ispreserve = true;
-                
+
 
 //            int lengthClean;    // number of clean characters in a row
 //            final boolean[] isAsciiClean = m_charInfo.getASCIIClean();
-            
+
             final boolean isXML10 = XMLVERSION10.equals(getVersion());
             // we've skipped the leading whitespace, now deal with the rest
             for (; i < end; i++)
-            {                      
+            {
                 {
                     // A tight loop to skip over common clean chars
                     // This tight loop makes it easier for the JIT
                     // to optimize.
                     char ch2;
-                    while (i<end 
+                    while (i<end
                             && ((ch2 = chars[i])<127)
                             && m_charInfo.isTextASCIIClean(ch2))
                             i++;
                     if (i == end)
                         break;
-                }  
-                   
+                }
+
                 final char ch = chars[i];
-                /*  The check for isCharacterInC0orC1Ranger and 
+                /*  The check for isCharacterInC0orC1Ranger and
                  *  isNELorLSEPCharacter has been added
                  *  to support Control Characters in XML 1.1
-                 */     
-                if (!isCharacterInC0orC1Range(ch) && 
+                 */
+                if (!isCharacterInC0orC1Range(ch) &&
                     (isXML10 || !isNELorLSEPCharacter(ch)) &&
                     (escapingNotNeeded(ch) && (!m_charInfo.isSpecialTextChar(ch)))
                         || ('"' == ch))
@@ -1490,7 +1494,7 @@ abstract public class ToStream extends SerializerBase
                     i = lastDirty;
                 }
             }
-            
+
             // we've reached the end. Any clean characters at the
             // end of the array than need to be written out?
             startClean = lastDirty + 1;
@@ -1511,29 +1515,29 @@ abstract public class ToStream extends SerializerBase
         // time to fire off characters generation event
         if (m_tracer != null)
             super.fireCharEvent(chars, start, length);
-    }     
+    }
     /**
      * This method checks if a given character is between C0 or C1 range
      * of Control characters.
      * This method is added to support Control Characters for XML 1.1
      * If a given character is TAB (0x09), LF (0x0A) or CR (0x0D), this method
      * return false. Since they are whitespace characters, no special processing is needed.
-     * 
+     *
      * @param ch
      * @return boolean
      */
     private static boolean isCharacterInC0orC1Range(char ch)
     {
         if(ch == 0x09 || ch == 0x0A || ch == 0x0D)
-        	return false;
-        else        	    	
-        	return (ch >= 0x7F && ch <= 0x9F)|| (ch >= 0x01 && ch <= 0x1F);
+                return false;
+        else
+                return (ch >= 0x7F && ch <= 0x9F)|| (ch >= 0x01 && ch <= 0x1F);
     }
     /**
      * This method checks if a given character either NEL (0x85) or LSEP (0x2028)
      * These are new end of line charcters added in XML 1.1.  These characters must be
      * written as Numeric Character References (NCR) in XML 1.1 output document.
-     * 
+     *
      * @param ch
      * @return boolean
      */
@@ -1545,7 +1549,7 @@ abstract public class ToStream extends SerializerBase
      * Process a dirty character and any preeceding clean characters
      * that were not yet processed.
      * @param chars array of characters being processed
-     * @param end one (1) beyond the last character 
+     * @param end one (1) beyond the last character
      * in chars to be processed
      * @param i the index of the dirty character
      * @param ch the character in chars[i]
@@ -1555,16 +1559,16 @@ abstract public class ToStream extends SerializerBase
      * @return the index of the last character processed
      */
     private int processDirty(
-        char[] chars, 
+        char[] chars,
         int end,
-        int i, 
+        int i,
         char ch,
         int lastDirty,
         boolean fromTextNode) throws IOException
     {
         int startClean = lastDirty + 1;
         // if we have some clean characters accumulated
-        // process them before the dirty one.                   
+        // process them before the dirty one.
         if (i > startClean)
         {
             int lengthClean = i - startClean;
@@ -1589,7 +1593,7 @@ abstract public class ToStream extends SerializerBase
                     false);
             i = startClean - 1;
         }
-        // Return the index of the last character that we just processed 
+        // Return the index of the last character that we just processed
         // which is a dirty character.
         return i;
     }
@@ -1694,17 +1698,17 @@ abstract public class ToStream extends SerializerBase
                  *  If a character is a Control Character within C0 and C1 range, it is desirable
                  *  to write it out as Numeric Character Reference(NCR) regardless of XML Version
                  *  being used for output document.
-                 */ 
-                if (isCharacterInC0orC1Range(ch) || 
+                 */
+                if (isCharacterInC0orC1Range(ch) ||
                         (XMLVERSION11.equals(getVersion()) && isNELorLSEPCharacter(ch)))
                 {
                     writer.write("&#");
                     writer.write(Integer.toString(ch));
                     writer.write(';');
                 }
-                else if ((!escapingNotNeeded(ch) || 
+                else if ((!escapingNotNeeded(ch) ||
                     (  (fromTextNode && m_charInfo.isSpecialTextChar(ch))
-                     || (!fromTextNode && m_charInfo.isSpecialAttrChar(ch)))) 
+                     || (!fromTextNode && m_charInfo.isSpecialAttrChar(ch))))
                 && m_elemContext.m_currentElemDepth > 0)
                 {
                     writer.write("&#");
@@ -1770,7 +1774,7 @@ abstract public class ToStream extends SerializerBase
             }
 
             m_needToOutputDocTypeDecl = false;
-        
+
             /* before we over-write the current elementLocalName etc.
              * lets close out the old one (if we still need to)
              */
@@ -1782,7 +1786,7 @@ abstract public class ToStream extends SerializerBase
 
             if (namespaceURI != null)
                 ensurePrefixIsDeclared(namespaceURI, name);
-                
+
             m_ispreserve = false;
 
             if (shouldIndent() && m_startNewLine)
@@ -1800,18 +1804,18 @@ abstract public class ToStream extends SerializerBase
         {
             throw new SAXException(e);
         }
-     
+
         // process the attributes now, because after this SAX call they might be gone
         if (atts != null)
             addAttributes(atts);
-             
+
         m_elemContext = m_elemContext.push(namespaceURI,localName,name);
         m_isprevtext = false;
 
         if (m_tracer != null){
             firePseudoAttributes();
         }
-            
+
     }
 
     /**
@@ -1916,9 +1920,9 @@ abstract public class ToStream extends SerializerBase
      * Process the attributes, which means to write out the currently
      * collected attributes to the writer. The attributes are not
      * cleared by this method
-     * 
+     *
      * @param writer the writer to write processed attributes to.
-     * @param nAttrs the number of attributes in m_attributes 
+     * @param nAttrs the number of attributes in m_attributes
      * to be processed
      *
      * @throws java.io.IOException
@@ -1926,7 +1930,7 @@ abstract public class ToStream extends SerializerBase
      */
     public void processAttributes(java.io.Writer writer, int nAttrs) throws IOException, SAXException
     {
-            /* real SAX attributes are not passed in, so process the 
+            /* real SAX attributes are not passed in, so process the
              * attributes that were collected after the startElement call.
              * _attribVector is a "cheap" list for Stream serializer output
              * accumulated over a series of calls to attribute(name,value)
@@ -1963,9 +1967,9 @@ abstract public class ToStream extends SerializerBase
         final int len = string.length();
         if (len > m_attrBuff.length)
         {
-           m_attrBuff = new char[len*2 + 1];             
+           m_attrBuff = new char[len*2 + 1];
         }
-        string.getChars(0,len, m_attrBuff, 0);   
+        string.getChars(0,len, m_attrBuff, 0);
         final char[] stringChars = m_attrBuff;
 
         for (int i = 0; i < len; )
@@ -2011,12 +2015,12 @@ abstract public class ToStream extends SerializerBase
     public void endElement(String namespaceURI, String localName, String name)
         throws org.xml.sax.SAXException
     {
-        
+
         if (m_inEntityRef)
             return;
 
         // namespaces declared at the current depth are no longer valid
-        // so get rid of them    
+        // so get rid of them
         m_prefixMap.popNamespaces(m_elemContext.m_currentElemDepth, null);
 
         try
@@ -2090,15 +2094,15 @@ abstract public class ToStream extends SerializerBase
      * just before another element is about to start.
      * This call will close any open tags so that the prefix mapping
      * will not apply to the current element, but the up comming child.
-     * 
+     *
      * @see org.xml.sax.ContentHandler#startPrefixMapping
-     * 
+     *
      * @param prefix The Namespace prefix being declared.
      * @param uri The Namespace URI the prefix is mapped to.
-     * 
+     *
      * @throws org.xml.sax.SAXException The client may throw
      *            an exception during processing.
-     * 
+     *
      */
     public void startPrefixMapping(String prefix, String uri)
         throws org.xml.sax.SAXException
@@ -2119,10 +2123,10 @@ abstract public class ToStream extends SerializerBase
      * @param shouldFlush true if any open tags need to be closed first, this
      * will impact which element the mapping applies to (open parent, or its up
      * comming child)
-     * @return returns true if the call made a change to the current 
+     * @return returns true if the call made a change to the current
      * namespace information, false if it did not change anything, e.g. if the
      * prefix/namespace mapping was already in scope from before.
-     * 
+     *
      * @throws org.xml.sax.SAXException The client may throw
      *            an exception during processing.
      *
@@ -2160,7 +2164,7 @@ abstract public class ToStream extends SerializerBase
         {
             /* Brian M.: don't know if we really needto do this. The
              * callers of this object should have injected both
-             * startPrefixMapping and the attributes.  We are 
+             * startPrefixMapping and the attributes.  We are
              * just covering our butt here.
              */
             String name;
@@ -2216,14 +2220,18 @@ abstract public class ToStream extends SerializerBase
 
         try
         {
-            if (shouldIndent())
+            if (shouldIndent() && m_isStandalone)
                 indent();
 
             final int limit = start + length;
             boolean wasDash = false;
             if (m_cdataTagOpen)
                 closeCDATA();
-            final java.io.Writer writer = m_writer;    
+
+            if (shouldIndent() && !m_isStandalone)
+                indent();
+
+            final java.io.Writer writer = m_writer;
             writer.write(COMMENT_BEGIN);
             // Detect occurrences of two consecutive dashes, handle as necessary.
             for (int i = start; i < limit; i++)
@@ -2255,6 +2263,15 @@ abstract public class ToStream extends SerializerBase
             throw new SAXException(e);
         }
 
+        /*
+         * Don't write out any indentation whitespace now,
+         * because there may be non-whitespace text after this.
+         *
+         * Simply mark that at this point if we do decide
+         * to indent that we should
+         * add a newline on the end of the current line before
+         * the indentation at the start of the next line.
+         */
         m_startNewLine = true;
         // time to generate comment event
         if (m_tracer != null)
@@ -2288,7 +2305,7 @@ abstract public class ToStream extends SerializerBase
             if (m_needToCallStartDocument) {
                 return;
             }
-            
+
             if (m_needToOutputDocTypeDecl)
             {
                 outputDocTypeDecl(m_elemContext.m_elementName, false);
@@ -2314,7 +2331,7 @@ abstract public class ToStream extends SerializerBase
     /**
      * End the scope of a prefix-URI Namespace mapping.
      * @see org.xml.sax.ContentHandler#endPrefixMapping
-     * 
+     *
      * @param prefix The prefix that was being mapping.
      * @throws org.xml.sax.SAXException The client may throw
      *            an exception during processing.
@@ -2325,16 +2342,16 @@ abstract public class ToStream extends SerializerBase
 
     /**
      * Receive notification of ignorable whitespace in element content.
-     * 
+     *
      * Not sure how to get this invoked quite yet.
-     * 
+     *
      * @param ch The characters from the XML document.
      * @param start The start position in the array.
      * @param length The number of characters to read from the array.
      * @throws org.xml.sax.SAXException Any SAX exception, possibly
      *            wrapping another exception.
      * @see #characters
-     * 
+     *
      * @throws org.xml.sax.SAXException
      */
     public void ignorableWhitespace(char ch[], int start, int length)
@@ -2349,7 +2366,7 @@ abstract public class ToStream extends SerializerBase
     /**
      * Receive notification of a skipped entity.
      * @see org.xml.sax.ContentHandler#skippedEntity
-     * 
+     *
      * @param name The name of the skipped entity.  If it is a
      *       parameter                   entity, the name will begin with '%',
      * and if it is the external DTD subset, it will be the string
@@ -2363,7 +2380,7 @@ abstract public class ToStream extends SerializerBase
 
     /**
      * Report the start of a CDATA section.
-     * 
+     *
      * @throws org.xml.sax.SAXException The application may raise an exception.
      * @see #endCDATA
      */
@@ -2374,12 +2391,12 @@ abstract public class ToStream extends SerializerBase
 
     /**
      * Report the beginning of an entity.
-     * 
+     *
      * The start and end of the document entity are not reported.
      * The start and end of the external DTD subset are reported
      * using the pseudo-name "[dtd]".  All other events must be
      * properly nested within start/end entity events.
-     * 
+     *
      * @param name The name of the entity.  If it is a parameter
      *        entity, the name will begin with '%'.
      * @throws org.xml.sax.SAXException The application may raise an exception.
@@ -2455,7 +2472,7 @@ abstract public class ToStream extends SerializerBase
      *
      * Any declarations are assumed to be in the internal subset unless
      * otherwise indicated.
-     * 
+     *
      * @param name The document type name.
      * @param publicId The declared public identifier for the
      *        external DTD subset, or null if none was declared.
@@ -2487,7 +2504,7 @@ abstract public class ToStream extends SerializerBase
 
     /**
      * Sets the m_indentAmount.
-     * 
+     *
      * @param m_indentAmount The m_indentAmount to set
      */
     public void setIndentAmount(int m_indentAmount)
@@ -2503,7 +2520,7 @@ abstract public class ToStream extends SerializerBase
      */
     protected boolean shouldIndent()
     {
-        return m_doIndent && (!m_ispreserve && !m_isprevtext);
+        return m_doIndent && (!m_ispreserve && !m_isprevtext) && (m_elemContext.m_currentElemDepth > 0 || m_isStandalone);
     }
 
     /**
@@ -2514,10 +2531,10 @@ abstract public class ToStream extends SerializerBase
      *
      * @param   key   the property key.
      * @param props the list of properties to search in.
-     * 
+     *
      * Sets the vector of local-name/URI pairs of the cdata section elements
      * specified in the cdata-section-elements property.
-     * 
+     *
      * This method is essentially a copy of getQNameProperties() from
      * OutputProperties. Eventually this method should go away and a call
      * to setCdataSectionElements(Vector v) should be made directly.
@@ -2576,8 +2593,8 @@ abstract public class ToStream extends SerializerBase
     /**
      * Adds a URI/LocalName pair of strings to the list.
      *
-     * @param URI_and_localName String of the form "{uri}local" or "local" 
-     * 
+     * @param URI_and_localName String of the form "{uri}local" or "local"
+     *
      * @return a QName object
      */
     private void addCdataSectionElement(String URI_and_localName, Vector v)
@@ -2604,9 +2621,9 @@ abstract public class ToStream extends SerializerBase
 
     /**
      * Remembers the cdata sections specified in the cdata-section-elements.
-     * The "official way to set URI and localName pairs. 
+     * The "official way to set URI and localName pairs.
      * This method should be used by both Xalan and XSLTC.
-     * 
+     *
      * @param URI_and_localNames a vector of pairs of Strings (URI/local)
      */
     public void setCdataSectionElements(Vector URI_and_localNames)
@@ -2618,9 +2635,9 @@ abstract public class ToStream extends SerializerBase
      * Makes sure that the namespace URI for the given qualified attribute name
      * is declared.
      * @param ns the namespace URI
-     * @param rawName the qualified name 
+     * @param rawName the qualified name
      * @return returns null if no action is taken, otherwise it returns the
-     * prefix used in declaring the namespace. 
+     * prefix used in declaring the namespace.
      * @throws SAXException
      */
     protected String ensureAttributesNamespaceIsDeclared(
@@ -2642,7 +2659,7 @@ abstract public class ToStream extends SerializerBase
 
             if (index > 0)
             {
-                // we have a prefix, lets see if it maps to a namespace 
+                // we have a prefix, lets see if it maps to a namespace
                 String uri = m_prefixMap.lookupNamespace(prefixFromRawName);
                 if (uri != null && uri.equals(ns))
                 {
@@ -2759,7 +2776,7 @@ abstract public class ToStream extends SerializerBase
      * Adds the given attribute to the set of attributes, even if there is
      * no currently open element. This is useful if a SAX startPrefixMapping()
      * should need to add an attribute before the element name is seen.
-     * 
+     *
      * This method is a copy of its super classes method, except that some
      * tracing of events is done.  This is so the tracing is only done for
      * stream serializers, not for SAX ones.
@@ -2770,7 +2787,7 @@ abstract public class ToStream extends SerializerBase
      * @param type the type of the attribute (probably CDATA)
      * @param value the value of the attribute
      * @param xslAttribute true if this attribute is coming from an xsl:attribute element.
-     * @return true if the attribute value was added, 
+     * @return true if the attribute value was added,
      * false if the attribute already existed and the value was
      * replaced with the new value.
      */
@@ -2784,7 +2801,7 @@ abstract public class ToStream extends SerializerBase
     {
         boolean was_added;
         int index;
-        //if (uri == null || localName == null || uri.length() == 0) 
+        //if (uri == null || localName == null || uri.length() == 0)
             index = m_attributes.getIndex(rawName);
         // Don't use 'localName' as it gives incorrect value, rely only on 'rawName'
         /*else {
@@ -2822,7 +2839,7 @@ abstract public class ToStream extends SerializerBase
                  *   <elem1  foo:attr1="1" xmlns:foo="uri1">
                  *       <xsl:attribute name="foo:attr2">2</xsl:attribute>
                  *   </elem1>
-                 * 
+                 *
                  * We are adding attr1 and attr2 both as attributes of elem1,
                  * and this code is adding attr2 (the xsl:attribute ).
                  * We could have a collision with the prefix like in the example above.
@@ -2838,14 +2855,14 @@ abstract public class ToStream extends SerializerBase
                     /* Before adding this attribute (foo:attr2),
                      * is the prefix for it (foo) already mapped at the current depth?
                      */
-                    if (existing_mapping != null 
+                    if (existing_mapping != null
                     && existing_mapping.m_declarationDepth == m_elemContext.m_currentElemDepth
                     && !existing_mapping.m_uri.equals(uri))
                     {
                         /*
                          * There is an existing mapping of this prefix,
                          * it differs from the one we need,
-                         * and unfortunately it is at the current depth so we 
+                         * and unfortunately it is at the current depth so we
                          * can not over-ride it.
                          */
 
@@ -2856,13 +2873,13 @@ abstract public class ToStream extends SerializerBase
                         if (prefix == null)
                         {
                             /* Unfortunately there is no existing prefix that happens to map to ours,
-                             * so to avoid a prefix collision we must generated a new prefix to use. 
+                             * so to avoid a prefix collision we must generated a new prefix to use.
                              * This is OK because the prefix URI mapping
-                             * defined in the xsl:attribute is short in scope, 
-                             * just the xsl:attribute element itself, 
+                             * defined in the xsl:attribute is short in scope,
+                             * just the xsl:attribute element itself,
                              * and at this point in serialization the body of the
                              * xsl:attribute, if any, is just a String. Right?
-                             *   . . . I sure hope so - Brian M. 
+                             *   . . . I sure hope so - Brian M.
                              */
                             prefix = m_prefixMap.generateNextPrefix();
                         }
@@ -2913,7 +2930,7 @@ abstract public class ToStream extends SerializerBase
             {
                 // flush out the "<elemName" if not already flushed
                 m_writer.flush();
-                
+
                 // make a StringBuffer to write the name="value" pairs to.
                 StringBuffer sb = new StringBuffer();
                 int nAttrs = m_attributes.getLength();
@@ -2925,20 +2942,20 @@ abstract public class ToStream extends SerializerBase
                         new ToStream.WritertoStringBuffer(sb);
 
                     processAttributes(writer, nAttrs);
-                    // Don't clear the attributes! 
+                    // Don't clear the attributes!
                     // We only want to see what would be written out
                     // at this point, we don't want to loose them.
                 }
                 sb.append('>');  // the potential > after the attributes.
                 // convert the StringBuffer to a char array and
                 // emit the trace event that these characters "might"
-                // be written                
+                // be written
                 char ch[] = sb.toString().toCharArray();
                 m_tracer.fireGenerateEvent(
                     SerializerTrace.EVENTTYPE_OUTPUT_PSEUDO_CHARACTERS,
                     ch,
                     0,
-                    ch.length);                
+                    ch.length);
             }
             catch (IOException ioe)
             {
@@ -2989,7 +3006,7 @@ abstract public class ToStream extends SerializerBase
         {
             m_stringbuf.append((char) i);
         }
-        
+
         public void write(String s)
         {
             m_stringbuf.append(s);
@@ -3003,15 +3020,15 @@ abstract public class ToStream extends SerializerBase
         super.setTransformer(transformer);
         if (m_tracer != null
          && !(m_writer instanceof SerializerTraceWriter)  )
-            m_writer = new SerializerTraceWriter(m_writer, m_tracer);        
-        
-        
+            m_writer = new SerializerTraceWriter(m_writer, m_tracer);
+
+
     }
     /**
-     * Try's to reset the super class and reset this class for 
-     * re-use, so that you don't need to create a new serializer 
+     * Try's to reset the super class and reset this class for
+     * re-use, so that you don't need to create a new serializer
      * (mostly for performance reasons).
-     * 
+     *
      * @return true if the class was successfuly reset.
      */
     public boolean reset()
@@ -3024,7 +3041,7 @@ abstract public class ToStream extends SerializerBase
         }
         return wasReset;
     }
-    
+
     /**
      * Reset all of the fields owned by ToStream class
      *
@@ -3036,12 +3053,12 @@ abstract public class ToStream extends SerializerBase
           * ToXMLStream, ToHTMLStream ... and this type can't be changed
           * so neither should m_charInfo which is associated with the
           * type of Stream. Just leave m_charInfo as-is for the next re-use.
-          * 
+          *
           */
-         // this.m_charInfo = null; // don't set to null 
+         // this.m_charInfo = null; // don't set to null
 
          this.m_disableOutputEscapingStates.clear();
-         
+
          this.m_escaping = true;
          // Leave m_format alone for now - Brian M.
          // this.m_format = null;
@@ -3056,11 +3073,11 @@ abstract public class ToStream extends SerializerBase
          this.m_startNewLine = false;
          this.m_lineSepUse = true;
          // DON'T SET THE WRITER TO NULL, IT MAY BE REUSED !!
-         // this.m_writer = null;  
-         this.m_expandDTDEntities = true;      
- 
-    }        
-    
+         // this.m_writer = null;
+         this.m_expandDTDEntities = true;
+
+    }
+
     /**
       * Sets the character encoding coming from the xsl:output encoding stylesheet attribute.
       * @param encoding the character encoding
@@ -3068,46 +3085,46 @@ abstract public class ToStream extends SerializerBase
      public void setEncoding(String encoding)
      {
          String old = getEncoding();
-         super.setEncoding(encoding); 
-         if (old == null || !old.equals(encoding)) {        
-            // If we have changed the setting of the 
+         super.setEncoding(encoding);
+         if (old == null || !old.equals(encoding)) {
+            // If we have changed the setting of the
             m_encodingInfo = Encodings.getEncodingInfo(encoding);
-            
+
             if (encoding != null && m_encodingInfo.name == null) {
-            	// We tried to get an EncodingInfo for Object for the given
-            	// encoding, but it came back with an internall null name
-            	// so the encoding is not supported by the JDK, issue a message.
-            	String msg = Utils.messages.createMessage(
-            			MsgKey.ER_ENCODING_NOT_SUPPORTED,new Object[]{ encoding });
-            	try 
-            	{
-            		// Prepare to issue the warning message
-            		Transformer tran = super.getTransformer();
-            		if (tran != null) {
-            			ErrorListener errHandler = tran.getErrorListener();
-            			// Issue the warning message
-            			if (null != errHandler && m_sourceLocator != null)
-            				errHandler.warning(new TransformerException(msg, m_sourceLocator));
-            			else
-            				System.out.println(msg);
-            	    }
-            		else
-            			System.out.println(msg);
-            	}
-            	catch (Exception e){}
+                // We tried to get an EncodingInfo for Object for the given
+                // encoding, but it came back with an internall null name
+                // so the encoding is not supported by the JDK, issue a message.
+                String msg = Utils.messages.createMessage(
+                                MsgKey.ER_ENCODING_NOT_SUPPORTED,new Object[]{ encoding });
+                try
+                {
+                        // Prepare to issue the warning message
+                        Transformer tran = super.getTransformer();
+                        if (tran != null) {
+                                ErrorListener errHandler = tran.getErrorListener();
+                                // Issue the warning message
+                                if (null != errHandler && m_sourceLocator != null)
+                                        errHandler.warning(new TransformerException(msg, m_sourceLocator));
+                                else
+                                        System.out.println(msg);
+                    }
+                        else
+                                System.out.println(msg);
+                }
+                catch (Exception e){}
             }
          }
          return;
      }
-     
+
     /**
      * Simple stack for boolean values.
-     * 
-     * This class is a copy of the one in com.sun.org.apache.xml.internal.utils. 
+     *
+     * This class is a copy of the one in com.sun.org.apache.xml.internal.utils.
      * It exists to cut the serializers dependancy on that package.
      * A minor changes from that package are:
      * doesn't implement Clonable
-     *  
+     *
      * @xsl.usage internal
      */
     static final class BoolStack
@@ -3207,7 +3224,7 @@ abstract public class ToStream extends SerializerBase
       }
 
       /**
-       * Set the item at the top of this stack  
+       * Set the item at the top of this stack
        *
        *
        * @param b Object to set at the top of this stack
@@ -3278,25 +3295,25 @@ abstract public class ToStream extends SerializerBase
         m_values = newVector;
       }
     }
-    
+
     // Implement DTDHandler
     /**
      * If this method is called, the serializer is used as a
-     * DTDHandler, which changes behavior how the serializer 
-     * handles document entities. 
+     * DTDHandler, which changes behavior how the serializer
+     * handles document entities.
      * @see org.xml.sax.DTDHandler#notationDecl(java.lang.String, java.lang.String, java.lang.String)
      */
     public void notationDecl(String name, String pubID, String sysID) throws SAXException {
         // TODO Auto-generated method stub
         try {
             DTDprolog();
-            
-            m_writer.write("<!NOTATION ");            
+
+            m_writer.write("<!NOTATION ");
             m_writer.write(name);
             if (pubID != null) {
                 m_writer.write(" PUBLIC \"");
                 m_writer.write(pubID);
-  
+
             }
             else {
                 m_writer.write(" SYSTEM \"");
@@ -3312,21 +3329,21 @@ abstract public class ToStream extends SerializerBase
 
     /**
      * If this method is called, the serializer is used as a
-     * DTDHandler, which changes behavior how the serializer 
-     * handles document entities. 
+     * DTDHandler, which changes behavior how the serializer
+     * handles document entities.
      * @see org.xml.sax.DTDHandler#unparsedEntityDecl(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
      */
     public void unparsedEntityDecl(String name, String pubID, String sysID, String notationName) throws SAXException {
         // TODO Auto-generated method stub
         try {
-            DTDprolog();       
-            
-            m_writer.write("<!ENTITY ");            
+            DTDprolog();
+
+            m_writer.write("<!ENTITY ");
             m_writer.write(name);
             if (pubID != null) {
                 m_writer.write(" PUBLIC \"");
                 m_writer.write(pubID);
-  
+
             }
             else {
                 m_writer.write(" SYSTEM \"");
@@ -3339,11 +3356,11 @@ abstract public class ToStream extends SerializerBase
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        }        
+        }
     }
-    
+
     /**
-     * A private helper method to output the 
+     * A private helper method to output the
      * @throws SAXException
      * @throws IOException
      */
@@ -3361,12 +3378,12 @@ abstract public class ToStream extends SerializerBase
             m_inDoctype = false;
         }
     }
-    
+
     /**
      * If set to false the serializer does not expand DTD entities,
      * but leaves them as is, the default value is true;
      */
-    public void setDTDEntityExpansion(boolean expand) { 
-        m_expandDTDEntities = expand;     
+    public void setDTDEntityExpansion(boolean expand) {
+        m_expandDTDEntities = expand;
     }
 }

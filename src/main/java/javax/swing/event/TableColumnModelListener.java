@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 1998, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.swing.event;
@@ -15,7 +33,6 @@ import java.util.EventListener;
  * TableColumnModelListener defines the interface for an object that listens
  * to changes in a TableColumnModel.
  *
- * @version %I% %G%
  * @author Alan Chung
  * @see TableColumnModelEvent
  */
@@ -40,4 +57,3 @@ public interface TableColumnModelListener extends java.util.EventListener
      */
     public void columnSelectionChanged(ListSelectionEvent e);
 }
-

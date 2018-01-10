@@ -1,6 +1,26 @@
 /*
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2001, 2009, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 package com.sun.java.swing.plaf.windows;
 
@@ -17,7 +37,6 @@ import javax.swing.plaf.*;
  * will force the UIs to update all known Frames. You can invoke
  * <code>invalidate</code> to force the value to be fetched again.
  *
- * @version %W% %E%
  */
 // NOTE: Don't rely on this class staying in this location. It is likely
 // to move to a different package in the future.
@@ -30,7 +49,7 @@ public class DesktopProperty implements UIDefaults.ActiveValue {
     /**
      * ReferenceQueue of unreferenced WeakPCLs.
      */
-    private static final ReferenceQueue queue = new ReferenceQueue();
+    private static final ReferenceQueue<DesktopProperty> queue = new ReferenceQueue<DesktopProperty>();
 
     /**
      * PropertyChangeListener attached to the Toolkit.
@@ -49,6 +68,7 @@ public class DesktopProperty implements UIDefaults.ActiveValue {
      */
     private final Object fallback;
 
+
     /**
      * Cleans up any lingering state held by unrefeernced
      * DesktopProperties.
@@ -66,30 +86,30 @@ public class DesktopProperty implements UIDefaults.ActiveValue {
      * Sets whether or not an updateUI call is pending.
      */
     private static synchronized void setUpdatePending(boolean update) {
-	updatePending = update;
+        updatePending = update;
     }
 
     /**
      * Returns true if a UI update is pending.
      */
     private static synchronized boolean isUpdatePending() {
-	return updatePending;
+        return updatePending;
     }
- 
+
     /**
      * Updates the UIs of all the known Frames.
      */
     private static void updateAllUIs() {
-	// Check if the current UI is WindowsLookAndfeel and flush the XP style map.
-	// Note: Change the package test if this class is moved to a different package.
-	Class uiClass = UIManager.getLookAndFeel().getClass();
- 	if (uiClass.getPackage().equals(DesktopProperty.class.getPackage())) {
-	    XPStyle.invalidateStyle();
- 	}
+        // Check if the current UI is WindowsLookAndfeel and flush the XP style map.
+        // Note: Change the package test if this class is moved to a different package.
+        Class uiClass = UIManager.getLookAndFeel().getClass();
+        if (uiClass.getPackage().equals(DesktopProperty.class.getPackage())) {
+            XPStyle.invalidateStyle();
+        }
         Frame appFrames[] = Frame.getFrames();
-	for (int j=0; j < appFrames.length; j++) {
-	    updateWindowUI(appFrames[j]);			    
-	}
+        for (Frame appFrame : appFrames) {
+            updateWindowUI(appFrame);
+        }
     }
 
     /**
@@ -97,10 +117,10 @@ public class DesktopProperty implements UIDefaults.ActiveValue {
      */
     private static void updateWindowUI(Window window) {
         SwingUtilities.updateComponentTreeUI(window);
-	Window ownedWins[] = window.getOwnedWindows();
-	for (int i=0; i < ownedWins.length; i++) {
-	    updateWindowUI(ownedWins[i]);
-	}
+        Window ownedWins[] = window.getOwnedWindows();
+        for (Window ownedWin : ownedWins) {
+            updateWindowUI(ownedWin);
+        }
     }
 
 
@@ -143,13 +163,14 @@ public class DesktopProperty implements UIDefaults.ActiveValue {
      * Returns the value from the desktop.
      */
     protected Object getValueFromDesktop() {
-	Toolkit toolkit = Toolkit.getDefaultToolkit();
-	if (pcl == null) {
-	    pcl = new WeakPCL(this, getKey(), UIManager.getLookAndFeel());
-	    toolkit.addPropertyChangeListener(getKey(), pcl);
-	}
+        Toolkit toolkit = Toolkit.getDefaultToolkit();
 
-	return toolkit.getDesktopProperty(getKey()); 
+        if (pcl == null) {
+            pcl = new WeakPCL(this, getKey(), UIManager.getLookAndFeel());
+            toolkit.addPropertyChangeListener(getKey(), pcl);
+        }
+
+        return toolkit.getDesktopProperty(getKey());
     }
 
     /**
@@ -173,7 +194,7 @@ public class DesktopProperty implements UIDefaults.ActiveValue {
      * <code>createValue</code> will ask for the property again.
      */
     public void invalidate() {
-	value = null;
+        value = null;
     }
 
     /**
@@ -182,18 +203,18 @@ public class DesktopProperty implements UIDefaults.ActiveValue {
      * by uninstalling and re-installing the UI objects. Requests are
      * batched and collapsed into a single update pass because often
      * many desktop properties will change at once.
-     */    
+     */
     protected void updateUI() {
-	if (!isUpdatePending()) {
+        if (!isUpdatePending()) {
             setUpdatePending(true);
             Runnable uiUpdater = new Runnable() {
                 public void run() {
                     updateAllUIs();
-		    setUpdatePending(false);
+                    setUpdatePending(false);
                 }
             };
             SwingUtilities.invokeLater(uiUpdater);
-	}
+        }
     }
 
     /**
@@ -232,19 +253,19 @@ public class DesktopProperty implements UIDefaults.ActiveValue {
      * is handled via a WeakReference so as not to pin down the
      * DesktopProperty.
      */
-    private static class WeakPCL extends WeakReference
+    private static class WeakPCL extends WeakReference<DesktopProperty>
                                implements PropertyChangeListener {
         private String key;
         private LookAndFeel laf;
 
-        WeakPCL(Object target, String key, LookAndFeel laf) {
+        WeakPCL(DesktopProperty target, String key, LookAndFeel laf) {
             super(target, queue);
             this.key = key;
             this.laf = laf;
         }
 
         public void propertyChange(PropertyChangeEvent pce) {
-            DesktopProperty property = (DesktopProperty)get();
+            DesktopProperty property = get();
 
             if (property == null || laf != UIManager.getLookAndFeel()) {
                 // The property was GC'ed, we're no longer interested in
@@ -258,7 +279,7 @@ public class DesktopProperty implements UIDefaults.ActiveValue {
         }
 
         void dispose() {
-	    Toolkit.getDefaultToolkit().removePropertyChangeListener(key, this);
+            Toolkit.getDefaultToolkit().removePropertyChangeListener(key, this);
         }
     }
 }

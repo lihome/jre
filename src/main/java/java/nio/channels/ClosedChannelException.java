@@ -1,10 +1,28 @@
 /*
- * @(#)ClosedChannelException.java	%I% %E%
+ * Copyright (c) 2000, 2007, Oracle and/or its affiliates. All rights reserved.
  *
- * Copyright (c) 2000, Oracle and/or its affiliates. All rights reserved.
- * 
- * This software is the proprietary information of Oracle.
- * Use is subject to license terms.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 // -- This file was mechanically generated: Do not edit! -- //
@@ -19,13 +37,14 @@ package java.nio.channels;
  * the channel is completely closed.  A socket channel whose write half has
  * been shut down, for example, may still be open for reading.
  *
- * @version %I%, %E%
  * @since 1.4
  */
 
 public class ClosedChannelException
     extends java.io.IOException
 {
+
+    private static final long serialVersionUID = 882777185433553857L;
 
     /**
      * Constructs an instance of this class.

@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 1998, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.rmi;
@@ -11,8 +29,7 @@ package java.rmi;
  * An <code>UnknownHostException</code> is thrown if a
  * <code>java.net.UnknownHostException</code> occurs while creating
  * a connection to the remote host for a remote method call.
- * 
- * @version %I%, %G%
+ *
  * @since   JDK1.1
  */
 public class UnknownHostException extends RemoteException {
@@ -28,7 +45,7 @@ public class UnknownHostException extends RemoteException {
      * @since JDK1.1
      */
     public UnknownHostException(String s) {
-	super(s);
+        super(s);
     }
 
     /**
@@ -40,6 +57,6 @@ public class UnknownHostException extends RemoteException {
      * @since JDK1.1
      */
     public UnknownHostException(String s, Exception ex) {
-	super(s, ex);
+        super(s, ex);
     }
 }

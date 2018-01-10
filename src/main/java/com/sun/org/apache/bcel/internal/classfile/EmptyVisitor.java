@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
 package com.sun.org.apache.bcel.internal.classfile;
 
 /* ====================================================================
@@ -64,8 +68,7 @@ import com.sun.org.apache.bcel.internal.*;
  * By courtesy of David Spencer.
  *
  * @see DescendingVisitor
- * @version $Id: EmptyVisitor.java,v 1.1.2.1 2005/07/31 23:46:31 jeffsuttor Exp $
- * 
+ *
  */
 public class EmptyVisitor implements Visitor {
   protected EmptyVisitor() { }
@@ -95,6 +98,7 @@ public class EmptyVisitor implements Visitor {
   public void visitLineNumberTable(LineNumberTable obj) {}
   public void visitLocalVariable(LocalVariable obj) {}
   public void visitLocalVariableTable(LocalVariableTable obj) {}
+  public void visitLocalVariableTypeTable(LocalVariableTypeTable obj) {}
   public void visitMethod(Method obj) {}
   public void visitSignature(Signature obj) {}
   public void visitSourceFile(SourceFile obj) {}

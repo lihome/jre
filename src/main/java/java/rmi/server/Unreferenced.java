@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 1998, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.rmi.server;
@@ -12,7 +30,6 @@ package java.rmi.server;
  * <code>Unreferenced</code> interface to receive notification when there are
  * no more clients that reference that remote object.
  *
- * @version %I%, %G%
  * @author  Ann Wollrath
  * @author  Roger Riggs
  * @since   JDK1.1

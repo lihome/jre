@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 1998, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 package javax.swing.event;
 
@@ -20,7 +38,6 @@ import javax.swing.*;
  * visible or invisible, either by the setVisible() method or by being added
  * or removed from the component hierarchy.
  *
- * @version %I% %G%
  * @author Dave Moore
  */
 public interface AncestorListener extends EventListener {
@@ -50,5 +67,3 @@ public interface AncestorListener extends EventListener {
     public void ancestorMoved(AncestorEvent event);
 
 }
-
-

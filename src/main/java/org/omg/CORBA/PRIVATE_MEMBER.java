@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1998, 2000, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 /*
  * File: ./org/omg/CORBA/PRIVATE_MEMBER.java
@@ -14,7 +32,7 @@
 package org.omg.CORBA;
 
 /**
- * Constant to define a private member in the <code>ValueMember</code> class. 
+ * Constant to define a private member in the <code>ValueMember</code> class.
  * <P>
  * <code>PRIVATE_MEMBER</code> is one of the two constants of typedef
  * <code>Visibility</code> used in the interface repository
@@ -22,7 +40,6 @@ package org.omg.CORBA;
  * The other constant is <code>PUBLIC_MEMBER</code>.
  *
  * @author unattributed
- * @version %I% %G%
  */
 public interface PRIVATE_MEMBER {
     final short value = (short) (0L);

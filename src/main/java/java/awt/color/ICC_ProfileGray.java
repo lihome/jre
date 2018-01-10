@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2008, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 /**********************************************************************
@@ -18,7 +36,7 @@
 package java.awt.color;
 
 import java.awt.image.LookupTable;
-import sun.awt.color.ProfileDeferralInfo;
+import sun.java2d.cmm.ProfileDeferralInfo;
 
 /**
  *
@@ -52,6 +70,8 @@ import sun.awt.color.ProfileDeferralInfo;
 
 public class ICC_ProfileGray
 extends ICC_Profile {
+
+    static final long serialVersionUID = -1124721290732002649L;
 
     /**
      * Constructs a new ICC_ProfileGray from a CMM ID.
@@ -128,4 +148,3 @@ extends ICC_Profile {
     }
 
 }
-

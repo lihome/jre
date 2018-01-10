@@ -1,6 +1,26 @@
 /*
- * Copyright (c) 2004, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2004, 2010, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.xml.bind.annotation;
@@ -23,7 +43,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * the same tag name with @xsi:type, whereas a reference property produces
  * a different tag name (the tag name that's on the the sub-class.)
  *
- * <p> This annotation can be used with the following annotations: 
+ * <p> This annotation can be used with the following annotations:
  * {@link XmlJavaTypeAdapter}, {@link XmlElementWrapper}.
  *
  * @author <ul><li>Kohsuke Kawaguchi, Sun Microsystems, Inc.</li><li>Sekhar Vajjhala, Sun Microsystems, Inc.</li></ul>

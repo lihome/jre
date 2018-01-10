@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 1999, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package org.omg.CORBA;
@@ -23,7 +41,6 @@ package org.omg.CORBA;
  *        "argumentIdentifier", myAny, org.omg.CORBA.ARG_INOUT.value);
  * </PRE>
  *
- * @version 1.5, 09/09/97
  * @see     org.omg.CORBA.NamedValue
  * @since   JDK1.2
  */
@@ -35,7 +52,3 @@ public interface ARG_INOUT {
  */
   int value = 3;
 }
-
-
-
-

@@ -1,6 +1,26 @@
 /*
- * Copyright (c) 2005, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, 2010, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.xml.bind.annotation;
@@ -11,13 +31,12 @@ package javax.xml.bind.annotation;
  *
  * @author Sekhar Vajjhala, Sun Microsystems, Inc.
  * @since JAXB2.0
- * @version $Revision: 1.1 $
  * @see XmlAccessorOrder
  */
 
-public enum XmlAccessOrder { 
+public enum XmlAccessOrder {
     /**
-     * The ordering of fields and properties in a class is undefined. 
+     * The ordering of fields and properties in a class is undefined.
      */
     UNDEFINED,
     /**
@@ -27,4 +46,3 @@ public enum XmlAccessOrder {
      */
     ALPHABETICAL
 }
-

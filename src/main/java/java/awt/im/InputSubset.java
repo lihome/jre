@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1998, 1999, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.awt.im;
@@ -14,14 +32,13 @@ package java.awt.im;
  * java.lang.Character.UnicodeBlock}</code> class, these constants do not
  * directly correspond to Unicode code blocks.
  *
- * @version %I%, %G%
  * @since   1.2
  */
 
 public final class InputSubset extends Character.Subset {
 
     private InputSubset(String name) {
-	super(name);
+        super(name);
     }
 
     /**

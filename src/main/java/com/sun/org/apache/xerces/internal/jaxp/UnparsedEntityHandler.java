@@ -1,12 +1,16 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright 2005 The Apache Software Foundation.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,26 +37,26 @@ import com.sun.org.apache.xerces.internal.xni.parser.XMLDTDSource;
  * <p>This filter records which unparsed entities have been
  * declared in the DTD and provides this information to a ValidationManager.
  * Events are forwarded to the registered XMLDTDHandler without modification.</p>
- * 
+ *
  * @author Michael Glavassevich, IBM
- * @version $Id: UnparsedEntityHandler.java,v 1.3 2007/07/19 04:38:52 ofung Exp $
+ * @version $Id: UnparsedEntityHandler.java,v 1.6 2010-11-01 04:40:07 joehw Exp $
  */
 final class UnparsedEntityHandler implements XMLDTDFilter, EntityState {
 
     /** DTD source and handler. **/
     private XMLDTDSource fDTDSource;
     private XMLDTDHandler fDTDHandler;
-    
+
     /** Validation manager. */
     private final ValidationManager fValidationManager;
-    
+
     /** Map for tracking unparsed entities. */
     private HashMap fUnparsedEntities = null;
-    
+
     UnparsedEntityHandler(ValidationManager manager) {
         fValidationManager = manager;
     }
-    
+
     /*
      * XMLDTDHandler methods
      */
@@ -60,10 +64,6 @@ final class UnparsedEntityHandler implements XMLDTDFilter, EntityState {
     public void startDTD(XMLLocator locator, Augmentations augmentations)
             throws XNIException {
         fValidationManager.setEntityState(this);
-        if (fUnparsedEntities != null && !fUnparsedEntities.isEmpty()) {
-            // should only clear this if the last document contained unparsed entities
-            fUnparsedEntities.clear();
-        }
         if (fDTDHandler != null) {
             fDTDHandler.startDTD(locator, augmentations);
         }
@@ -221,7 +221,7 @@ final class UnparsedEntityHandler implements XMLDTDFilter, EntityState {
     public XMLDTDSource getDTDSource() {
         return fDTDSource;
     }
-    
+
     /*
      * XMLDTDSource methods
      */
@@ -233,7 +233,7 @@ final class UnparsedEntityHandler implements XMLDTDFilter, EntityState {
     public XMLDTDHandler getDTDHandler() {
         return fDTDHandler;
     }
-    
+
     /*
      * EntityState methods
      */
@@ -248,5 +248,15 @@ final class UnparsedEntityHandler implements XMLDTDFilter, EntityState {
         }
         return false;
     }
-    
+
+    /*
+     * Other methods
+     */
+
+    public void reset() {
+        if (fUnparsedEntities != null && !fUnparsedEntities.isEmpty()) {
+            // should only clear this if the last document contained unparsed entities
+            fUnparsedEntities.clear();
+        }
+    }
 }

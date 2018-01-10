@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
 package com.sun.org.apache.bcel.internal.generic;
 
 /* ====================================================================
@@ -54,10 +58,9 @@ package com.sun.org.apache.bcel.internal.generic;
  * <http://www.apache.org/>.
  */
 
-import com.sun.org.apache.bcel.internal.Constants;
 import com.sun.org.apache.bcel.internal.classfile.*;
 
-/** 
+/**
  * This class represents an exception handler, i.e., specifies the  region where
  * a handler is active and an instruction where the actual handling is done.
  * pool as parameters. Opposed to the JVM specification the end of the handled
@@ -66,7 +69,6 @@ import com.sun.org.apache.bcel.internal.classfile.*;
  * The end of the region is automatically mapped to be exclusive when calling
  * getCodeException(), i.e., there is no difference semantically.
  *
- * @version $Id: CodeExceptionGen.java,v 1.1.2.1 2005/07/31 23:45:15 jeffsuttor Exp $
  * @author  <A HREF="mailto:markus.dahm@berlin.de">M. Dahm</A>
  * @see     MethodGen
  * @see     CodeException
@@ -78,7 +80,7 @@ public final class CodeExceptionGen
   private InstructionHandle end_pc;
   private InstructionHandle handler_pc;
   private ObjectType        catch_type;
-  
+
   /**
    * Add an exception handler, i.e., specify region where a handler is active and an
    * instruction where the actual handling is done.
@@ -89,7 +91,7 @@ public final class CodeExceptionGen
    * @param catch_type which exception is handled, null for ANY
    */
   public CodeExceptionGen(InstructionHandle start_pc, InstructionHandle end_pc,
-			  InstructionHandle handler_pc, ObjectType catch_type) {
+                          InstructionHandle handler_pc, ObjectType catch_type) {
     setStartPC(start_pc);
     setEndPC(end_pc);
     setHandlerPC(handler_pc);
@@ -107,39 +109,43 @@ public final class CodeExceptionGen
    */
   public CodeException getCodeException(ConstantPoolGen cp) {
     return new CodeException(start_pc.getPosition(),
-			     end_pc.getPosition() + end_pc.getInstruction().getLength(),
-			     handler_pc.getPosition(),
-			     (catch_type == null)? 0 : cp.addClass(catch_type));
+                             end_pc.getPosition() + end_pc.getInstruction().getLength(),
+                             handler_pc.getPosition(),
+                             (catch_type == null)? 0 : cp.addClass(catch_type));
   }
 
-  /* Set start of handler 
+  /* Set start of handler
    * @param start_pc Start of handled region (inclusive)
    */
-  public void setStartPC(InstructionHandle start_pc) {
-    BranchInstruction.notifyTarget(this.start_pc, start_pc, this);
-    this.start_pc = start_pc; 
+  public final void setStartPC(InstructionHandle start_pc) {
+    BranchInstruction.notifyTargetChanging(this.start_pc, this);
+    this.start_pc = start_pc;
+    BranchInstruction.notifyTargetChanged(this.start_pc, this);
   }
 
-  /* Set end of handler 
+  /* Set end of handler
    * @param end_pc End of handled region (inclusive)
    */
-  public void setEndPC(InstructionHandle end_pc) {
-    BranchInstruction.notifyTarget(this.end_pc, end_pc, this);
+  public final void setEndPC(InstructionHandle end_pc) {
+    BranchInstruction.notifyTargetChanging(this.end_pc, this);
     this.end_pc = end_pc;
+    BranchInstruction.notifyTargetChanged(this.end_pc, this);
   }
 
   /* Set handler code
    * @param handler_pc Start of handler
    */
-  public void setHandlerPC(InstructionHandle handler_pc) {
-    BranchInstruction.notifyTarget(this.handler_pc, handler_pc, this);
+  public final void setHandlerPC(InstructionHandle handler_pc) {
+    BranchInstruction.notifyTargetChanging(this.handler_pc, this);
     this.handler_pc = handler_pc;
+    BranchInstruction.notifyTargetChanged(this.handler_pc, this);
   }
 
   /**
    * @param old_ih old target, either start or end
    * @param new_ih new target
    */
+  @Override
   public void updateTarget(InstructionHandle old_ih, InstructionHandle new_ih) {
     boolean targeted = false;
 
@@ -160,12 +166,13 @@ public final class CodeExceptionGen
 
     if(!targeted)
       throw new ClassGenException("Not targeting " + old_ih + ", but {" + start_pc + ", " +
-				  end_pc + ", " + handler_pc + "}");
+                                  end_pc + ", " + handler_pc + "}");
   }
 
   /**
    * @return true, if ih is target of this handler
    */
+  @Override
   public boolean containsTarget(InstructionHandle ih) {
     return (start_pc == ih) || (end_pc == ih) || (handler_pc == ih);
   }
@@ -187,10 +194,12 @@ public final class CodeExceptionGen
    */
   public InstructionHandle getHandlerPC()                             { return handler_pc; }
 
+  @Override
   public String toString() {
     return "CodeExceptionGen(" + start_pc + ", " + end_pc + ", " + handler_pc + ")";
   }
 
+  @Override
   public Object clone() {
     try {
       return super.clone();

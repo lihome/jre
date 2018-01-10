@@ -1,8 +1,26 @@
 /*
- * %W% %E% %U%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2003, 2010, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package com.sun.imageio.plugins.bmp;
@@ -27,7 +45,7 @@ public class BMPImageReaderSpi extends ImageReaderSpi {
     private boolean registered = false;
 
     public BMPImageReaderSpi() {
-        super("Sun Microsystems, Inc.",
+        super("Oracle Corporation",
               "1.0",
               formatNames,
               entensions,
@@ -74,4 +92,3 @@ public class BMPImageReaderSpi extends ImageReaderSpi {
         return new BMPImageReader(this);
     }
 }
-

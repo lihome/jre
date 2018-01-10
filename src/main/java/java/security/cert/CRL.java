@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1998, 2006, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.security.cert;
@@ -18,7 +36,6 @@ package java.security.cert;
  *
  * @author Hemma Prafullchandra
  *
- * @version %I%, %G%
  *
  * @see X509CRL
  * @see CertificateFactory
@@ -41,7 +58,7 @@ public abstract class CRL {
      * for information about standard CRL types.
      */
     protected CRL(String type) {
-	this.type = type;
+        this.type = type;
     }
 
     /**
@@ -50,7 +67,7 @@ public abstract class CRL {
      * @return the type of this CRL.
      */
     public final String getType() {
-	return this.type;
+        return this.type;
     }
 
     /**

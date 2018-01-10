@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2003, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package com.sun.corba.se.impl.protocol.giopmsgheaders;
@@ -13,7 +31,6 @@ import com.sun.corba.se.spi.ior.iiop.GIOPVersion;
  * This implements the GIOP 1.1 CancelRequest header.
  *
  * @author Ram Jeyaraman 05/14/2000
- * @version 1.0
  */
 
 public final class CancelRequestMessage_1_1 extends Message_1_1
@@ -42,7 +59,7 @@ public final class CancelRequestMessage_1_1 extends Message_1_1
     // IO methods
 
     public void read(org.omg.CORBA.portable.InputStream istream) {
-        super.read(istream);    
+        super.read(istream);
         this.request_id = istream.read_ulong();
     }
 

@@ -1,10 +1,29 @@
 /*
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2002, 2004, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 /*
- * %W% %E%
  */
 
 package java.io;
@@ -25,7 +44,7 @@ class ExpiringCache {
     static class Entry {
         private long   timestamp;
         private String val;
-        
+
         Entry(long timestamp, String val) {
             this.timestamp = timestamp;
             this.val = val;

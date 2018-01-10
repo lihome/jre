@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright 2001-2004 The Apache Software Foundation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -71,35 +75,35 @@ public class TransletOutputHandlerFactory {
     private boolean _useServicesMechanism;
 
     static public TransletOutputHandlerFactory newInstance() {
-	return new TransletOutputHandlerFactory(true);
+        return new TransletOutputHandlerFactory(true);
     }
     static public TransletOutputHandlerFactory newInstance(boolean useServicesMechanism) {
-	return new TransletOutputHandlerFactory(useServicesMechanism);
+        return new TransletOutputHandlerFactory(useServicesMechanism);
     }
 
     public TransletOutputHandlerFactory(boolean useServicesMechanism) {
         _useServicesMechanism = useServicesMechanism;
     }
     public void setOutputType(int outputType) {
-	_outputType = outputType;
+        _outputType = outputType;
     }
 
     public void setEncoding(String encoding) {
-	if (encoding != null) {
-	    _encoding = encoding;
-	}
+        if (encoding != null) {
+            _encoding = encoding;
+        }
     }
 
     public void setOutputMethod(String method) {
-	_method = method;
+        _method = method;
     }
 
     public void setOutputStream(OutputStream ostream) {
-	_ostream = ostream;
+        _ostream = ostream;
     }
 
     public void setWriter(Writer writer) {
-	_writer = writer;
+        _writer = writer;
     }
 
     public void setHandler(ContentHandler handler) {
@@ -107,40 +111,40 @@ public class TransletOutputHandlerFactory {
     }
 
     public void setLexicalHandler(LexicalHandler lex) {
-	_lexHandler = lex;
+        _lexHandler = lex;
     }
 
     public void setNode(Node node) {
-	_node = node;
+        _node = node;
     }
 
     public Node getNode() {
-	return (_handler instanceof SAX2DOM) ? ((SAX2DOM)_handler).getDOM() 
-	   : null;
+        return (_handler instanceof SAX2DOM) ? ((SAX2DOM)_handler).getDOM()
+           : null;
     }
-    
+
     public void setNextSibling(Node nextSibling) {
         _nextSibling = nextSibling;
     }
-    
+
     public XMLEventWriter getXMLEventWriter() {
         return (_handler instanceof SAX2StAXEventWriter) ? ((SAX2StAXEventWriter) _handler).getEventWriter() : null;
     }
-    
+
     public void setXMLEventWriter(XMLEventWriter eventWriter) {
         _xmlStAXEventWriter = eventWriter;
     }
-    
+
     public XMLStreamWriter getXMLStreamWriter() {
         return (_handler instanceof SAX2StAXStreamWriter) ? ((SAX2StAXStreamWriter) _handler).getStreamWriter() : null;
     }
-    
+
     public void setXMLStreamWriter(XMLStreamWriter streamWriter) {
         _xmlStAXStreamWriter = streamWriter;
     }
-    
+
     public void setIndentNumber(int value) {
-	_indentNumber = value;
+        _indentNumber = value;
     }
 
     public SerializationHandler getSerializationHandler()
@@ -201,7 +205,7 @@ public class TransletOutputHandlerFactory {
                 } else if (_xmlStAXStreamWriter != null) {
                     _handler =  new SAX2StAXStreamWriter(_xmlStAXStreamWriter);
                 }
-                _lexHandler = (LexicalHandler) _handler;    
+                _lexHandler = (LexicalHandler) _handler;
                 // again falls through - Padmaja Vedula
             case SAX :
                 if (_method == null)

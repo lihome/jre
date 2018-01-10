@@ -1,8 +1,26 @@
 /*
- * %W% %E% 
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2002, 2003, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package com.sun.corba.se.spi.ior ;
@@ -18,7 +36,7 @@ public interface ObjectAdapterId extends Writeable {
     */
     int getNumLevels() ;
 
-    /** Return an iterator that iterates over the components 
+    /** Return an iterator that iterates over the components
     * of this adapter ID.  Each element is returned as a String.
     */
     Iterator iterator() ;

@@ -1,17 +1,11 @@
 /*
- * %Z%file      %M%
- * %Z%author    Sun Microsystems, Inc.
- * %Z%version   %I%
- * %Z%date      %D%
  *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
- *
  */
 // Copyright (c) 1995-96 by Cisco Systems, Inc.
 
 package com.sun.jmx.snmp;
-
 
 // java import
 //
@@ -20,20 +14,18 @@ import java.util.Vector;
 
 /**
  * Defines the minimum functionality that should be provided by
- * a class containing metadata definitions for variables of a MIB. 
+ * a class containing metadata definitions for variables of a MIB.
  * A name can be resolved against a table of MIB variables.
- * Each entry in the table is an <CODE>SnmpOidRecord</CODE> object that contains a name, a dot-separated OID string, 
- * and the corresponding SMI type of the variable. 
+ * Each entry in the table is an <CODE>SnmpOidRecord</CODE> object that contains a name, a dot-separated OID string,
+ * and the corresponding SMI type of the variable.
  * <P>
  * If you need to load a specific <CODE>SnmpOidTable</CODE>, just call the static method
  * {@link com.sun.jmx.snmp.SnmpOid#setSnmpOidTable <CODE>SnmpOid.setSnmpOidTable(<I>myOidTable</I>)</CODE>}.
  *
- * <p><b>This API is a Sun Microsystems internal API  and is subject 
+ * <p><b>This API is a Sun Microsystems internal API  and is subject
  * to change without notice.</b></p>
  * @see com.sun.jmx.snmp.SnmpOidRecord
- * 
- * @version     %I%     %G%
- * @author      Sun Microsystems, Inc
+ *
  *
  */
 
@@ -48,8 +40,8 @@ public interface SnmpOidTable {
      * @return The <CODE>SnmpOidRecord</CODE> object containing information on the variable.
      * @exception SnmpStatusException If the variable is not found.
      */
-    public SnmpOidRecord resolveVarName(String name) 
-	throws SnmpStatusException;
+    public SnmpOidRecord resolveVarName(String name)
+        throws SnmpStatusException;
 
 
     /**
@@ -57,16 +49,16 @@ public interface SnmpOidTable {
      * containing information on the variable.
      *
      * @param oid The OID of the MIB variable.
-     * @return The <CODE>SnmpOidRecord</CODE> object containing information 
+     * @return The <CODE>SnmpOidRecord</CODE> object containing information
      *         on the variable.
      * @exception SnmpStatusException If the variable is not found.
      */
-    public SnmpOidRecord resolveVarOid(String oid) 
-	throws SnmpStatusException;
+    public SnmpOidRecord resolveVarOid(String oid)
+        throws SnmpStatusException;
 
     /**
      * Returns a list that can be used to traverse all the entries this <CODE>SnmpOidTable</CODE>.
      * @return A Vector of {@link com.sun.jmx.snmp.SnmpOidRecord} objects.
      */
-    public Vector getAllEntries();
+    public Vector<?> getAllEntries();
 }

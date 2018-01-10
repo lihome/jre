@@ -1,46 +1,50 @@
 /*
- * The contents of this file are subject to the terms
- * of the Common Development and Distribution License
- * (the "License").  You may not use this file except
- * in compliance with the License.
+ * Copyright (c) 2003, 2005, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
- * You can obtain a copy of the license at
- * https://jaxp.dev.java.net/CDDLv1.0.html.
- * See the License for the specific language governing
- * permissions and limitations under the License.
  *
- * When distributing Covered Code, include this CDDL
- * HEADER in each file and include the License file at
- * https://jaxp.dev.java.net/CDDLv1.0.html
- * If applicable add the following below this CDDL HEADER
- * with the fields enclosed by brackets "[]" replaced with
- * your own identifying information: Portions Copyright
- * [year] [name of copyright owner]
- */
-
-/*
- * $Id: XMLEntityReader.java,v 1.3 2005/11/03 17:02:21 jeffsuttor Exp $
- * %W% %E%
  *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.xml.xpath;
 
 import java.io.PrintWriter;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.ObjectStreamField;
+import java.io.InvalidClassException;
 
 /**
  * <code>XPathException</code> represents a generic XPath exception.</p>
  *
  * @author  <a href="Norman.Walsh@Sun.com">Norman Walsh</a>
  * @author <a href="mailto:Jeff.Suttor@Sun.COM">Jeff Suttor</a>
- * @version $Revision: 1.2 $, $Date: 2005/06/10 03:50:44 $
  * @since 1.5
  */
 public class XPathException extends Exception {
 
-    private final Throwable cause;
-    
+    private static final ObjectStreamField[] serialPersistentFields = {
+        new ObjectStreamField( "cause", Throwable.class )
+    };
+
     /**
      * <p>Stream Unique Identifier.</p>
      */
@@ -65,7 +69,6 @@ public class XPathException extends Exception {
         if ( message == null ) {
             throw new NullPointerException ( "message can't be null");
         }
-        this.cause = null;
     }
 
     /**
@@ -80,8 +83,7 @@ public class XPathException extends Exception {
      * @throws NullPointerException if <code>cause</code> is <code>null</code>.
      */
     public XPathException(Throwable cause) {
-        super();
-        this.cause = cause;
+        super(cause);
         if ( cause == null ) {
             throw new NullPointerException ( "cause can't be null");
         }
@@ -93,7 +95,47 @@ public class XPathException extends Exception {
      * @return Cause of this XPathException.
      */
     public Throwable getCause() {
-        return cause;
+        return super.getCause();
+    }
+
+    /**
+     * Writes "cause" field to the stream.
+     * The cause is got from the parent class.
+     *
+     * @param out stream used for serialization.
+     * @throws IOException thrown by <code>ObjectOutputStream</code>
+     *
+     */
+    private void writeObject(ObjectOutputStream out)
+            throws IOException
+    {
+        ObjectOutputStream.PutField fields = out.putFields();
+        fields.put("cause", (Throwable) super.getCause());
+        out.writeFields();
+    }
+
+    /**
+     * Reads the "cause" field from the stream.
+     * And initializes the "cause" if it wasn't
+     * done before.
+     *
+     * @param in stream used for deserialization
+     * @throws IOException thrown by <code>ObjectInputStream</code>
+     * @throws ClassNotFoundException  thrown by <code>ObjectInputStream</code>
+     */
+    private void readObject(ObjectInputStream in)
+            throws IOException, ClassNotFoundException
+    {
+        ObjectInputStream.GetField fields = in.readFields();
+        Throwable scause = (Throwable) fields.get("cause", null);
+
+        if (super.getCause() == null && scause != null) {
+            try {
+                super.initCause(scause);
+            } catch(IllegalStateException e) {
+                throw new InvalidClassException("Inconsistent state: two causes");
+            }
+        }
     }
 
     /**

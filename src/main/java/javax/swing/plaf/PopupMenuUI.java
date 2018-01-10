@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2000, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.swing.plaf;
@@ -15,17 +33,16 @@ import javax.swing.JPopupMenu;
 /**
  * Pluggable look and feel interface for JPopupMenu.
  *
- * @version %I% %G%
  * @author Georges Saab
  * @author David Karlton
  */
 
 public abstract class PopupMenuUI extends ComponentUI {
-    /** 
+    /**
      * @since 1.3
      */
     public boolean isPopupTrigger(MouseEvent e) {
-	return e.isPopupTrigger();
+        return e.isPopupTrigger();
     }
 
     /**
@@ -44,4 +61,3 @@ public abstract class PopupMenuUI extends ComponentUI {
         return popupFactory.getPopup(popup.getInvoker(), popup, x, y);
     }
 }
-

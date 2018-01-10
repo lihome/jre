@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 1998, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.swing;
@@ -11,8 +29,7 @@ import java.awt.*;
 import java.awt.image.*;
 
 /** ImageObserver for DebugGraphics, used for images only.
-  * 
-  * @version %I% %G%
+  *
   * @author Dave Karlton
   */
 class DebugGraphicsObserver implements ImageObserver {

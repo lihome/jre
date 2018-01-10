@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.imageio.event;
@@ -15,11 +33,10 @@ import javax.imageio.ImageReader;
  * An interface used by <code>ImageReader</code> implementations to
  * notify callers of their image and thumbnail reading methods of
  * pixel updates.
- * 
+ *
  * @see javax.imageio.ImageReader#addIIOReadUpdateListener
  * @see javax.imageio.ImageReader#removeIIOReadUpdateListener
  *
- * @version 0.5
  */
 public interface IIOReadUpdateListener extends EventListener {
 

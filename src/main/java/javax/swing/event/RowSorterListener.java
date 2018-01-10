@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 package javax.swing.event;
 
@@ -10,7 +28,6 @@ package javax.swing.event;
  * <code>RowSorterListener</code>s are notified of changes to a
  * <code>RowSorter</code>.
  *
- * @version %I% %G%
  * @see javax.swing.RowSorter
  * @since 1.6
  */

@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2001, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.security;
@@ -23,12 +41,11 @@ package java.security;
  * @see java.security.interfaces.DSAPublicKey
  * @see java.security.interfaces.RSAPublicKey
  *
- * @version %I% %E%
  */
 
 public interface PublicKey extends Key {
     // Declare serialVersionUID to be compatible with JDK1.1
-    /** 
+    /**
      * The class fingerprint that is set to indicate serialization
      * compatibility with a previous version of the class.
      */

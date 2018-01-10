@@ -1,11 +1,25 @@
 /*
- * %Z%file      %M%
- * %Z%author    Sun Microsystems, Inc.
- * %Z%version   %I%
- * %Z%date      %D%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2007, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  *
  */
 
@@ -14,12 +28,10 @@
 
 package com.sun.jmx.snmp.IPAcl;
 
+import java.net.InetAddress;
 import java.util.Hashtable;
+import java.util.Vector;
 
-/** 
- * @version     %I%     %G% 
- * @author      Sun Microsystems, Inc. 
- */ 
 class SimpleNode implements Node {
     protected Node parent;
     protected Node[] children;
@@ -48,7 +60,7 @@ class SimpleNode implements Node {
 
     public void jjtClose() {
     }
-  
+
     public void jjtSetParent(Node n) { parent = n; }
     public Node jjtGetParent() { return parent; }
 
@@ -78,7 +90,7 @@ class SimpleNode implements Node {
     /**
      * Build the Trap entries from the syntactic tree.
      */
-    public void buildTrapEntries(Hashtable dest) {
+    public void buildTrapEntries(Hashtable<InetAddress, Vector<String>> dest) {
         if (children != null) {
             for (int i = 0; i < children.length; ++i) {
                 SimpleNode n = (SimpleNode)children[i];
@@ -86,12 +98,12 @@ class SimpleNode implements Node {
                     n.buildTrapEntries(dest);
                 }
             } /* end of loop */
-        }                     
+        }
     }
     /**
      * Build the Inform entries from the syntactic tree.
      */
-    public void buildInformEntries(Hashtable dest) {
+    public void buildInformEntries(Hashtable<InetAddress, Vector<String>> dest) {
         if (children != null) {
             for (int i = 0; i < children.length; ++i) {
                 SimpleNode n = (SimpleNode)children[i];
@@ -99,7 +111,7 @@ class SimpleNode implements Node {
                     n.buildInformEntries(dest);
                 }
             } /* end of loop */
-        }                     
+        }
     }
 
     /**
@@ -113,7 +125,7 @@ class SimpleNode implements Node {
                     n.buildAclEntries(owner, acl);
                 }
             } /* end of loop */
-        }                     
+        }
     }
 
     /* END SR */
@@ -141,4 +153,3 @@ class SimpleNode implements Node {
         }
     }
 }
-

@@ -1,12 +1,16 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright 2001-2005 The Apache Software Foundation.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,8 +23,8 @@ package com.sun.org.apache.xerces.internal.parsers;
 import com.sun.org.apache.xerces.internal.impl.Constants;
 import com.sun.org.apache.xerces.internal.xni.grammars.XMLGrammarPool;
 import com.sun.org.apache.xerces.internal.xni.parser.XMLComponentManager;
-import com.sun.org.apache.xerces.internal.util.SecurityManager;
 import com.sun.org.apache.xerces.internal.util.SymbolTable;
+import com.sun.org.apache.xerces.internal.utils.XMLSecurityManager;
 
 /**
  * This configuration allows Xerces to behave in a security-conscious manner; that is,
@@ -29,7 +33,7 @@ import com.sun.org.apache.xerces.internal.util.SymbolTable;
  * attack when the document is parsed.
  *
  * In addition to the features and properties recognized by the base
- * parser configuration, this class recognizes these additional 
+ * parser configuration, this class recognizes these additional
  * features and properties:
  * <ul>
  * <li>Properties
@@ -40,7 +44,7 @@ import com.sun.org.apache.xerces.internal.util.SymbolTable;
  *
  * @author Neil Graham, IBM
  *
- * @version $Id: SecurityConfiguration.java,v 1.4 2007/07/19 04:38:54 ofung Exp $
+ * @version $Id: SecurityConfiguration.java,v 1.6 2010-11-01 04:40:09 joehw Exp $
  */
 public class SecurityConfiguration extends XIncludeAwareParserConfiguration
 {
@@ -61,8 +65,8 @@ public class SecurityConfiguration extends XIncludeAwareParserConfiguration
         this(null, null, null);
     } // <init>()
 
-    /** 
-     * Constructs a parser configuration using the specified symbol table. 
+    /**
+     * Constructs a parser configuration using the specified symbol table.
      *
      * @param symbolTable The symbol table to use.
      */
@@ -74,7 +78,7 @@ public class SecurityConfiguration extends XIncludeAwareParserConfiguration
      * Constructs a parser configuration using the specified symbol table and
      * grammar pool.
      * <p>
-     * <strong>REVISIT:</strong> 
+     * <strong>REVISIT:</strong>
      * Grammar pool will be updated when the new validation engine is
      * implemented.
      *
@@ -90,7 +94,7 @@ public class SecurityConfiguration extends XIncludeAwareParserConfiguration
      * Constructs a parser configuration using the specified symbol table,
      * grammar pool, and parent settings.
      * <p>
-     * <strong>REVISIT:</strong> 
+     * <strong>REVISIT:</strong>
      * Grammar pool will be updated when the new validation engine is
      * implemented.
      *
@@ -102,10 +106,9 @@ public class SecurityConfiguration extends XIncludeAwareParserConfiguration
                                          XMLGrammarPool grammarPool,
                                          XMLComponentManager parentSettings) {
         super(symbolTable, grammarPool, parentSettings);
-        
+
         // create the SecurityManager property:
-        setProperty(SECURITY_MANAGER_PROPERTY, new SecurityManager());
+        setProperty(SECURITY_MANAGER_PROPERTY, new XMLSecurityManager(true));
     } // <init>(SymbolTable,XMLGrammarPool)
 
 } // class SecurityConfiguration
-

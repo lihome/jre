@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 1998, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package com.sun.java.swing.plaf.motif;
@@ -27,7 +45,7 @@ import javax.swing.plaf.basic.BasicMenuBarUI;
 import javax.swing.plaf.basic.*;
 
 /**
- * A Windows L&F implementation of MenuBarUI.  This implementation 
+ * A Windows L&F implementation of MenuBarUI.  This implementation
  * is a "combined" view/controller.
  * <p>
  * <strong>Warning:</strong>
@@ -37,7 +55,6 @@ import javax.swing.plaf.basic.*;
  * version of Swing.  A future release of Swing will provide support for
  * long term persistence.
  *
- * %I% %G%
  * @author Georges Saab
  * @author Rich Schiavi
  */
@@ -46,8 +63,7 @@ public class MotifMenuBarUI extends BasicMenuBarUI
 {
 
     public static ComponentUI createUI(JComponent x) {
-	return new MotifMenuBarUI();
+        return new MotifMenuBarUI();
     }
 
 } // end class
-

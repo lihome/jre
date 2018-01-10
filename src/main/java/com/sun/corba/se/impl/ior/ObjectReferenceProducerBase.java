@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2003, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package com.sun.corba.se.impl.ior ;
@@ -28,18 +46,17 @@ public abstract class ObjectReferenceProducerBase {
 
     public abstract IORTemplateList getIORTemplateList() ;
 
-    public ObjectReferenceProducerBase( ORB orb ) 
+    public ObjectReferenceProducerBase( ORB orb )
     {
-	this.orb = orb ;
+        this.orb = orb ;
     }
 
-    public org.omg.CORBA.Object make_object (String repositoryId, 
-	byte[] objectId)
+    public org.omg.CORBA.Object make_object (String repositoryId,
+        byte[] objectId)
     {
-	ObjectId oid = IORFactories.makeObjectId( objectId ) ;
-	IOR ior = getIORFactory().makeIOR( orb, repositoryId, oid ) ;
+        ObjectId oid = IORFactories.makeObjectId( objectId ) ;
+        IOR ior = getIORFactory().makeIOR( orb, repositoryId, oid ) ;
 
-	return ORBUtility.makeObjectReference( ior ) ;
+        return ORBUtility.makeObjectReference( ior ) ;
     }
 }
-

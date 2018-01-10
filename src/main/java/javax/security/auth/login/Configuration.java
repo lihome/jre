@@ -1,17 +1,32 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, 2009, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1998, 2011, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
- 
+
 package javax.security.auth.login;
 
 import javax.security.auth.AuthPermission;
- 
-import java.io.*;
-import java.util.*;
-import java.net.URI;
+
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.PrivilegedExceptionAction;
@@ -20,10 +35,10 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.Provider;
 import java.security.Security;
-import java.security.SecurityPermission;
+import java.util.Objects;
 
 import sun.security.jca.GetInstance;
- 
+
 /**
  * A Configuration object is responsible for specifying which LoginModules
  * should be used for a particular application, and in what order the
@@ -38,17 +53,17 @@ import sun.security.jca.GetInstance;
  *
  * <pre>
  *      Name {
- *	      ModuleClass  Flag    ModuleOptions;
- *	      ModuleClass  Flag    ModuleOptions;
- *	      ModuleClass  Flag    ModuleOptions;
+ *            ModuleClass  Flag    ModuleOptions;
+ *            ModuleClass  Flag    ModuleOptions;
+ *            ModuleClass  Flag    ModuleOptions;
  *      };
  *      Name {
- *	      ModuleClass  Flag    ModuleOptions;
- *	      ModuleClass  Flag    ModuleOptions;
+ *            ModuleClass  Flag    ModuleOptions;
+ *            ModuleClass  Flag    ModuleOptions;
  *      };
  *      other {
- *	      ModuleClass  Flag    ModuleOptions;
- *	      ModuleClass  Flag    ModuleOptions;
+ *            ModuleClass  Flag    ModuleOptions;
+ *            ModuleClass  Flag    ModuleOptions;
  *      };
  * </pre>
  *
@@ -66,33 +81,33 @@ import sun.security.jca.GetInstance;
  *
  * <pre>
  *      1) Required     - The <code>LoginModule</code> is required to succeed.
- *			If it succeeds or fails, authentication still continues
- *			to proceed down the <code>LoginModule</code> list.
+ *                      If it succeeds or fails, authentication still continues
+ *                      to proceed down the <code>LoginModule</code> list.
  *
  *      2) Requisite    - The <code>LoginModule</code> is required to succeed.
- *			If it succeeds, authentication continues down the
- *			<code>LoginModule</code> list.  If it fails,
- *			control immediately returns to the application
- *			(authentication does not proceed down the
- *			<code>LoginModule</code> list).
+ *                      If it succeeds, authentication continues down the
+ *                      <code>LoginModule</code> list.  If it fails,
+ *                      control immediately returns to the application
+ *                      (authentication does not proceed down the
+ *                      <code>LoginModule</code> list).
  *
  *      3) Sufficient   - The <code>LoginModule</code> is not required to
- *			succeed.  If it does succeed, control immediately
- *			returns to the application (authentication does not
- *			proceed down the <code>LoginModule</code> list).
- *			If it fails, authentication continues down the
- *			<code>LoginModule</code> list.
+ *                      succeed.  If it does succeed, control immediately
+ *                      returns to the application (authentication does not
+ *                      proceed down the <code>LoginModule</code> list).
+ *                      If it fails, authentication continues down the
+ *                      <code>LoginModule</code> list.
  *
  *      4) Optional     - The <code>LoginModule</code> is not required to
- *			succeed.  If it succeeds or fails,
- *			authentication still continues to proceed down the
- *			<code>LoginModule</code> list.
+ *                      succeed.  If it succeeds or fails,
+ *                      authentication still continues to proceed down the
+ *                      <code>LoginModule</code> list.
  * </pre>
  *
  * <p> The overall authentication succeeds only if all <i>Required</i> and
  * <i>Requisite</i> LoginModules succeed.  If a <i>Sufficient</i>
  * <code>LoginModule</code> is configured and succeeds,
- * then only the <i>Required</i> and <i>Requisite</i> LoginModules prior to 
+ * then only the <i>Required</i> and <i>Requisite</i> LoginModules prior to
  * that <i>Sufficient</i> <code>LoginModule</code> need to have succeeded for
  * the overall authentication to succeed. If no <i>Required</i> or
  * <i>Requisite</i> LoginModules are configured for an application,
@@ -166,34 +181,26 @@ import sun.security.jca.GetInstance;
  * implementation.  In addition, an instance of a Configuration object can be
  * constructed by invoking one of the <code>getInstance</code> factory methods
  * with a standard type.  The default policy type is "JavaLoginConfig".
- * See Appendix A in the
- * <a href="../../../../../technotes/guides/security/crypto/CryptoSpec.html#AppA">
- * Java Cryptography Architecture API Specification &amp; Reference </a>
+ * See the Configuration section in the <a href=
+ * "{@docRoot}/../technotes/guides/security/StandardNames.html#Configuration">
+ * Java Cryptography Architecture Standard Algorithm Name Documentation</a>
  * for a list of standard Configuration types.
  *
- * @version %I%, %G%
  * @see javax.security.auth.login.LoginContext
  */
 public abstract class Configuration {
 
     private static Configuration configuration;
-    private static ClassLoader contextClassLoader;
 
-    static {
-	contextClassLoader = (ClassLoader)AccessController.doPrivileged
-		(new PrivilegedAction() {
-		public Object run() {
-		    return Thread.currentThread().getContextClassLoader();	
-		}
-	});
-    };
+    private final java.security.AccessControlContext acc =
+            java.security.AccessController.getContext();
 
     private static void checkPermission(String type) {
-	SecurityManager sm = System.getSecurityManager();
-	if (sm != null) {
-	    sm.checkPermission(new AuthPermission
-				("createLoginConfiguration." + type));
-	}
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) {
+            sm.checkPermission(new AuthPermission
+                                ("createLoginConfiguration." + type));
+        }
     }
 
     /**
@@ -208,69 +215,78 @@ public abstract class Configuration {
      * <p>
      *
      * @return the login Configuration.  If a Configuration object was set
-     *		via the <code>Configuration.setConfiguration</code> method,
-     *		then that object is returned.  Otherwise, a default
-     *		Configuration object is returned.
+     *          via the <code>Configuration.setConfiguration</code> method,
+     *          then that object is returned.  Otherwise, a default
+     *          Configuration object is returned.
      *
      * @exception SecurityException if the caller does not have permission
-     *				to retrieve the Configuration.
+     *                          to retrieve the Configuration.
      *
      * @see #setConfiguration
      */
     public static Configuration getConfiguration() {
 
-	SecurityManager sm = System.getSecurityManager();
-	if (sm != null)
-	    sm.checkPermission(new AuthPermission("getLoginConfiguration"));
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null)
+            sm.checkPermission(new AuthPermission("getLoginConfiguration"));
 
         synchronized (Configuration.class) {
-	    if (configuration == null) {
-	        String config_class = null;
-	        config_class = (String)AccessController.doPrivileged
-		    (new PrivilegedAction() {
-		    public Object run() {
-		        return java.security.Security.getProperty
-				    ("login.configuration.provider");
-		    }
-	        });
-	        if (config_class == null) {
-		    config_class = "com.sun.security.auth.login.ConfigFile";
-	        }
- 
-	        try {
-		    final String finalClass = config_class;
-		    configuration = (Configuration)AccessController.doPrivileged
-		        (new PrivilegedExceptionAction() {
-		        public Object run() throws ClassNotFoundException,
-					    InstantiationException,
-					    IllegalAccessException {
-			    return Class.forName
-				    (finalClass,
-				    true,
-				    contextClassLoader).newInstance();
-		        }
-		    });
-	        } catch (PrivilegedActionException e) {
-		    Exception ee = e.getException();
-		    if (ee instanceof InstantiationException) {
-		        throw (SecurityException) new
-			    SecurityException
-				    ("Configuration error:" +
-				     ee.getCause().getMessage() + 
-				     "\n").initCause(ee.getCause());
-		    } else {
-		        throw (SecurityException) new
-			    SecurityException
-				    ("Configuration error: " +
-				     ee.toString() + 
-				     "\n").initCause(ee);
-		    }
-	        }
-	    }
-	    return configuration;
+            if (configuration == null) {
+                String config_class = null;
+                config_class = AccessController.doPrivileged
+                    (new PrivilegedAction<String>() {
+                    public String run() {
+                        return java.security.Security.getProperty
+                                    ("login.configuration.provider");
+                    }
+                });
+                if (config_class == null) {
+                    config_class = "com.sun.security.auth.login.ConfigFile";
+                }
+
+                try {
+                    final String finalClass = config_class;
+                    final Configuration untrustedImpl = AccessController.doPrivileged(
+                            new PrivilegedExceptionAction<Configuration>() {
+                                public Configuration run() throws ClassNotFoundException,
+                                        InstantiationException,
+                                        IllegalAccessException {
+                                    Class<? extends Configuration> implClass = Class.forName(
+                                            finalClass, false,
+                                            Thread.currentThread().getContextClassLoader()
+                                    ).asSubclass(Configuration.class);
+                                    return implClass.newInstance();
+                                }
+                            });
+                    AccessController.doPrivileged(
+                            new PrivilegedExceptionAction<Void>() {
+                                public Void run() {
+                                    setConfiguration(untrustedImpl);
+                                    return null;
+                                }
+                            }, Objects.requireNonNull(untrustedImpl.acc)
+                    );
+                } catch (PrivilegedActionException e) {
+                    Exception ee = e.getException();
+                    if (ee instanceof InstantiationException) {
+                        throw (SecurityException) new
+                            SecurityException
+                                    ("Configuration error:" +
+                                     ee.getCause().getMessage() +
+                                     "\n").initCause(ee.getCause());
+                    } else {
+                        throw (SecurityException) new
+                            SecurityException
+                                    ("Configuration error: " +
+                                     ee.toString() +
+                                     "\n").initCause(ee);
+                    }
+                }
+            }
+            return configuration;
         }
     }
-    
+
     /**
      * Set the login <code>Configuration</code>.
      *
@@ -279,15 +295,15 @@ public abstract class Configuration {
      * @param configuration the new <code>Configuration</code>
      *
      * @exception SecurityException if the current thread does not have
-     *			Permission to set the <code>Configuration</code>.
+     *                  Permission to set the <code>Configuration</code>.
      *
      * @see #getConfiguration
      */
     public static void setConfiguration(Configuration configuration) {
-	SecurityManager sm = System.getSecurityManager();
-	if (sm != null)
-	    sm.checkPermission(new AuthPermission("setLoginConfiguration"));
-	Configuration.configuration = configuration;
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null)
+            sm.checkPermission(new AuthPermission("setLoginConfiguration"));
+        Configuration.configuration = configuration;
     }
 
     /**
@@ -302,48 +318,49 @@ public abstract class Configuration {
      * <p> Note that the list of registered providers may be retrieved via
      * the {@link Security#getProviders() Security.getProviders()} method.
      *
-     * @param type the specified Configuration type.  See Appendix A in the
-     *    <a href="../../../../../technotes/guides/security/crypto/CryptoSpec.html#AppA">
-     *    Java Cryptography Architecture API Specification &amp; Reference </a>
-     *    for a list of standard Configuration types.
+     * @param type the specified Configuration type.  See the Configuration
+     *    section in the <a href=
+     *    "{@docRoot}/../technotes/guides/security/StandardNames.html#Configuration">
+     *    Java Cryptography Architecture Standard Algorithm Name
+     *    Documentation</a> for a list of standard Configuration types.
      *
      * @param params parameters for the Configuration, which may be null.
      *
      * @return the new Configuration object.
      *
      * @exception SecurityException if the caller does not have permission
-     *		to get a Configuration instance for the specified type.
+     *          to get a Configuration instance for the specified type.
      *
      * @exception NullPointerException if the specified type is null.
      *
      * @exception IllegalArgumentException if the specified parameters
-     *		are not understood by the ConfigurationSpi implementation
-     *		from the selected Provider.
+     *          are not understood by the ConfigurationSpi implementation
+     *          from the selected Provider.
      *
      * @exception NoSuchAlgorithmException if no Provider supports a
-     *		ConfigurationSpi implementation for the specified type.
+     *          ConfigurationSpi implementation for the specified type.
      *
      * @see Provider
      * @since 1.6
      */
     public static Configuration getInstance(String type,
-				Configuration.Parameters params)
+                                Configuration.Parameters params)
                 throws NoSuchAlgorithmException {
 
         checkPermission(type);
-	try {
+        try {
             GetInstance.Instance instance = GetInstance.getInstance
-							("Configuration",
-							ConfigurationSpi.class,
-							type,
-							params);
+                                                        ("Configuration",
+                                                        ConfigurationSpi.class,
+                                                        type,
+                                                        params);
             return new ConfigDelegate((ConfigurationSpi)instance.impl,
-							instance.provider,
-							type,
-							params);
-	} catch (NoSuchAlgorithmException nsae) {
-	    return handleException (nsae);
-	}
+                                                        instance.provider,
+                                                        type,
+                                                        params);
+        } catch (NoSuchAlgorithmException nsae) {
+            return handleException (nsae);
+        }
     }
 
     /**
@@ -357,10 +374,11 @@ public abstract class Configuration {
      * <p> Note that the list of registered providers may be retrieved via
      * the {@link Security#getProviders() Security.getProviders()} method.
      *
-     * @param type the specified Configuration type.  See Appendix A in the
-     *    <a href="../../../../../technotes/guides/security/crypto/CryptoSpec.html#AppA">
-     *    Java Cryptography Architecture API Specification &amp; Reference </a>
-     *    for a list of standard Configuration types.
+     * @param type the specified Configuration type.  See the Configuration
+     *    section in the <a href=
+     *    "{@docRoot}/../technotes/guides/security/StandardNames.html#Configuration">
+     *    Java Cryptography Architecture Standard Algorithm Name
+     *    Documentation</a> for a list of standard Configuration types.
      *
      * @param params parameters for the Configuration, which may be null.
      *
@@ -369,49 +387,49 @@ public abstract class Configuration {
      * @return the new Configuration object.
      *
      * @exception SecurityException if the caller does not have permission
-     *		to get a Configuration instance for the specified type.
+     *          to get a Configuration instance for the specified type.
      *
      * @exception NullPointerException if the specified type is null.
      *
      * @exception IllegalArgumentException if the specified provider
-     *		is null or empty,
-     *		or if the specified parameters are not understood by
-     *		the ConfigurationSpi implementation from the specified provider.
+     *          is null or empty,
+     *          or if the specified parameters are not understood by
+     *          the ConfigurationSpi implementation from the specified provider.
      *
      * @exception NoSuchProviderException if the specified provider is not
-     *		registered in the security provider list.
+     *          registered in the security provider list.
      *
      * @exception NoSuchAlgorithmException if the specified provider does not
-     *		support a ConfigurationSpi implementation for the specified
-     *		type.
+     *          support a ConfigurationSpi implementation for the specified
+     *          type.
      *
      * @see Provider
      * @since 1.6
      */
     public static Configuration getInstance(String type,
-				Configuration.Parameters params,
-				String provider)
-		throws NoSuchProviderException, NoSuchAlgorithmException {
+                                Configuration.Parameters params,
+                                String provider)
+                throws NoSuchProviderException, NoSuchAlgorithmException {
 
-	if (provider == null || provider.length() == 0) {
-	    throw new IllegalArgumentException("missing provider");
-	}
+        if (provider == null || provider.length() == 0) {
+            throw new IllegalArgumentException("missing provider");
+        }
 
-	checkPermission(type);
-	try {
-	    GetInstance.Instance instance = GetInstance.getInstance
-							("Configuration",
-							ConfigurationSpi.class,
-							type,
-							params,
-							provider);
-	    return new ConfigDelegate((ConfigurationSpi)instance.impl,
-							instance.provider,
-							type,
-							params);
-	} catch (NoSuchAlgorithmException nsae) {
-	    return handleException (nsae);
-	}
+        checkPermission(type);
+        try {
+            GetInstance.Instance instance = GetInstance.getInstance
+                                                        ("Configuration",
+                                                        ConfigurationSpi.class,
+                                                        type,
+                                                        params,
+                                                        provider);
+            return new ConfigDelegate((ConfigurationSpi)instance.impl,
+                                                        instance.provider,
+                                                        type,
+                                                        params);
+        } catch (NoSuchAlgorithmException nsae) {
+            return handleException (nsae);
+        }
     }
 
     /**
@@ -422,10 +440,11 @@ public abstract class Configuration {
      * object is returned.  Note that the specified Provider object
      * does not have to be registered in the provider list.
      *
-     * @param type the specified Configuration type.  See Appendix A in the
-     *    <a href="../../../../../technotes/guides/security/crypto/CryptoSpec.html#AppA">
-     *    Java Cryptography Architecture API Specification &amp; Reference </a>
-     *    for a list of standard Configuration types.
+     * @param type the specified Configuration type.  See the Configuration
+     *    section in the <a href=
+     *    "{@docRoot}/../technotes/guides/security/StandardNames.html#Configuration">
+     *    Java Cryptography Architecture Standard Algorithm Name
+     *    Documentation</a> for a list of standard Configuration types.
      *
      * @param params parameters for the Configuration, which may be null.
      *
@@ -434,54 +453,54 @@ public abstract class Configuration {
      * @return the new Configuration object.
      *
      * @exception SecurityException if the caller does not have permission
-     *		to get a Configuration instance for the specified type.
+     *          to get a Configuration instance for the specified type.
      *
      * @exception NullPointerException if the specified type is null.
      *
      * @exception IllegalArgumentException if the specified Provider is null,
-     *		or if the specified parameters are not understood by
-     *		the ConfigurationSpi implementation from the specified Provider.
+     *          or if the specified parameters are not understood by
+     *          the ConfigurationSpi implementation from the specified Provider.
      *
      * @exception NoSuchAlgorithmException if the specified Provider does not
-     *		support a ConfigurationSpi implementation for the specified
-     *		type.
+     *          support a ConfigurationSpi implementation for the specified
+     *          type.
      *
      * @see Provider
      * @since 1.6
      */
     public static Configuration getInstance(String type,
-				Configuration.Parameters params,
-				Provider provider)
-		throws NoSuchAlgorithmException {
+                                Configuration.Parameters params,
+                                Provider provider)
+                throws NoSuchAlgorithmException {
 
-	if (provider == null) {
-	    throw new IllegalArgumentException("missing provider");
-	}
+        if (provider == null) {
+            throw new IllegalArgumentException("missing provider");
+        }
 
-	checkPermission(type);
-	try {
-	    GetInstance.Instance instance = GetInstance.getInstance
-							("Configuration",
-							ConfigurationSpi.class,
-							type,
-							params,
-							provider);
-	    return new ConfigDelegate((ConfigurationSpi)instance.impl,
-							instance.provider,
-							type,
-							params);
-	} catch (NoSuchAlgorithmException nsae) {
-	    return handleException (nsae);
-	}
+        checkPermission(type);
+        try {
+            GetInstance.Instance instance = GetInstance.getInstance
+                                                        ("Configuration",
+                                                        ConfigurationSpi.class,
+                                                        type,
+                                                        params,
+                                                        provider);
+            return new ConfigDelegate((ConfigurationSpi)instance.impl,
+                                                        instance.provider,
+                                                        type,
+                                                        params);
+        } catch (NoSuchAlgorithmException nsae) {
+            return handleException (nsae);
+        }
     }
 
     private static Configuration handleException(NoSuchAlgorithmException nsae)
-		throws NoSuchAlgorithmException {
-	Throwable cause = nsae.getCause();
-	if (cause instanceof IllegalArgumentException) {
-	    throw (IllegalArgumentException)cause;
-	}
-	throw nsae;
+                throws NoSuchAlgorithmException {
+        Throwable cause = nsae.getCause();
+        if (cause instanceof IllegalArgumentException) {
+            throw (IllegalArgumentException)cause;
+        }
+        throw nsae;
     }
 
     /**
@@ -496,7 +515,7 @@ public abstract class Configuration {
      * @since 1.6
      */
     public Provider getProvider() {
-	return null;
+        return null;
     }
 
     /**
@@ -511,7 +530,7 @@ public abstract class Configuration {
      * @since 1.6
      */
     public String getType() {
-	return null;
+        return null;
     }
 
     /**
@@ -526,7 +545,7 @@ public abstract class Configuration {
      * @since 1.6
      */
     public Configuration.Parameters getParameters() {
-	return null;
+        return null;
     }
 
     /**
@@ -536,13 +555,13 @@ public abstract class Configuration {
      * <p>
      *
      * @param name the name used to index the Configuration.
-     * 
+     *
      * @return an array of AppConfigurationEntries for the specified <i>name</i>
-     *		from this Configuration, or null if there are no entries
-     *		for the specified <i>name</i>
+     *          from this Configuration, or null if there are no entries
+     *          for the specified <i>name</i>
      */
     public abstract AppConfigurationEntry[] getAppConfigurationEntry
-							(String name);
+                                                        (String name);
 
     /**
      * Refresh and reload the Configuration.
@@ -557,7 +576,7 @@ public abstract class Configuration {
      * by the implementation.
      *
      * @exception SecurityException if the caller does not have permission
-     *				to refresh its Configuration.
+     *                          to refresh its Configuration.
      */
     public void refresh() { }
 
@@ -586,9 +605,9 @@ public abstract class Configuration {
 
         public Provider getProvider() { return p; }
 
-	public AppConfigurationEntry[] getAppConfigurationEntry(String name) {
+        public AppConfigurationEntry[] getAppConfigurationEntry(String name) {
             return spi.engineGetAppConfigurationEntry(name);
-	}
+        }
 
         public void refresh() {
             spi.engineRefresh();

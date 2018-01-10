@@ -1,3 +1,31 @@
+/*
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+
+/*
+ * Copyright (c) 2009 by Oracle Corporation. All Rights Reserved.
+ */
+
 package javax.xml.stream;
 
 import javax.xml.transform.Source;
@@ -111,6 +139,9 @@ public abstract class XMLInputFactory {
   public static final String ALLOCATOR=
     "javax.xml.stream.allocator";
 
+  static final String JAXPFACTORYID = "javax.xml.stream.XMLInputFactory";
+  static final String DEFAULIMPL = "com.sun.xml.internal.stream.XMLInputFactoryImpl";
+
   protected XMLInputFactory(){}
 
   /**
@@ -120,9 +151,7 @@ public abstract class XMLInputFactory {
   public static XMLInputFactory newInstance()
     throws FactoryConfigurationError
   {
-    return (XMLInputFactory) FactoryFinder.find(
-      "javax.xml.stream.XMLInputFactory",
-      "com.sun.xml.internal.stream.XMLInputFactoryImpl");
+    return (XMLInputFactory) FactoryFinder.find(JAXPFACTORYID, DEFAULIMPL, true);
   }
 
   /**
@@ -153,9 +182,7 @@ public abstract class XMLInputFactory {
   public static XMLInputFactory newFactory()
     throws FactoryConfigurationError
   {
-    return (XMLInputFactory) FactoryFinder.find(
-      "javax.xml.stream.XMLInputFactory",
-      "com.sun.xml.internal.stream.XMLInputFactoryImpl");
+    return (XMLInputFactory) FactoryFinder.find(JAXPFACTORYID, DEFAULIMPL, true);
   }
 
   /**
@@ -178,7 +205,8 @@ public abstract class XMLInputFactory {
           throws FactoryConfigurationError {
       try {
           //do not fallback if given classloader can't find the class, throw exception
-          return (XMLInputFactory) FactoryFinder.newInstance(factoryId, classLoader, false);
+          return (XMLInputFactory) FactoryFinder.find(factoryId, classLoader,
+                  null, factoryId.equals(JAXPFACTORYID) ? true : false);
       } catch (FactoryFinder.ConfigurationError e) {
           throw new FactoryConfigurationError(e.getException(),
                   e.getMessage());
@@ -205,7 +233,8 @@ public abstract class XMLInputFactory {
           throws FactoryConfigurationError {
       try {
           //do not fallback if given classloader can't find the class, throw exception
-          return (XMLInputFactory) FactoryFinder.newInstance(factoryId, classLoader, false);
+          return (XMLInputFactory) FactoryFinder.find(factoryId, classLoader,
+                  null, factoryId.equals(JAXPFACTORYID) ? true : false);
       } catch (FactoryFinder.ConfigurationError e) {
           throw new FactoryConfigurationError(e.getException(),
                   e.getMessage());
@@ -372,9 +401,26 @@ public abstract class XMLInputFactory {
   public abstract void setXMLReporter(XMLReporter reporter);
 
   /**
-   * Allows the user to set specific feature/property on the underlying implementation. The underlying implementation
-   * is not required to support every setting of every property in the specification and may use IllegalArgumentException
-   * to signal that an unsupported property may not be set with the specified value.
+   * Allows the user to set specific feature/property on the underlying
+   * implementation. The underlying implementation is not required to support
+   * every setting of every property in the specification and may use
+   * IllegalArgumentException to signal that an unsupported property may not be
+   * set with the specified value.
+   * <p>
+   * All implementations that implement JAXP 1.5 or newer are required to
+   * support the {@link javax.xml.XMLConstants#ACCESS_EXTERNAL_DTD} property.
+   * </p>
+   * <ul>
+   *   <li>
+   *        <p>
+   *        Access to external DTDs, external Entity References is restricted to the
+   *        protocols specified by the property. If access is denied during parsing
+   *        due to the restriction of this property, {@link javax.xml.stream.XMLStreamException}
+   *        will be thrown by the {@link javax.xml.stream.XMLStreamReader#next()} or
+   *        {@link javax.xml.stream.XMLEventReader#nextEvent()} method.
+   *        </p>
+   *   </li>
+   * </ul>
    * @param name The name of the property (may not be null)
    * @param value The value of the property
    * @throws java.lang.IllegalArgumentException if the property is not supported

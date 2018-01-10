@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 1998, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.swing.plaf;
@@ -13,7 +31,6 @@ import java.awt.Graphics;
 /**
  * Pluggable look and feel interface for JSplitPane.
  *
- * @version %I% %G%
  * @author Scott Violet
  */
 public abstract class SplitPaneUI extends ComponentUI

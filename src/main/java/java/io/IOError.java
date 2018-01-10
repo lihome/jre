@@ -1,17 +1,34 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, 2006, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.io;
 
 /**
- * Thrown when a serious I/O error has occurred. 
+ * Thrown when a serious I/O error has occurred.
  *
  * @author  Xueming Shen
- * @version %I% %G%
  * @since   1.6
  */
 public class IOError extends Error {
@@ -26,7 +43,7 @@ public class IOError extends Error {
      *         is not known
      */
     public IOError(Throwable cause) {
-	super(cause);
+        super(cause);
     }
 
     private static final long serialVersionUID = 67100927991680413L;

@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2001, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 package javax.swing.text;
 
@@ -20,19 +38,18 @@ package javax.swing.text;
  * Please see {@link java.beans.XMLEncoder}.
  *
  * @author  Timothy Prinzing
- * @version %I% %G%
  */
 public class BadLocationException extends Exception
 {
     /**
      * Creates a new BadLocationException object.
-     * 
-     * @param s		a string indicating what was wrong with the arguments
+     *
+     * @param s         a string indicating what was wrong with the arguments
      * @param offs      offset within the document that was requested >= 0
      */
     public BadLocationException(String s, int offs) {
-	super(s);
-	this.offs = offs;
+        super(s);
+        this.offs = offs;
     }
 
     /**
@@ -41,7 +58,7 @@ public class BadLocationException extends Exception
      * @return the offset >= 0
      */
     public int offsetRequested() {
-	return offs;
+        return offs;
     }
 
     private int offs;

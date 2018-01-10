@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright 2001-2004 The Apache Software Foundation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +18,7 @@
  * limitations under the License.
  */
 /*
- * $Id: ErrorMessages.java,v 1.2.4.1 2005/09/14 05:06:42 pvedula Exp $
+ * $Id: ErrorMessages_pt_BR.java /st_wptg_1.7.0.79.0jdk/1 2015/01/23 11:50:29 gmolloy Exp $
  */
 
 package com.sun.org.apache.xalan.internal.xsltc.runtime;
@@ -77,27 +81,27 @@ public class ErrorMessages_pt_BR extends ListResourceBundle {
  */
 
     // These message should be read from a locale-specific resource bundle
-    /** Get the lookup table for error messages.   
+    /** Get the lookup table for error messages.
      *
      * @return The message lookup table.
      */
     public Object[][] getContents()
     {
-      return new Object[][] {
+        return new Object[][] {
 
         /*
          * Note to translators:  the substitution text in the following message
          * is a class name.  Used for internal errors in the processor.
          */
         {BasisLibrary.RUN_TIME_INTERNAL_ERR,
-        "Erro interno de tempo de execu\u00e7\u00e3o em ''{0}''"},
+        "Erro interno de runtime em ''{0}''"},
 
         /*
          * Note to translators:  <xsl:copy> is a keyword that should not be
          * translated.
          */
         {BasisLibrary.RUN_TIME_COPY_ERR,
-        "Erro de tempo de execu\u00e7\u00e3o ao executar <xsl:copy>."},
+        "Erro de runtime ao executar <xsl:copy>."},
 
         /*
          * Note to translators:  The substitution text refers to data types.
@@ -106,7 +110,7 @@ public class ErrorMessages_pt_BR extends ListResourceBundle {
          * {0}.
          */
         {BasisLibrary.DATA_CONVERSION_ERR,
-        "Convers\u00e3o inv\u00e1lida de ''{0}'' para ''{1}''."},
+        "Convers\u00E3o inv\u00E1lida de ''{0}'' para ''{1}''."},
 
         /*
          * Note to translators:  This message is displayed if the function named
@@ -114,7 +118,7 @@ public class ErrorMessages_pt_BR extends ListResourceBundle {
          * is the acronym naming the product.
          */
         {BasisLibrary.EXTERNAL_FUNC_ERR,
-        "Fun\u00e7\u00e3o externa ''{0}'' n\u00e3o suportada pelo XSLTC."},
+        "Fun\u00E7\u00E3o externa ''{0}'' n\u00E3o suportada por XSLTC."},
 
         /*
          * Note to translators:  This message is displayed if two values are
@@ -122,7 +126,7 @@ public class ErrorMessages_pt_BR extends ListResourceBundle {
          * unknown.
          */
         {BasisLibrary.EQUALITY_EXPR_ERR,
-        "Tipo de argumento desconhecido na express\u00e3o de igualdade."},
+        "Tipo de argumento desconhecido na express\u00E3o de igualdade."},
 
         /*
          * Note to translators:  The substitution text for {0} will be a data
@@ -131,7 +135,7 @@ public class ErrorMessages_pt_BR extends ListResourceBundle {
          * permitted for a call to this function.
          */
         {BasisLibrary.INVALID_ARGUMENT_ERR,
-        "Tipo de argumento inv\u00e1lido ''{0}'' na chamada a ''{1}''"},
+        "Tipo de argumento inv\u00E1lido ''{0}'' na chamada para ''{1}''"},
 
         /*
          * Note to translators:  There is way of specifying a format for a
@@ -139,7 +143,7 @@ public class ErrorMessages_pt_BR extends ListResourceBundle {
          * particular value using the specified pattern.
          */
         {BasisLibrary.FORMAT_NUMBER_ERR,
-        "Tentativa de formatar o n\u00famero ''{0}'' usando o padr\u00e3o ''{1}''."},
+        "Tentativa de formatar o n\u00FAmero ''{0}'' usando o padr\u00E3o ''{1}''."},
 
         /*
          * Note to translators:  The following represents an internal error
@@ -147,7 +151,7 @@ public class ErrorMessages_pt_BR extends ListResourceBundle {
          * iterator.  (See definition of iterator above.)
          */
         {BasisLibrary.ITERATOR_CLONE_ERR,
-        "N\u00e3o \u00e9 poss\u00edvel clonar repetidor ''{0}''."},
+        "N\u00E3o \u00E9 poss\u00EDvel clonar o iterador ''{0}''."},
 
         /*
          * Note to translators:  The following represents an internal error
@@ -156,7 +160,7 @@ public class ErrorMessages_pt_BR extends ListResourceBundle {
          * support.
          */
         {BasisLibrary.AXIS_SUPPORT_ERR,
-        "Repetidor para eixo ''{0}'' n\u00e3o suportado."},
+        "Iterador do eixo ''{0}'' n\u00E3o suportado."},
 
         /*
          * Note to translators:  The following represents an internal error
@@ -165,7 +169,7 @@ public class ErrorMessages_pt_BR extends ListResourceBundle {
          * support.
          */
         {BasisLibrary.TYPED_AXIS_SUPPORT_ERR,
-        "Repetidor para eixo digitado ''{0}'' n\u00e3o suportado."},
+        "Iterador do eixo digitado ''{0}'' n\u00E3o suportado."},
 
         /*
          * Note to translators:  This message is reported if the stylesheet
@@ -184,7 +188,7 @@ public class ErrorMessages_pt_BR extends ListResourceBundle {
          * namespace declaration.
          */
         {BasisLibrary.STRAY_NAMESPACE_ERR,
-        "Declara\u00e7\u00e3o de namespace ''{0}''=''{1}'' fora do elemento."},
+        "Declara\u00E7\u00E3o de namespace ''{0}''=''{1}'' fora do elemento."},
 
         /*
          * Note to translators:  The stylesheet contained a reference to a
@@ -192,14 +196,14 @@ public class ErrorMessages_pt_BR extends ListResourceBundle {
          * text is the name of the prefix.
          */
         {BasisLibrary.NAMESPACE_PREFIX_ERR,
-        "O namespace do prefixo ''{0}'' n\u00e3o foi declarado."},
+        "O namespace do prefixo ''{0}'' n\u00E3o foi declarado."},
 
         /*
          * Note to translators:  The following represents an internal error.
          * DOMAdapter is a Java class in XSLTC.
          */
         {BasisLibrary.DOM_ADAPTER_INIT_ERR,
-        "DOMAdapter criado usando tipo incorreto de DOM de origem."},
+        "DOMAdapter criado usando o tipo incorreto de DOM de origem."},
 
         /*
          * Note to translators:  The following message indicates that the XML
@@ -208,7 +212,7 @@ public class ErrorMessages_pt_BR extends ListResourceBundle {
          * DTD.
          */
         {BasisLibrary.PARSER_DTD_SUPPORT_ERR,
-        "O analisador SAX que est\u00e1 sendo usado n\u00e3o trata dos eventos de declara\u00e7\u00e3o DTD."},
+        "O parser SAX que voc\u00EA est\u00E1 usando n\u00E3o trata eventos de declara\u00E7\u00E3o de DTD."},
 
         /*
          * Note to translators:  The following message indicates that the XML
@@ -217,14 +221,14 @@ public class ErrorMessages_pt_BR extends ListResourceBundle {
          * declarations.
          */
         {BasisLibrary.NAMESPACES_SUPPORT_ERR,
-        "O analisador SAX que est\u00e1 sendo usado n\u00e3o oferece suporte a namespaces XML."},
+        "O parser SAX que voc\u00EA est\u00E1 usando n\u00E3o tem suporte para os Namespaces de XML."},
 
         /*
          * Note to translators:  The substitution text is the URI that was in
          * error.
          */
         {BasisLibrary.CANT_RESOLVE_RELATIVE_URI_ERR,
-        "N\u00e3o foi poss\u00edvel resolver a refer\u00eancia ao URI ''{0}''."},
+        "N\u00E3o foi poss\u00EDvel resolver a refer\u00EAncia do URI ''{0}''."},
 
          /*
          * Note to translators:  The stylesheet contained an element that was
@@ -232,7 +236,7 @@ public class ErrorMessages_pt_BR extends ListResourceBundle {
          * gives the element name.
          */
         {BasisLibrary.UNSUPPORTED_XSL_ERR,
-        "Elemento XSL ''{0}'' n\u00e3o suportado"},
+        "Elemento XSL ''{0}'' n\u00E3o suportado"},
 
         /*
          * Note to translators:  The stylesheet referred to an extension to the
@@ -241,7 +245,7 @@ public class ErrorMessages_pt_BR extends ListResourceBundle {
          * gives the extension name.
          */
         {BasisLibrary.UNSUPPORTED_EXT_ERR,
-        "Extens\u00e3o XSLTC ''{0}'' n\u00e3o reconhecida"},
+        "Extens\u00E3o ''{0}'' de XSLTC n\u00E3o reconhecida"},
 
 
         /*
@@ -251,7 +255,7 @@ public class ErrorMessages_pt_BR extends ListResourceBundle {
          * the name of the translet class.
          */
         {BasisLibrary.UNKNOWN_TRANSLET_VERSION_ERR,
-        "O translet especificado, ''{0}'', foi criado usando uma vers\u00e3o do XSLTC mais recente que a vers\u00e3o do tempo de execu\u00e7\u00e3o XSLTC que est\u00e1 em uso.  Voc\u00ea deve recompilar a folha de estilo ou usar uma vers\u00e3o mais recente do XSLTC para executar este translet."},
+        "O translet especificado, ''{0}'', foi criado usando uma vers\u00E3o do XSLTC mais recente que a vers\u00E3o de runtime de XSLTC em uso. Recompile a folha de estilos ou use uma vers\u00E3o mais recente de XSLTC para executar este translet."},
 
         /*
          * Note to translators:  An attribute whose effective value is required
@@ -260,7 +264,7 @@ public class ErrorMessages_pt_BR extends ListResourceBundle {
          * substitution text contains the actual value of the attribute.
          */
         {BasisLibrary.INVALID_QNAME_ERR,
-        "Um atributo cujo valor deve ser um QName teve o valor ''{0}''"},
+        "Um atributo cujo valor deve ser um QName tinha o valor ''{0}''"},
 
 
         /*
@@ -270,13 +274,13 @@ public class ErrorMessages_pt_BR extends ListResourceBundle {
          * substitution text contains the actual value of the attribute.
          */
         {BasisLibrary.INVALID_NCNAME_ERR,
-        "Um atributo cujo valor deve ser um NCName teve o valor ''{0}''"},
-        
+        "Um atributo cujo valor deve ser um NCName tinha o valor ''{0}''"},
+
         {BasisLibrary.UNALLOWED_EXTENSION_FUNCTION_ERR,
-        "O uso da fun\u00e7\u00e3o de extens\u00e3o ''{0}'' n\u00e3o \u00e9 permitido quando o recurso de processamento seguro estiver definido como verdadeiro."},
+        "O uso da fun\u00E7\u00E3o da extens\u00E3o ''{0}'' n\u00E3o ser\u00E1 permitido quando o recurso de processamento seguro for definido como verdadeiro."},
 
         {BasisLibrary.UNALLOWED_EXTENSION_ELEMENT_ERR,
-        "O uso do elemento de extens\u00e3o ''{0}'' n\u00e3o \u00e9 permitido quando o recurso de processamento seguro estiver definido como verdadeiro."},
+        "O uso do elemento da extens\u00E3o ''{0}'' n\u00E3o ser\u00E1 permitido quando o recurso de processamento seguro for definido como verdadeiro."},
     };
     }
 

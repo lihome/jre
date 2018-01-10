@@ -1,3 +1,31 @@
+/*
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+
+/*
+ * Copyright (c) 2009 by Oracle Corporation. All Rights Reserved.
+ */
+
 package javax.xml.stream.events;
 /**
  * An interface for the start document event
@@ -21,7 +49,7 @@ public interface StartDocument extends XMLEvent {
   public String getCharacterEncodingScheme();
 
   /**
-   * Returns true if CharacterEncodingScheme was set in 
+   * Returns true if CharacterEncodingScheme was set in
    * the encoding declaration of the document
    */
   public boolean encodingSet();
@@ -33,7 +61,7 @@ public interface StartDocument extends XMLEvent {
   public boolean isStandalone();
 
   /**
-   * Returns true if the standalone attribute was set in 
+   * Returns true if the standalone attribute was set in
    * the encoding declaration of the document.
    */
   public boolean standaloneSet();
@@ -44,4 +72,3 @@ public interface StartDocument extends XMLEvent {
    */
   public String getVersion();
 }
-

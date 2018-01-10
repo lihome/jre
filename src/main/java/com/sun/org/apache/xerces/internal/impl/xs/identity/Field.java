@@ -1,12 +1,16 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright 2001-2005 The Apache Software Foundation.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,10 +32,10 @@ import com.sun.org.apache.xerces.internal.xs.XSTypeDefinition;
 /**
  * Schema identity constraint field.
  *
- * @xerces.internal 
+ * @xerces.internal
  *
  * @author Andy Clark, IBM
- * @version $Id: Field.java,v 1.4 2007/07/19 04:38:44 ofung Exp $
+ * @version $Id: Field.java,v 1.6 2010-11-01 04:39:57 joehw Exp $
  */
 public class Field {
 
@@ -51,7 +55,7 @@ public class Field {
     //
 
     /** Constructs a field. */
-    public Field(Field.XPath xpath, 
+    public Field(Field.XPath xpath,
                  IdentityConstraint identityConstraint) {
         fXPath = xpath;
         fIdentityConstraint = identityConstraint;
@@ -60,7 +64,7 @@ public class Field {
     //
     // Public methods
     //
-    
+
     /** Returns the field XPath. */
     public com.sun.org.apache.xerces.internal.impl.xpath.XPath getXPath() {
         return fXPath;
@@ -104,19 +108,19 @@ public class Field {
         //
 
         /** Constructs a field XPath expression. */
-        public XPath(String xpath, 
+        public XPath(String xpath,
                      SymbolTable symbolTable,
                      NamespaceContext context) throws XPathException {
             // NOTE: We have to prefix the field XPath with "./" in
-            //       order to handle selectors such as "@attr" that 
+            //       order to handle selectors such as "@attr" that
             //       select the attribute because the fields could be
             //       relative to the selector element. -Ac
             //       Unless xpath starts with a descendant node -Achille Fokoue
             //      ... or a / or a . - NG
             super(((xpath.trim().startsWith("/") ||xpath.trim().startsWith("."))?
-                    xpath:"./"+xpath), 
+                    xpath:"./"+xpath),
                   symbolTable, context);
-            
+
             // verify that only one attribute is selected per branch
             for (int i=0;i<fLocationPaths.length;i++) {
                 for(int j=0; j<fLocationPaths[i].steps.length; j++) {
@@ -173,7 +177,8 @@ public class Field {
             super.matched(actualValue, valueType, itemValueType, isNil);
             if(isNil && (fIdentityConstraint.getCategory() == IdentityConstraint.IC_KEY)) {
                 String code = "KeyMatchesNillable";
-                fStore.reportError(code, new Object[]{fIdentityConstraint.getElementName()});
+                fStore.reportError(code,
+                    new Object[]{fIdentityConstraint.getElementName(), fIdentityConstraint.getIdentityConstraintName()});
             }
             fStore.addValue(Field.this, actualValue, convertToPrimitiveKind(valueType), convertToPrimitiveKind(itemValueType));
             // once we've stored the value for this field, we set the mayMatch
@@ -224,7 +229,7 @@ public class Field {
         }
 
         protected void handleContent(XSTypeDefinition type, boolean nillable, Object actualValue, short valueType, ShortList itemValueType) {
-            if (type == null || 
+            if (type == null ||
                type.getTypeCategory() == XSTypeDefinition.COMPLEX_TYPE &&
                ((XSComplexTypeDefinition) type).getContentType()
                 != XSComplexTypeDefinition.CONTENTTYPE_SIMPLE) {
@@ -233,7 +238,7 @@ public class Field {
                     fStore.reportError( "cvc-id.3", new Object[] {
                             fIdentityConstraint.getName(),
                             fIdentityConstraint.getElementName()});
-                
+
             }
             fMatchedString = actualValue;
             matched(fMatchedString, valueType, itemValueType, nillable);

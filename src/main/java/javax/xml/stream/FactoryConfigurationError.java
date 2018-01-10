@@ -1,3 +1,31 @@
+/*
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+
+/*
+ * Copyright (c) 2009 by Oracle Corporation. All Rights Reserved.
+ */
+
 package javax.xml.stream;
 
 /**
@@ -8,6 +36,7 @@ package javax.xml.stream;
  * @since 1.6
  */
 public class FactoryConfigurationError extends Error {
+    private static final long serialVersionUID = -2994412584589975744L;
 
   Exception nested;
 
@@ -66,11 +95,17 @@ public class FactoryConfigurationError extends Error {
   public Exception getException() {
     return nested;
   }
-  
+    /**
+     * use the exception chaining mechanism of JDK1.4
+    */
+    @Override
+    public Throwable getCause() {
+        return nested;
+    }
 
   /**
    * Report the message associated with this error
-   * 
+   *
    * @return the string value of the message
    */
   public String getMessage() {
@@ -82,6 +117,9 @@ public class FactoryConfigurationError extends Error {
       if(msg == null)
         msg = nested.getClass().toString();
     }
-    return msg;  
+    return msg;
   }
+
+
+
 }

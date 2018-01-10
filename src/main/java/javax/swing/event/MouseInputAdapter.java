@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1998, 2006, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.swing.event;
@@ -16,7 +34,6 @@ import java.awt.event.MouseAdapter;
  * empty implementation of the {@code MouseWheelListener} interface, through
  * its extension from AWT's {@code MouseAdapter}.
  *
- * @version %I% %G%
  * @author Philip Milne
  * @author Shannon Hickey
  */

@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 1999, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.awt.geom;
@@ -10,9 +28,8 @@ package java.awt.geom;
 /**
  * The <code>NoninvertibleTransformException</code> class represents
  * an exception that is thrown if an operation is performed requiring
- * the inverse of an {@link AffineTransform} object but the 
+ * the inverse of an {@link AffineTransform} object but the
  * <code>AffineTransform</code> is in a non-invertible state.
- * @version 	%I%, %G%
  */
 
 public class NoninvertibleTransformException extends java.lang.Exception {

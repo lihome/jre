@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2003, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.security.auth.login;
@@ -13,7 +31,6 @@ package javax.security.auth.login;
  * <p> This exception may be thrown by a LoginModule if it is unable
  * to locate an account necessary to perform authentication.
  *
- * @version %I%, %G%
  * @since 1.5
  */
 public class AccountNotFoundException extends AccountException {

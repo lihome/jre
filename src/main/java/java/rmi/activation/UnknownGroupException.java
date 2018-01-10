@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 1999, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.rmi.activation;
@@ -15,8 +33,7 @@ package java.rmi.activation;
  * <code>UnknownGroupException</code> is also thrown if the
  * <code>ActivationGroupID</code> in an <code>ActivationDesc</code> refers to
  * a group that is not registered with the <code>ActivationSystem</code>
- * 
- * @version %I%, %G%
+ *
  * @author  Ann Wollrath
  * @since   1.2
  * @see     java.rmi.activation.Activatable
@@ -38,6 +55,6 @@ public class UnknownGroupException extends ActivationException {
      * @since 1.2
      */
     public UnknownGroupException(String s) {
-	super(s);
+        super(s);
     }
 }

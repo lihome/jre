@@ -1,8 +1,26 @@
 /*
- * %W% %E% %U%
+ * Copyright (c) 2005, 2006, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
- * SUN PROPRIETARY/CONFIDENTAIL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package javax.script;
@@ -12,17 +30,15 @@ import java.io.*;
 import java.security.*;
 import sun.misc.Service;
 import sun.misc.ServiceConfigurationError;
-import sun.reflect.Reflection;
-import sun.security.util.SecurityConstants;
 
 /**
  * The <code>ScriptEngineManager</code> implements a discovery and instantiation
  * mechanism for <code>ScriptEngine</code> classes and also maintains a
  * collection of key/value pairs storing state shared by all engines created
- * by the Manager. This class uses the <a href="../../../technotes/guides/jar/jar.html#Service%20Provider">service provider</a> mechanism to enumerate all the 
+ * by the Manager. This class uses the <a href="../../../technotes/guides/jar/jar.html#Service%20Provider">service provider</a> mechanism to enumerate all the
  * implementations of <code>ScriptEngineFactory</code>. <br><br>
- * The <code>ScriptEngineManager</code> provides a method to return an array of all these factories 
- * as well as utility methods which look up factories on the basis of language name, file extension 
+ * The <code>ScriptEngineManager</code> provides a method to return a list of all these factories
+ * as well as utility methods which look up factories on the basis of language name, file extension
  * and mime type.
  * <p>
  * The <code>Bindings</code> of key/value pairs, referred to as the "Global Scope"  maintained
@@ -37,8 +53,8 @@ import sun.security.util.SecurityConstants;
 public class ScriptEngineManager  {
     private static final boolean DEBUG = false;
     /**
-     * If the thread context ClassLoader can be accessed by the caller, 
-     * then the effect of calling this constructor is the same as calling 
+     * If the thread context ClassLoader can be accessed by the caller,
+     * then the effect of calling this constructor is the same as calling
      * <code>ScriptEngineManager(Thread.currentThread().getContextClassLoader())</code>.
      * Otherwise, the effect is the same as calling <code>ScriptEngineManager(null)</code>.
      *
@@ -46,21 +62,15 @@ public class ScriptEngineManager  {
      */
     public ScriptEngineManager() {
         ClassLoader ctxtLoader = Thread.currentThread().getContextClassLoader();
-        if (canCallerAccessLoader(ctxtLoader)) {
-            if (DEBUG) System.out.println("using " + ctxtLoader);
-            init(ctxtLoader);
-        } else {
-            if (DEBUG) System.out.println("using bootstrap loader");
-            init(null);
-        }
+        init(ctxtLoader);
     }
-    
+
     /**
-     * This constructor loads the implementations of 
-     * <code>ScriptEngineFactory</code> visible to the given 
+     * This constructor loads the implementations of
+     * <code>ScriptEngineFactory</code> visible to the given
      * <code>ClassLoader</code> using the <a href="../../../technotes/guides/jar/jar.html#Service%20Provider">service provider</a> mechanism.<br><br>
-     * If loader is <code>null</code>, the script engine factories that are 
-     * bundled with the platform and that are in the usual extension 
+     * If loader is <code>null</code>, the script engine factories that are
+     * bundled with the platform and that are in the usual extension
      * directories (installed extensions) are loaded. <br><br>
      *
      * @param loader ClassLoader used to discover script engine factories.
@@ -68,22 +78,25 @@ public class ScriptEngineManager  {
     public ScriptEngineManager(ClassLoader loader) {
         init(loader);
     }
-    
+
     private void init(final ClassLoader loader) {
         globalScope = new SimpleBindings();
         engineSpis = new HashSet<ScriptEngineFactory>();
         nameAssociations = new HashMap<String, ScriptEngineFactory>();
         extensionAssociations = new HashMap<String, ScriptEngineFactory>();
         mimeTypeAssociations = new HashMap<String, ScriptEngineFactory>();
-        AccessController.doPrivileged(new PrivilegedAction() {
-            public Object run() {
-                initEngines(loader);
-                return null;
-            }
-        });
+        List<ScriptEngineFactory> facList = AccessController.doPrivileged(
+            new PrivilegedAction<List<ScriptEngineFactory>>() {
+                public List<ScriptEngineFactory> run() {
+                    return initEngines(loader);
+                }
+            });
+        for (ScriptEngineFactory fac : facList) {
+            engineSpis.add(fac);
+        }
     }
 
-    private void initEngines(final ClassLoader loader) {
+    private List<ScriptEngineFactory> initEngines(final ClassLoader loader) {
         Iterator itr = null;
         try {
             if (loader != null) {
@@ -100,14 +113,15 @@ public class ScriptEngineManager  {
             // do not throw any exception here. user may want to
             // manage his/her own factories using this manager
             // by explicit registratation (by registerXXX) methods.
-            return;
+            return null;
         }
 
+        final List<ScriptEngineFactory> facList = new ArrayList<>();
         try {
             while (itr.hasNext()) {
                 try {
                     ScriptEngineFactory fact = (ScriptEngineFactory) itr.next();
-                    engineSpis.add(fact);
+                    facList.add(fact);
                 } catch (ServiceConfigurationError err) {
                     System.err.println("ScriptEngineManager providers.next(): "
                                  + err.getMessage());
@@ -119,7 +133,7 @@ public class ScriptEngineManager  {
                 }
             }
         } catch (ServiceConfigurationError err) {
-            System.err.println("ScriptEngineManager providers.hasNext(): " 
+            System.err.println("ScriptEngineManager providers.hasNext(): "
                             + err.getMessage());
             if (DEBUG) {
                 err.printStackTrace();
@@ -127,10 +141,10 @@ public class ScriptEngineManager  {
             // do not throw any exception here. user may want to
             // manage his/her own factories using this manager
             // by explicit registratation (by registerXXX) methods.
-            return;
         }
+        return facList;
     }
-    
+
     /**
      * <code>setBindings</code> stores the specified <code>Bindings</code>
      * in the <code>globalScope</code> field. ScriptEngineManager sets this
@@ -144,13 +158,13 @@ public class ScriptEngineManager  {
         if (bindings == null) {
             throw new IllegalArgumentException("Global scope cannot be null.");
         }
-        
+
         globalScope = bindings;
     }
-    
+
     /**
      * <code>getBindings</code> returns the value of the <code>globalScope</code> field.
-     * ScriptEngineManager sets this <code>Bindings</code> as global bindings for 
+     * ScriptEngineManager sets this <code>Bindings</code> as global bindings for
      * <code>ScriptEngine</code> objects created by it.
      *
      * @return The globalScope field.
@@ -158,7 +172,7 @@ public class ScriptEngineManager  {
     public Bindings getBindings() {
         return globalScope;
     }
-    
+
     /**
      * Sets the specified key/value pair in the Global Scope.
      * @param key Key to set
@@ -169,7 +183,7 @@ public class ScriptEngineManager  {
     public void put(String key, Object value) {
         globalScope.put(key, value);
     }
-    
+
     /**
      * Gets the value for the specified key in the Global Scope
      * @param key The key whose value is to be returned.
@@ -178,13 +192,13 @@ public class ScriptEngineManager  {
     public Object get(String key) {
         return globalScope.get(key);
     }
-    
+
     /**
      * Looks up and creates a <code>ScriptEngine</code> for a given  name.
      * The algorithm first searches for a <code>ScriptEngineFactory</code> that has been
      * registered as a handler for the specified name using the <code>registerEngineName</code>
      * method.
-     * <br><br> If one is not found, it searches the array of <code>ScriptEngineFactory</code> instances
+     * <br><br> If one is not found, it searches the set of <code>ScriptEngineFactory</code> instances
      * stored by the constructor for one with the specified name.  If a <code>ScriptEngineFactory</code>
      * is found by either method, it is used to create instance of <code>ScriptEngine</code>.
      * @param shortName The short name of the <code>ScriptEngine</code> implementation.
@@ -209,7 +223,7 @@ public class ScriptEngineManager  {
                 if (DEBUG) exp.printStackTrace();
             }
         }
-        
+
         for (ScriptEngineFactory spi : engineSpis) {
             List<String> names = null;
             try {
@@ -217,7 +231,7 @@ public class ScriptEngineManager  {
             } catch (Exception exp) {
                 if (DEBUG) exp.printStackTrace();
             }
-            
+
             if (names != null) {
                 for (String name : names) {
                     if (shortName.equals(name)) {
@@ -232,10 +246,10 @@ public class ScriptEngineManager  {
                 }
             }
         }
-        
+
         return null;
     }
-    
+
     /**
      * Look up and create a <code>ScriptEngine</code> for a given extension.  The algorithm
      * used by <code>getEngineByName</code> is used except that the search starts
@@ -260,7 +274,7 @@ public class ScriptEngineManager  {
                 if (DEBUG) exp.printStackTrace();
             }
         }
-        
+
         for (ScriptEngineFactory spi : engineSpis) {
             List<String> exts = null;
             try {
@@ -283,7 +297,7 @@ public class ScriptEngineManager  {
         }
         return null;
     }
-    
+
     /**
      * Look up and create a <code>ScriptEngine</code> for a given mime type.  The algorithm
      * used by <code>getEngineByName</code> is used except that the search starts
@@ -308,7 +322,7 @@ public class ScriptEngineManager  {
                 if (DEBUG) exp.printStackTrace();
             }
         }
-        
+
         for (ScriptEngineFactory spi : engineSpis) {
             List<String> types = null;
             try {
@@ -331,9 +345,9 @@ public class ScriptEngineManager  {
         }
         return null;
     }
-    
+
     /**
-     * Returns an array whose elements are instances of all the <code>ScriptEngineFactory</code> classes
+     * Returns a list whose elements are instances of all the <code>ScriptEngineFactory</code> classes
      * found by the discovery mechanism.
      * @return List of all discovered <code>ScriptEngineFactory</code>s.
      */
@@ -344,7 +358,7 @@ public class ScriptEngineManager  {
         }
         return Collections.unmodifiableList(res);
     }
-    
+
     /**
      * Registers a <code>ScriptEngineFactory</code> to handle a language
      * name.  Overrides any such association found using the Discovery mechanism.
@@ -356,7 +370,7 @@ public class ScriptEngineManager  {
         if (name == null || factory == null) throw new NullPointerException();
         nameAssociations.put(name, factory);
     }
-    
+
     /**
      * Registers a <code>ScriptEngineFactory</code> to handle a mime type.
      * Overrides any such association found using the Discovery mechanism.
@@ -371,7 +385,7 @@ public class ScriptEngineManager  {
         if (type == null || factory == null) throw new NullPointerException();
         mimeTypeAssociations.put(type, factory);
     }
-    
+
     /**
      * Registers a <code>ScriptEngineFactory</code> to handle an extension.
      * Overrides any such association found using the Discovery mechanism.
@@ -385,57 +399,19 @@ public class ScriptEngineManager  {
         if (extension == null || factory == null) throw new NullPointerException();
         extensionAssociations.put(extension, factory);
     }
-    
+
     /** Set of script engine factories discovered. */
     private HashSet<ScriptEngineFactory> engineSpis;
-    
+
     /** Map of engine name to script engine factory. */
     private HashMap<String, ScriptEngineFactory> nameAssociations;
-    
+
     /** Map of script file extension to script engine factory. */
     private HashMap<String, ScriptEngineFactory> extensionAssociations;
-    
+
     /** Map of script script MIME type to script engine factory. */
     private HashMap<String, ScriptEngineFactory> mimeTypeAssociations;
-    
+
     /** Global bindings associated with script engines created by this manager. */
     private Bindings globalScope;
-    
-    private boolean canCallerAccessLoader(ClassLoader loader) {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            ClassLoader callerLoader = getCallerClassLoader();
-            if (callerLoader != null) {
-                if (loader != callerLoader || !isAncestor(loader, callerLoader)) {
-                    try {
-                        sm.checkPermission(SecurityConstants.GET_CLASSLOADER_PERMISSION);
-                    } catch (SecurityException exp) {
-                        if (DEBUG) exp.printStackTrace();
-                        return false;
-                    }
-                } // else fallthru..
-            } // else fallthru..
-        } // else fallthru..
-        
-        return true;
-    }
-    
-    // Note that this code is same as ClassLoader.getCallerClassLoader().
-    // But, that method is package private and hence we can't call here.
-    private ClassLoader getCallerClassLoader() {
-        Class caller = Reflection.getCallerClass(3);
-        if (caller == null) {
-            return null;
-        }
-        return caller.getClassLoader();
-    }
-    
-    // is cl1 ancestor of cl2?
-    private boolean isAncestor(ClassLoader cl1, ClassLoader cl2) {
-        do {
-            cl2 = cl2.getParent();
-            if (cl1 == cl2) return true;
-        } while (cl2 != null);
-        return false;
-    }
 }

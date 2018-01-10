@@ -1,53 +1,31 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
- * Copyright (c) 2011 Oracle and/or its affiliates. All rights reserved.
  *
- * The contents of this file are subject to the terms of either the GNU
- * General Public License Version 2 only ("GPL") or the Common Development
- * and Distribution License("CDDL") (collectively, the "License").  You
- * may not use this file except in compliance with the License.  You can
- * obtain a copy of the License at
- * https://glassfish.dev.java.net/public/CDDL+GPL_1_1.html
- * or packager/legal/LICENSE.txt.  See the License for the specific
- * language governing permissions and limitations under the License.
  *
- * When distributing the software, include this License Header Notice in each
- * file and include the License file at packager/legal/LICENSE.txt.
  *
- * GPL Classpath Exception:
- * Oracle designates this particular file as subject to the "Classpath"
- * exception as provided by Oracle in the GPL Version 2 section of the License
- * file that accompanied this code.
  *
- * Modifications:
- * If applicable, add the following below the License Header, with the fields
- * enclosed by brackets [] replaced by your own identifying information:
- * "Portions Copyright [year] [name of copyright owner]"
  *
- * Contributor(s):
- * If you wish your version of this file to be governed by only the CDDL or
- * only the GPL Version 2, indicate your decision by adding "[Contributor]
- * elects to include this software in this distribution under the [CDDL or GPL
- * Version 2] license."  If you don't indicate a single choice of license, a
- * recipient has the option to distribute your version of this file under
- * either the CDDL, the GPL Version 2 or to extend the choice of license to
- * its licensees as provided above.  However, if you add GPL Version 2 code
- * and therefore, elected the GPL Version 2 license, then the option applies
- * only if the new code is made subject to such option by the copyright
- * holder.
- */
-
-/*
- * $Id: Constants.java,v 1.14 2011-06-07 04:39:40 joehw Exp $
- * %W% %E%
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package com.sun.org.apache.xalan.internal;
 
-import com.sun.org.apache.xerces.internal.impl.*;
-import java.util.Enumeration;
-import java.util.NoSuchElementException;
+import com.sun.org.apache.xalan.internal.utils.SecuritySupport;
 
 /**
  * Commonly used constants.
@@ -57,24 +35,217 @@ import java.util.NoSuchElementException;
  * @version $Id: Constants.java,v 1.14 2011-06-07 04:39:40 joehw Exp $
  */
 public final class XalanConstants {
-    
+
     //
     // Constants
     //
+    //Xerces security manager
+    public static final String SECURITY_MANAGER =
+            "http://apache.org/xml/properties/security-manager";
+
+    //
+    // Implementation limits: API properties
+    //
+    /** Oracle JAXP property prefix ("http://www.oracle.com/xml/jaxp/properties/"). */
+    public static final String ORACLE_JAXP_PROPERTY_PREFIX =
+        "http://www.oracle.com/xml/jaxp/properties/";
+    /**
+     * JDK entity expansion limit; Note that the existing system property
+     * "entityExpansionLimit" with no prefix is still observed
+     */
+    public static final String JDK_ENTITY_EXPANSION_LIMIT =
+            ORACLE_JAXP_PROPERTY_PREFIX + "entityExpansionLimit";
+
+    /**
+     * JDK element attribute limit; Note that the existing system property
+     * "elementAttributeLimit" with no prefix is still observed
+     */
+    public static final String JDK_ELEMENT_ATTRIBUTE_LIMIT =
+            ORACLE_JAXP_PROPERTY_PREFIX + "elementAttributeLimit";
+
+    /**
+     * JDK maxOccur limit; Note that the existing system property
+     * "maxOccurLimit" with no prefix is still observed
+     */
+    public static final String JDK_MAX_OCCUR_LIMIT =
+            ORACLE_JAXP_PROPERTY_PREFIX + "maxOccurLimit";
+
+    /**
+     * JDK total entity size limit
+     */
+    public static final String JDK_TOTAL_ENTITY_SIZE_LIMIT =
+            ORACLE_JAXP_PROPERTY_PREFIX + "totalEntitySizeLimit";
+
+    /**
+     * JDK maximum general entity size limit
+     */
+    public static final String JDK_GENEAL_ENTITY_SIZE_LIMIT =
+            ORACLE_JAXP_PROPERTY_PREFIX + "maxGeneralEntitySizeLimit";
+    /**
+     * JDK maximum parameter entity size limit
+     */
+    public static final String JDK_PARAMETER_ENTITY_SIZE_LIMIT =
+            ORACLE_JAXP_PROPERTY_PREFIX + "maxParameterEntitySizeLimit";
+    /**
+     * JDK maximum XML name limit
+     */
+    public static final String JDK_XML_NAME_LIMIT =
+            ORACLE_JAXP_PROPERTY_PREFIX + "maxXMLNameLimit";
+
+    /**
+     * JDK maxElementDepth limit
+     */
+    public static final String JDK_MAX_ELEMENT_DEPTH =
+            ORACLE_JAXP_PROPERTY_PREFIX + "maxElementDepth";
+
+    /**
+     * JDK property indicating whether the parser shall print out entity
+     * count information
+     * Value: a string "yes" means print, "no" or any other string means not.
+     */
+    public static final String JDK_ENTITY_COUNT_INFO =
+            ORACLE_JAXP_PROPERTY_PREFIX + "getEntityCountInfo";
+
+    //
+    // Implementation limits: corresponding System Properties of the above
+    // API properties
+    //
+    /**
+     * JDK entity expansion limit; Note that the existing system property
+     * "entityExpansionLimit" with no prefix is still observed
+     */
+    public static final String SP_ENTITY_EXPANSION_LIMIT = "jdk.xml.entityExpansionLimit";
+
+    /**
+     * JDK element attribute limit; Note that the existing system property
+     * "elementAttributeLimit" with no prefix is still observed
+     */
+    public static final String SP_ELEMENT_ATTRIBUTE_LIMIT =  "jdk.xml.elementAttributeLimit";
+
+    /**
+     * JDK maxOccur limit; Note that the existing system property
+     * "maxOccurLimit" with no prefix is still observed
+     */
+    public static final String SP_MAX_OCCUR_LIMIT = "jdk.xml.maxOccurLimit";
+
+    /**
+     * JDK total entity size limit
+     */
+    public static final String SP_TOTAL_ENTITY_SIZE_LIMIT = "jdk.xml.totalEntitySizeLimit";
+
+    /**
+     * JDK maximum general entity size limit
+     */
+    public static final String SP_GENEAL_ENTITY_SIZE_LIMIT = "jdk.xml.maxGeneralEntitySizeLimit";
+    /**
+     * JDK maximum parameter entity size limit
+     */
+    public static final String SP_PARAMETER_ENTITY_SIZE_LIMIT = "jdk.xml.maxParameterEntitySizeLimit";
+    /**
+     * JDK maximum XML name limit
+     */
+    public static final String SP_XML_NAME_LIMIT = "jdk.xml.maxXMLNameLimit";
+
+    /**
+     * JDK maxElementDepth limit
+     */
+    public static final String SP_MAX_ELEMENT_DEPTH = "jdk.xml.maxElementDepth";
+
+    /**
+     * JDK TransformerFactory and Transformer attribute that specifies a class
+     * loader that will be used for extension functions class loading
+     * Value: a "null", the default value, means that the default EF class loading
+     * path will be used.
+     * Instance of ClassLoader: the specified instance of ClassLoader will be used
+     * for extension functions loading during translation process
+     */
+    public static final String JDK_EXTENSION_CLASSLOADER = "jdk.xml.transform.extensionClassLoader";
+
+    //legacy System Properties
+    public final static String ENTITY_EXPANSION_LIMIT = "entityExpansionLimit";
+    public static final String ELEMENT_ATTRIBUTE_LIMIT = "elementAttributeLimit" ;
+    public final static String MAX_OCCUR_LIMIT = "maxOccurLimit";
+
+    /**
+     * A string "yes" that can be used for properties such as getEntityCountInfo
+     */
+    public static final String JDK_YES = "yes";
+
     // Oracle Feature:
-	/**
-	 * <p>Use Service Mechanism</p>
-	 *
-	 * <ul>
-	 *   <li>
-	 *     <code>true</code> instructs the implementation to use service mechanism to find implementation.
-	 *     This is the default behavior.
-	 *   </li>
-	 *   <li>
-	 *     <code>false</code> instructs the implementation to skip service mechanism and use the default implementation.
-	 *   </li>
-	 * </ul>
-	 */
+        /**
+         * <p>Use Service Mechanism</p>
+         *
+         * <ul>
+         *   <li>
+         * {@code true} instruct an object to use service mechanism to
+         * find a service implementation. This is the default behavior.
+         *   </li>
+         *   <li>
+         * {@code false} instruct an object to skip service mechanism and
+         * use the default implementation for that service.
+         *   </li>
+         * </ul>
+         */
     public static final String ORACLE_FEATURE_SERVICE_MECHANISM = "http://www.oracle.com/feature/use-service-mechanism";
 
+
+    //System Properties corresponding to ACCESS_EXTERNAL_* properties
+    public static final String SP_ACCESS_EXTERNAL_STYLESHEET = "javax.xml.accessExternalStylesheet";
+    public static final String SP_ACCESS_EXTERNAL_DTD = "javax.xml.accessExternalDTD";
+
+    //all access keyword
+    public static final String ACCESS_EXTERNAL_ALL = "all";
+
+    /**
+     * Default value when FEATURE_SECURE_PROCESSING (FSP) is set to true
+     */
+    public static final String EXTERNAL_ACCESS_DEFAULT_FSP = "";
+
+    /**
+     * FEATURE_SECURE_PROCESSING (FSP) is false by default
+     */
+    public static final String EXTERNAL_ACCESS_DEFAULT = ACCESS_EXTERNAL_ALL;
+
+    public static final String XML_SECURITY_PROPERTY_MANAGER =
+            ORACLE_JAXP_PROPERTY_PREFIX + "xmlSecurityPropertyManager";
+
+    /**
+     * Feature enableExtensionFunctions
+     */
+    public static final String ORACLE_ENABLE_EXTENSION_FUNCTION =
+            ORACLE_JAXP_PROPERTY_PREFIX + "enableExtensionFunctions";
+    public static final String SP_ORACLE_ENABLE_EXTENSION_FUNCTION = "javax.xml.enableExtensionFunctions";
+
+    /**
+     * Values for a feature
+     */
+    public static final String FEATURE_TRUE = "true";
+    public static final String FEATURE_FALSE = "false";
+
+    /**
+     * Check if we're in jdk8 or above
+     */
+    public static final boolean IS_JDK8_OR_ABOVE = isJavaVersionAtLeast(8);
+
+    /*
+     * Check the version of the current JDK against that specified in the
+     * parameter
+     *
+     * There is a proposal to change the java version string to:
+     * MAJOR.MINOR.FU.CPU.PSU-BUILDNUMBER_BUGIDNUMBER_OPTIONAL
+     * This method would work with both the current format and that proposed
+     *
+     * @param compareTo a JDK version to be compared to
+     * @return true if the current version is the same or above that represented
+     * by the parameter
+     */
+    public static boolean isJavaVersionAtLeast(int compareTo) {
+        String javaVersion = SecuritySupport.getSystemProperty("java.version");
+        String versions[] = javaVersion.split("\\.", 3);
+        if (Integer.parseInt(versions[0]) >= compareTo ||
+            Integer.parseInt(versions[1]) >= compareTo) {
+            return true;
+        }
+        return false;
+    }
 } // class Constants

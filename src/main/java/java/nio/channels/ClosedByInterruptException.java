@@ -1,10 +1,28 @@
 /*
- * @(#)ClosedByInterruptException.java	%I% %E%
+ * Copyright (c) 2000, 2007, Oracle and/or its affiliates. All rights reserved.
  *
- * Copyright (c) 2000, Oracle and/or its affiliates. All rights reserved.
- * 
- * This software is the proprietary information of Oracle.
- * Use is subject to license terms.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 // -- This file was mechanically generated: Do not edit! -- //
@@ -18,13 +36,14 @@ package java.nio.channels;
  * exception is thrown the channel will have been closed and the interrupt
  * status of the previously-blocked thread will have been set.
  *
- * @version %I%, %E%
  * @since 1.4
  */
 
 public class ClosedByInterruptException
     extends AsynchronousCloseException
 {
+
+    private static final long serialVersionUID = -4488191543534286750L;
 
     /**
      * Constructs an instance of this class.

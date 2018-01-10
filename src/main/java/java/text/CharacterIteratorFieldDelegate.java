@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 package java.text;
 
@@ -14,7 +32,6 @@ import java.util.ArrayList;
  * <code>AttributedCharacterIterator</code> can be retrieved by way of
  * the <code>getIterator</code> method.
  *
- * @version %I% %G%
  */
 class CharacterIteratorFieldDelegate implements Format.FieldDelegate {
     /**

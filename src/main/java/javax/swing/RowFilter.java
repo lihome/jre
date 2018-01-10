@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, 2006, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 package javax.swing;
 
@@ -72,7 +90,6 @@ import java.util.regex.Pattern;
  * @param <M> the type of the model; for example <code>PersonModel</code>
  * @param <I> the type of the identifier; when using
  *            <code>TableRowSorter</code> this will be <code>Integer</code>
- * @version %I% %G%
  * @see javax.swing.table.TableRowSorter
  * @since 1.6
  */

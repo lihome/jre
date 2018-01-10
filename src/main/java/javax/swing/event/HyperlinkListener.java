@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 1998, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 package javax.swing.event;
 
@@ -12,7 +30,6 @@ import java.util.EventListener;
 /**
  * HyperlinkListener
  *
- * @version %I% %G%
  * @author  Timothy Prinzing
  */
 public interface HyperlinkListener extends EventListener {
@@ -24,4 +41,3 @@ public interface HyperlinkListener extends EventListener {
      */
     void hyperlinkUpdate(HyperlinkEvent e);
 }
-

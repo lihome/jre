@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2002, 2003, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package com.sun.corba.se.impl.naming.namingutil;
@@ -26,7 +44,7 @@ public abstract class INSURLBase implements INSURL {
 
     public boolean getRIRFlag( ) {
         return rirFlag;
-    } 
+    }
 
     public java.util.List getEndpointInfo( ) {
         return theEndpointInfo;
@@ -54,6 +72,5 @@ public abstract class INSURLBase implements INSURL {
             System.out.println( "Stringified Name = " + getStringifiedName() );
         }
     }
-    
-}
 
+}

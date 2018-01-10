@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright  1999-2004 The Apache Software Foundation.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,8 +26,10 @@ import java.io.ByteArrayInputStream;
 import java.io.OutputStream;
 import java.util.Set;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPath;
 
 import com.sun.org.apache.xml.internal.security.utils.XMLUtils;
 import org.w3c.dom.Document;
@@ -45,7 +51,7 @@ public abstract class CanonicalizerSpi {
     *
     *
     * @param inputBytes
-    * @return the c14n bytes. 
+    * @return the c14n bytes.
     *
     *
     * @throws CanonicalizationException
@@ -62,6 +68,7 @@ public abstract class CanonicalizerSpi {
       java.io.ByteArrayInputStream bais = new ByteArrayInputStream(inputBytes);
       InputSource in = new InputSource(bais);
       DocumentBuilderFactory dfactory = DocumentBuilderFactory.newInstance();
+      dfactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.TRUE);
 
       // needs to validate for ID attribute nomalization
       dfactory.setNamespaceAware(true);
@@ -112,7 +119,7 @@ public abstract class CanonicalizerSpi {
          .engineCanonicalizeXPathNodeSet(XMLUtils
             .convertNodelistToSet(xpathNodeSet));
    }
-   
+
    /**
     * Method engineCanonicalizeXPathNodeSet
     *
@@ -134,12 +141,12 @@ public abstract class CanonicalizerSpi {
     * @return the URI
     */
    public abstract String engineGetURI();
-   
+
    /** Returns the URI if include comments
     * @return true if include.
     */
    public abstract boolean engineGetIncludeComments();
-   
+
    /**
     * C14n a nodeset
     *
@@ -147,7 +154,7 @@ public abstract class CanonicalizerSpi {
     * @return the c14n bytes
     * @throws CanonicalizationException
     */
-   public abstract byte[] engineCanonicalizeXPathNodeSet(Set xpathNodeSet)
+   public abstract byte[] engineCanonicalizeXPathNodeSet(Set<Node> xpathNodeSet)
       throws CanonicalizationException;
 
    /**
@@ -158,7 +165,7 @@ public abstract class CanonicalizerSpi {
     * @return the c14n bytes
     * @throws CanonicalizationException
     */
-   public abstract byte[] engineCanonicalizeXPathNodeSet(Set xpathNodeSet, String inclusiveNamespaces)
+   public abstract byte[] engineCanonicalizeXPathNodeSet(Set<Node> xpathNodeSet, String inclusiveNamespaces)
       throws CanonicalizationException;
 
    /**
@@ -181,14 +188,14 @@ public abstract class CanonicalizerSpi {
     */
    public abstract byte[] engineCanonicalizeSubTree(Node rootNode, String inclusiveNamespaces)
       throws CanonicalizationException;
-   
+
    /**
-    * Sets the writter where the cannocalization ends. ByteArrayOutputStream if 
+    * Sets the writter where the cannocalization ends. ByteArrayOutputStream if
     * none is setted.
     * @param os
     */
    public abstract void setWriter(OutputStream os);
-   
+
    /** Reset the writter after a c14n */
    protected boolean reset=false;
    //J+

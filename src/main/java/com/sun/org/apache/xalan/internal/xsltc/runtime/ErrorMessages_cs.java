@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2007, 2015, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+/*
  * Copyright 2001-2004 The Apache Software Foundation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -75,13 +79,13 @@ public class ErrorMessages_cs extends ListResourceBundle {
  */
 
     // These message should be read from a locale-specific resource bundle
-    /** Get the lookup table for error messages.   
+    /** Get the lookup table for error messages.
      *
      * @return The message lookup table.
      */
     public Object[][] getContents()
     {
-      return new Object[][] {
+        return new Object[][] {
 
         /*
          * Note to translators:  the substitution text in the following message
@@ -224,6 +228,7 @@ public class ErrorMessages_cs extends ListResourceBundle {
         {BasisLibrary.CANT_RESOLVE_RELATIVE_URI_ERR,
         "Nelze p\u0159elo\u017eit odkazy URI ''{0}''."}
     };
+
     }
 
 }

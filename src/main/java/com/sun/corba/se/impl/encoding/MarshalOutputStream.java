@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1998, 2003, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 package com.sun.corba.se.impl.encoding;
 
@@ -15,9 +33,9 @@ import org.omg.CORBA.Any;
 import org.omg.CORBA.portable.InputStream;
 
 public interface MarshalOutputStream {
-    
+
     public InputStream create_input_stream();
-  
+
     public void write_boolean(boolean value);
     public void write_char(char value);
     public void write_wchar(char value);
@@ -59,13 +77,13 @@ public interface MarshalOutputStream {
     public void start_block();
     public void end_block();
 
-    /* 
+    /*
      * Additional Methods
      */
 
     public void   putEndian();
-    public void   writeTo(java.io.OutputStream s) 
-	throws IOException;
+    public void   writeTo(java.io.OutputStream s)
+        throws IOException;
 
     public byte[] toByteArray();
 }

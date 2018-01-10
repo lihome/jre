@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 1999, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.security.spec;
@@ -13,10 +31,9 @@ package java.security.spec;
  * <P> This interface contains no methods or constants. Its only purpose
  * is to group (and provide type safety for) all parameter specifications.
  * All parameter specifications must implement this interface.
- * 
+ *
  * @author Jan Luehe
  *
- * @version %I%, %G%
  *
  * @see java.security.AlgorithmParameters
  * @see DSAParameterSpec

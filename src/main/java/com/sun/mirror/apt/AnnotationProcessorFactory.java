@@ -1,8 +1,26 @@
 /*
- * %W% %E%
+ * Copyright (c) 2004, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
- * ORACLE PROPRIETARY/CONFIDENTIAL.  Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package com.sun.mirror.apt;
@@ -24,12 +42,17 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
  * must provide a public no-argument constructor to be used by tools to
  * instantiate the factory.
  *
+ * @deprecated All components of this API have been superseded by the
+ * standardized annotation processing API.  The replacement for the
+ * functionality of this interface is {@link
+ * javax.annotation.processing.Processor}.
+ *
  * @author Joseph D. Darcy
  * @author Scott Seligman
- * @version %I% %E%
  * @since 1.5
  */
-
+@Deprecated
+@SuppressWarnings("deprecation")
 public interface AnnotationProcessorFactory {
 
     /**
@@ -78,9 +101,9 @@ public interface AnnotationProcessorFactory {
      * @param atds type declarations of the annotation types to be processed
      * @param env  environment to use during processing
      * @return an annotation processor for the given annotation types,
-     *		or <tt>null</tt> if the types are not supported or the
-     *		processor cannot be created
+     *          or <tt>null</tt> if the types are not supported or the
+     *          processor cannot be created
      */
     AnnotationProcessor getProcessorFor(Set<AnnotationTypeDeclaration> atds,
-					AnnotationProcessorEnvironment env);
+                                        AnnotationProcessorEnvironment env);
 }

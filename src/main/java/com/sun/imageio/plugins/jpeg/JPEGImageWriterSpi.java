@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2004, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package com.sun.imageio.plugins.jpeg;
@@ -22,7 +40,7 @@ import java.util.Locale;
 
 public class JPEGImageWriterSpi extends ImageWriterSpi {
 
-    private static String [] readerSpiNames = 
+    private static String [] readerSpiNames =
         {"com.sun.imageio.plugins.jpeg.JPEGImageReaderSpi"};
 
     public JPEGImageWriterSpi() {

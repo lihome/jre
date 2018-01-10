@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2006, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.util;
@@ -88,7 +106,6 @@ package java.util;
  * @param <E> the type of elements maintained by this set
  *
  * @author  Josh Bloch
- * @version %I% %E%
  * @see     Object#hashCode()
  * @see     Collection
  * @see     Set

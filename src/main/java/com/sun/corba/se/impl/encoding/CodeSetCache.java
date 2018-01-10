@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2001, 2004, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 package com.sun.corba.se.impl.encoding;
 
@@ -39,7 +57,7 @@ class CodeSetCache
      */
     private static final int BTC_CACHE_MAP = 0;
 
-    /** 
+    /**
      * Index in the thread local converterCaches array for
      * the char to byte converter Map.  A key is the Java
      * name corresponding to the desired code set.
@@ -51,7 +69,7 @@ class CodeSetCache
      */
     CharsetDecoder getByteToCharConverter(Object key) {
         Map btcMap = ((Map[])converterCaches.get())[BTC_CACHE_MAP];
-        
+
         return (CharsetDecoder)btcMap.get(key);
     }
 

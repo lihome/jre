@@ -1,8 +1,26 @@
 /*
- * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2002, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 package java.text;
@@ -58,7 +76,7 @@ public class Annotation {
      * Returns the String representation of this Annotation.
      */
     public String toString() {
-	return getClass().getName() + "[value=" + value + "]";
+        return getClass().getName() + "[value=" + value + "]";
     }
 
     private Object value;

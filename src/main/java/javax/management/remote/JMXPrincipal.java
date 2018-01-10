@@ -1,13 +1,34 @@
 /*
- * %W% %E%
- * 
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2002, 2007, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 
 package javax.management.remote;
 
+import java.io.IOException;
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.security.Principal;
 
@@ -18,14 +39,13 @@ import java.security.Principal;
  * may be associated with a particular <code>Subject</code>
  * to augment that <code>Subject</code> with an additional
  * identity.  Refer to the {@link javax.security.auth.Subject}
- * class for more information on how to achieve this.  
- * Authorization decisions can then be based upon 
+ * class for more information on how to achieve this.
+ * Authorization decisions can then be based upon
  * the Principals associated with a <code>Subject</code>.
- * 
+ *
  * @see java.security.Principal
  * @see javax.security.auth.Subject
  * @since 1.5
- * @since.unbundled 1.0
  */
 public class JMXPrincipal implements Principal, Serializable {
 
@@ -47,9 +67,7 @@ public class JMXPrincipal implements Principal, Serializable {
      * <code>null</code>.
      */
     public JMXPrincipal(String name) {
-        if (name == null)
-            throw new NullPointerException("illegal null input");
-
+        validate(name);
         this.name = name;
     }
 
@@ -95,14 +113,14 @@ public class JMXPrincipal implements Principal, Serializable {
 
         if (this == o)
             return true;
- 
+
         if (!(o instanceof JMXPrincipal))
             return false;
         JMXPrincipal that = (JMXPrincipal)o;
 
         return (this.getName().equals(that.getName()));
     }
- 
+
     /**
      * Returns a hash code for this <code>JMXPrincipal</code>.
      *
@@ -112,5 +130,21 @@ public class JMXPrincipal implements Principal, Serializable {
      */
     public int hashCode() {
         return name.hashCode();
+    }
+
+    private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+        ObjectInputStream.GetField gf = ois.readFields();
+        String principalName = (String)gf.get("name", null);
+        try {
+            validate(principalName);
+            this.name = principalName;
+        } catch (NullPointerException e) {
+            throw new InvalidObjectException(e.getMessage());
+        }
+    }
+
+    private static void validate(String name) throws NullPointerException {
+        if (name == null)
+            throw new NullPointerException("illegal null input");
     }
 }
