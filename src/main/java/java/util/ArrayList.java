@@ -225,7 +225,7 @@ public class ArrayList<E> extends AbstractList<E>
             return Math.max(DEFAULT_CAPACITY, minCapacity);
         }
         return minCapacity;
-        }
+    }
 
     private void ensureCapacityInternal(int minCapacity) {
         ensureExplicitCapacity(calculateCapacity(elementData, minCapacity));
@@ -847,6 +847,8 @@ public class ArrayList<E> extends AbstractList<E>
         int cursor;       // index of next element to return
         int lastRet = -1; // index of last element returned; -1 if no such
         int expectedModCount = modCount;
+
+        Itr() {}
 
         public boolean hasNext() {
             return cursor != size;
