@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2011, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1999, 2020, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -86,10 +86,19 @@ final class VersionHelper12 extends VersionHelper {
      * This internal method is used with Thread Context Class Loader (TCCL),
      * please don't expose this method as public.
      */
+    Class<?> loadClass(String className, boolean initialize, ClassLoader cl)
+        throws ClassNotFoundException {
+        Class<?> cls = Class.forName(className, initialize, cl);
+        return cls;
+    }
+
+    public Class<?> loadClassWithoutInit(String className) throws ClassNotFoundException {
+        return loadClass(className, false, getContextClassLoader());
+    }
+
     Class<?> loadClass(String className, ClassLoader cl)
         throws ClassNotFoundException {
-        Class<?> cls = Class.forName(className, true, cl);
-        return cls;
+        return loadClass(className, true, cl);
     }
 
     /**

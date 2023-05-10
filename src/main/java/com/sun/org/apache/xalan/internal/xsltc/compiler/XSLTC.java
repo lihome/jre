@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2017, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2022, Oracle and/or its affiliates. All rights reserved.
  */
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -23,7 +23,6 @@ package com.sun.org.apache.xalan.internal.xsltc.compiler;
 import com.sun.org.apache.bcel.internal.classfile.JavaClass;
 import com.sun.org.apache.xalan.internal.XalanConstants;
 import com.sun.org.apache.xalan.internal.utils.SecuritySupport;
-import com.sun.org.apache.xalan.internal.utils.XMLSecurityManager;
 import com.sun.org.apache.xalan.internal.xsltc.compiler.util.ErrorMsg;
 import com.sun.org.apache.xalan.internal.xsltc.compiler.util.Util;
 import com.sun.org.apache.xml.internal.dtm.DTM;
@@ -46,6 +45,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import javax.xml.XMLConstants;
+import jdk.xml.internal.XMLSecurityManager;
 import jdk.xml.internal.JdkXmlFeatures;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
@@ -98,7 +98,6 @@ public final class XSLTC {
     private Vector m_characterData;
 
     // These define the various methods for outputting the translet
-    public static final int FILE_OUTPUT        = 0;
     public static final int JAR_OUTPUT         = 1;
     public static final int BYTEARRAY_OUTPUT   = 2;
     public static final int CLASSLOADER_OUTPUT = 3;
@@ -112,7 +111,7 @@ public final class XSLTC {
     private String  _className = null;   // -o <class-name>
     private String  _packageName = null; // -p <package-name>
     private File    _destDir = null;     // -d <directory-name>
-    private int     _outputType = FILE_OUTPUT; // by default
+    private int     _outputType = BYTEARRAY_OUTPUT; // by default
 
     private Vector  _classes;
     private Vector  _bcelClasses;
@@ -305,7 +304,7 @@ public final class XSLTC {
         _elements       = new HashMap<>();
         _attributes     = new HashMap<>();
         _namespaces     = new HashMap<>();
-        _namespaces.put("",new Integer(_nextNSType));
+        _namespaces.put("", _nextNSType);
         _namesIndex     = new Vector(128);
         _namespaceIndex = new Vector(32);
         _namespacePrefixes = new HashMap<>();
@@ -481,7 +480,10 @@ public final class XSLTC {
             }
         }
         catch (Exception e) {
-            /*if (_debug)*/ e.printStackTrace();
+            if (_debug) e.printStackTrace();
+            if (ErrorMsg.XPATH_LIMIT.equals(e.getMessage())) {
+                return !_parser.errorsFound();
+            }
             _parser.reportError(Constants.FATAL, new ErrorMsg(ErrorMsg.JAXP_COMPILE_ERR, e));
         }
         catch (Error e) {
@@ -815,7 +817,7 @@ public final class XSLTC {
             _namespaces.put(namespaceURI,code);
             _namespaceIndex.addElement(namespaceURI);
         }
-        return code.intValue();
+        return code;
     }
 
     public int nextModeSerial() {
@@ -860,8 +862,7 @@ public final class XSLTC {
 
     public void dumpClass(JavaClass clazz) {
 
-        if (_outputType == FILE_OUTPUT ||
-            _outputType == BYTEARRAY_AND_FILE_OUTPUT)
+        if (_outputType == BYTEARRAY_AND_FILE_OUTPUT)
         {
             File outFile = getOutputFile(clazz.getClassName());
             String parentDir = outFile.getParent();
@@ -874,12 +875,6 @@ public final class XSLTC {
 
         try {
             switch (_outputType) {
-            case FILE_OUTPUT:
-                clazz.dump(
-                    new BufferedOutputStream(
-                        new FileOutputStream(
-                            getOutputFile(clazz.getClassName()))));
-                break;
             case JAR_OUTPUT:
                 _bcelClasses.addElement(clazz);
                 break;
@@ -892,8 +887,7 @@ public final class XSLTC {
                 _classes.addElement(out.toByteArray());
 
                 if (_outputType == BYTEARRAY_AND_FILE_OUTPUT)
-                  clazz.dump(new BufferedOutputStream(
-                        new FileOutputStream(getOutputFile(clazz.getClassName()))));
+                  clazz.dump(getOutputFile(clazz.getClassName()));
                 else if (_outputType == BYTEARRAY_AND_JAR_OUTPUT)
                   _bcelClasses.addElement(clazz);
 

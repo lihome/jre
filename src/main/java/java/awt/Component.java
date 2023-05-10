@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1995, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1995, 2022, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -7441,6 +7441,10 @@ public abstract class Component implements ImageObserver, MenuContainer,
     }
 
     boolean requestFocus(CausedFocusEvent.Cause cause) {
+        Component toFocus = requestFocusController.getGroupSelection(this, cause);
+        if (toFocus != null) {
+            return toFocus.requestFocusHelper(false, true, cause);
+        }
         return requestFocusHelper(false, true, cause);
     }
 
@@ -7559,6 +7563,10 @@ public abstract class Component implements ImageObserver, MenuContainer,
     }
 
     boolean requestFocusInWindow(CausedFocusEvent.Cause cause) {
+        Component toFocus = requestFocusController.getGroupSelection(this, cause);
+        if (toFocus != null) {
+            return toFocus.requestFocusHelper(false, false, cause);
+        }
         return requestFocusHelper(false, false, cause);
     }
 
@@ -7804,6 +7812,12 @@ public abstract class Component implements ImageObserver, MenuContainer,
                                           CausedFocusEvent.Cause cause)
         {
             return true;
+        }
+
+        @Override
+        public Component getGroupSelection(Component focusCandidate,
+                                           CausedFocusEvent.Cause cause) {
+            return null;
         }
     };
 

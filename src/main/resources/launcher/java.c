@@ -450,7 +450,7 @@ JavaMain(void * _args)
      * consistent in the UI we need to track and report the application main class.
      */
     appClass = GetApplicationClass(env);
-    NULL_CHECK_RETURN_VALUE(appClass, -1);
+    CHECK_EXCEPTION_NULL_LEAVE(appClass);
     /*
      * PostJVMInit uses the class name as the application name for GUI purposes,
      * for example, on OSX this sets the application name in the menu bar for
@@ -1274,13 +1274,12 @@ NewPlatformString(JNIEnv *env, char *s)
         (*env)->SetByteArrayRegion(env, ary, 0, len, (jbyte *)s);
         if (!(*env)->ExceptionOccurred(env)) {
             if (makePlatformStringMID == NULL) {
-                CHECK_JNI_RETURN_0(
-                    makePlatformStringMID = (*env)->GetStaticMethodID(env,
-                        cls, "makePlatformString", "(Z[B)Ljava/lang/String;"));
+                NULL_CHECK0(makePlatformStringMID = (*env)->GetStaticMethodID(env,
+                          cls, "makePlatformString", "(Z[B)Ljava/lang/String;"));
             }
-            CHECK_JNI_RETURN_0(
-                str = (*env)->CallStaticObjectMethod(env, cls,
-                    makePlatformStringMID, USE_STDERR, ary));
+            str = (*env)->CallStaticObjectMethod(env, cls,
+                    makePlatformStringMID, USE_STDERR, ary);
+            CHECK_EXCEPTION_RETURN_VALUE(0);
             (*env)->DeleteLocalRef(env, ary);
             return str;
         }
@@ -1301,6 +1300,7 @@ NewPlatformStringArray(JNIEnv *env, char **strv, int strc)
 
     NULL_CHECK0(cls = FindBootStrapClass(env, "java/lang/String"));
     NULL_CHECK0(ary = (*env)->NewObjectArray(env, strc, cls, 0));
+    CHECK_EXCEPTION_RETURN_VALUE(0);
     for (i = 0; i < strc; i++) {
         jstring str = NewPlatformString(env, *strv++);
         NULL_CHECK0(str);
@@ -1331,9 +1331,10 @@ LoadMainClass(JNIEnv *env, int mode, char *name)
                 "(ZILjava/lang/String;)Ljava/lang/Class;"));
 
     str = NewPlatformString(env, name);
-    CHECK_JNI_RETURN_0(
-        result = (*env)->CallStaticObjectMethod(
-            env, cls, mid, USE_STDERR, mode, str));
+    CHECK_EXCEPTION_RETURN_VALUE(0);
+
+    result = (*env)->CallStaticObjectMethod(env, cls, mid, USE_STDERR, mode, str);
+    CHECK_EXCEPTION_RETURN_VALUE(0);
 
     if (JLI_IsTraceLauncher()) {
         end   = CounterGet();

@@ -1,4 +1,4 @@
-// This file was generated AUTOMATICALLY from a template file Sat Oct 06 08:41:00 PDT 2018
+// This file was generated AUTOMATICALLY from a template file Fri Mar 17 03:57:52 GMT 2023
 /*
  * Copyright (c) 2003, 2013, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
@@ -354,7 +354,7 @@ class CharacterData01 extends CharacterData {
     private CharacterData01() {};
 
     // The following tables and code generated using:
-  // java GenerateCharacter -plane 1 -template /Users/java_re/workspace/8-2-build-macosx-x86_64/jdk8u191/11896/jdk/make/data/characterdata/CharacterData01.java.template -spec /Users/java_re/workspace/8-2-build-macosx-x86_64/jdk8u191/11896/jdk/make/data/unicodedata/UnicodeData.txt -specialcasing /Users/java_re/workspace/8-2-build-macosx-x86_64/jdk8u191/11896/jdk/make/data/unicodedata/SpecialCasing.txt -proplist /Users/java_re/workspace/8-2-build-macosx-x86_64/jdk8u191/11896/jdk/make/data/unicodedata/PropList.txt -o /Users/java_re/workspace/8-2-build-macosx-x86_64/jdk8u191/11896/build/macosx-x86_64/jdk/gensrc/java/lang/CharacterData01.java -string -usecharforbyte 11 4 1
+  // java GenerateCharacter -plane 1 -template /System/Volumes/Data/jenkins/workspace/8-2-build-macosx-x64/jdk8u371/3355/jdk/make/data/characterdata/CharacterData01.java.template -spec /System/Volumes/Data/jenkins/workspace/8-2-build-macosx-x64/jdk8u371/3355/jdk/make/data/unicodedata/UnicodeData.txt -specialcasing /System/Volumes/Data/jenkins/workspace/8-2-build-macosx-x64/jdk8u371/3355/jdk/make/data/unicodedata/SpecialCasing.txt -proplist /System/Volumes/Data/jenkins/workspace/8-2-build-macosx-x64/jdk8u371/3355/jdk/make/data/unicodedata/PropList.txt -o /System/Volumes/Data/jenkins/workspace/8-2-build-macosx-x64/jdk8u371/3355/build/macosx-x64/jdk/gensrc/java/lang/CharacterData01.java -string -usecharforbyte 11 4 1
   // The X table has 2048 entries for a total of 4096 bytes.
 
   static final char X[] = (
