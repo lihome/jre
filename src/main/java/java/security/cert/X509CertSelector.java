@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2023, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -90,10 +90,6 @@ public class X509CertSelector implements CertSelector {
 
     private final static ObjectIdentifier ANY_EXTENDED_KEY_USAGE =
         ObjectIdentifier.of(KnownOIDs.anyExtendedKeyUsage);
-
-    static {
-        CertPathHelperImpl.initialize();
-    }
 
     private BigInteger serialNumber;
     private X500Principal issuer;
@@ -1176,14 +1172,6 @@ public class X509CertSelector implements CertSelector {
             // Ensure that we either set both of these or neither
             pathToNames = tempNames;
         }
-    }
-
-    // called from CertPathHelper
-    void setPathToNamesInternal(Set<GeneralNameInterface> names) {
-        // set names to non-null dummy value
-        // this breaks getPathToNames()
-        pathToNames = Collections.<List<?>>emptySet();
-        pathToGeneralNames = names;
     }
 
     /**

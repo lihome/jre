@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1996, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2023, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -1081,23 +1081,31 @@ public abstract class Provider extends Properties {
 
         // avoid allocating a new ServiceKey object if possible
         ServiceKey key = previousKey;
+        Service s = null;
         if (key.matches(type, algorithm) == false) {
             key = new ServiceKey(type, algorithm, false);
             previousKey = key;
         }
         if (!serviceMap.isEmpty()) {
-            Service s = serviceMap.get(key);
-            if (s != null) {
-                return s;
+            s = serviceMap.get(key);
+        }
+        if (s == null) {
+            synchronized (this) {
+                ensureLegacyParsed();
+                if (legacyMap != null && !legacyMap.isEmpty()) {
+                    s = legacyMap.get(key);
+                }
             }
         }
-        synchronized (this) {
-            ensureLegacyParsed();
-            if (legacyMap != null && !legacyMap.isEmpty()) {
-                return legacyMap.get(key);
-            }
+
+        if (s != null) {
+            tryCommitJFREvent(getName(), type, algorithm);
         }
-        return null;
+        return s;
+    }
+
+    private void tryCommitJFREvent(String name, String type, String algorithm) {
+        // JFR code instrumentation may occur here
     }
 
     // ServiceKey from previous getService() call

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2023, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -75,8 +75,6 @@ class JarFile extends ZipFile {
     private boolean jvInitialized;
     private boolean verify;
     static final ThreadLocal<Boolean> isInitializing = new ThreadLocal<>();
-    // The maximum size of array to allocate. Some VMs reserve some header words in an array.
-    private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
 
 
     // indicates if Class-Path attribute present (only valid if hasCheckedSpecialAttributes true)
@@ -444,8 +442,13 @@ class JarFile extends ZipFile {
     private byte[] getBytes(ZipEntry ze) throws IOException {
         try (InputStream is = super.getInputStream(ze)) {
             long uncompressedSize = ze.getSize();
-            if (uncompressedSize > MAX_ARRAY_SIZE) {
-                throw new IOException("Unsupported size: " + uncompressedSize);
+            if (uncompressedSize > SignatureFileVerifier.MAX_SIG_FILE_SIZE) {
+                throw new IOException("Unsupported size: " + uncompressedSize +
+                        " for JarEntry " + ze.getName() +
+                        ". Allowed max size: " +
+                        SignatureFileVerifier.MAX_SIG_FILE_SIZE + " bytes. " +
+                        "You can use the jdk.jar.maxSignatureFileSize " +
+                        "system property to increase the default value.");
             }
             int len = (int)uncompressedSize;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1999, 2023, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -24,6 +24,10 @@
  */
 
 package javax.security.auth.callback;
+
+import java.io.IOException;
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
 
 /**
  * <p> Underlying security services instantiate and pass a
@@ -103,15 +107,16 @@ public class ChoiceCallback implements Callback, java.io.Serializable {
             defaultChoice < 0 || defaultChoice >= choices.length)
             throw new IllegalArgumentException();
 
+        this.prompt = prompt;
+        this.defaultChoice = defaultChoice;
+        this.multipleSelectionsAllowed = multipleSelectionsAllowed;
+
+        this.choices = choices.clone();
         for (int i = 0; i < choices.length; i++) {
             if (choices[i] == null || choices[i].isEmpty())
                 throw new IllegalArgumentException();
         }
 
-        this.prompt = prompt;
-        this.choices = choices;
-        this.defaultChoice = defaultChoice;
-        this.multipleSelectionsAllowed = multipleSelectionsAllowed;
     }
 
     /**
@@ -207,5 +212,37 @@ public class ChoiceCallback implements Callback, java.io.Serializable {
      */
     public int[] getSelectedIndexes() {
         return selections;
+    }
+
+    /**
+     * Restores the state of this object from the stream.
+     *
+     * @param  stream the {@code ObjectInputStream} from which data is read
+     * @throws IOException if an I/O error occurs
+     * @throws ClassNotFoundException if a serialized class cannot be loaded
+     */
+    private void readObject(ObjectInputStream stream)
+            throws IOException, ClassNotFoundException {
+        stream.defaultReadObject();
+
+        if ((prompt == null) || prompt.isEmpty() ||
+                (choices == null) || (choices.length == 0) ||
+                (defaultChoice < 0) || (defaultChoice >= choices.length)) {
+            throw new InvalidObjectException(
+                    "Missing/invalid prompt/choices");
+        }
+        choices = choices.clone();
+        for (int i = 0; i < choices.length; i++) {
+            if ((choices[i] == null) || choices[i].isEmpty())
+                throw new InvalidObjectException("Null/empty choices");
+        }
+
+        if (selections != null) {
+            selections = selections.clone();
+            if (!multipleSelectionsAllowed && (selections.length != 1)) {
+                throw new InvalidObjectException(
+                        "Multiple selections not allowed");
+            }
+        }
     }
 }

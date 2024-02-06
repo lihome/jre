@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1999, 2023, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -24,6 +24,9 @@
  */
 
 package javax.security.auth.callback;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
 
 /**
  * <p> Underlying security services instantiate and pass a
@@ -250,14 +253,14 @@ public class ConfirmationCallback implements Callback, java.io.Serializable {
             defaultOption < 0 || defaultOption >= options.length)
             throw new IllegalArgumentException();
 
+        this.messageType = messageType;
+        this.defaultOption = defaultOption;
+
+        this.options = options.clone();
         for (int i = 0; i < options.length; i++) {
             if (options[i] == null || options[i].isEmpty())
                 throw new IllegalArgumentException();
         }
-
-        this.messageType = messageType;
-        this.options = options;
-        this.defaultOption = defaultOption;
     }
 
     /**
@@ -370,15 +373,15 @@ public class ConfirmationCallback implements Callback, java.io.Serializable {
             defaultOption < 0 || defaultOption >= options.length)
             throw new IllegalArgumentException();
 
+        this.prompt = prompt;
+        this.messageType = messageType;
+        this.defaultOption = defaultOption;
+
+        this.options = options.clone();
         for (int i = 0; i < options.length; i++) {
             if (options[i] == null || options[i].isEmpty())
                 throw new IllegalArgumentException();
         }
-
-        this.prompt = prompt;
-        this.messageType = messageType;
-        this.options = options;
-        this.defaultOption = defaultOption;
     }
 
     /**
@@ -497,5 +500,20 @@ public class ConfirmationCallback implements Callback, java.io.Serializable {
      */
     public int getSelectedIndex() {
         return selection;
+    }
+
+    /**
+     * Restores the state of this object from the stream.
+     *
+     * @param  stream the {@code ObjectInputStream} from which data is read
+     * @throws IOException if an I/O error occurs
+     * @throws ClassNotFoundException if a serialized class cannot be loaded
+     */
+    private void readObject(ObjectInputStream stream)
+            throws IOException, ClassNotFoundException {
+        stream.defaultReadObject();
+        if (options != null) {
+            options = options.clone();
+        }
     }
 }
