@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /*
@@ -22,10 +22,9 @@
 package com.sun.org.apache.bcel.internal.generic;
 
 /**
- * Denotes a push instruction that produces a literal on the stack
- * such as  SIPUSH, BIPUSH, ICONST, etc.
+ * Denotes a push instruction that produces a literal on the stack such as SIPUSH, BIPUSH, ICONST, etc.
  *
-
+ *
  * @see ICONST
  * @see SIPUSH
  */

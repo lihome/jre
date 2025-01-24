@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /**
@@ -22,10 +22,11 @@
  */
 package com.sun.org.apache.xml.internal.security.c14n.helper;
 
-import com.sun.org.apache.xml.internal.security.utils.Constants;
-import org.w3c.dom.Attr;
 import java.io.Serializable;
 import java.util.Comparator;
+
+import com.sun.org.apache.xml.internal.security.utils.Constants;
+import org.w3c.dom.Attr;
 
 /**
  * Compares two attributes based on the C14n specification.
@@ -69,6 +70,7 @@ public class AttrCompare implements Comparator<Attr>, Serializable {
      *   obj0 is less than, equal to, or greater than obj1
      *
      */
+    @Override
     public int compare(Attr attr0, Attr attr1) {
         String namespaceURI0 = attr0.getNamespaceURI();
         String namespaceURI1 = attr1.getNamespaceURI();

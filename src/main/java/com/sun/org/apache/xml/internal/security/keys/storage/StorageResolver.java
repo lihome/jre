@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /**
@@ -133,6 +133,7 @@ public class StorageResolver {
         }
 
         /** {@inheritDoc} */
+        @Override
         public boolean hasNext() {
             if (currentResolver == null) {
                 return false;
@@ -147,6 +148,7 @@ public class StorageResolver {
         }
 
         /** {@inheritDoc} */
+        @Override
         public Certificate next() {
             if (hasNext()) {
                 return currentResolver.next();
@@ -158,6 +160,7 @@ public class StorageResolver {
         /**
          * Method remove
          */
+        @Override
         public void remove() {
             throw new UnsupportedOperationException("Can't remove keys from KeyStore");
         }

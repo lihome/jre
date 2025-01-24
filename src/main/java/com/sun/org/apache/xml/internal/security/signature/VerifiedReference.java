@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /**
@@ -38,7 +38,7 @@ public class VerifiedReference {
      * @param valid Whether this Reference was successfully validated or not
      * @param uri The URI of this Reference
      * @param manifestReferences If this reference is a reference to a Manifest, this holds the list
-     * of verified referenes associated with this Manifest
+     * of verified references associated with this Manifest
      */
     public VerifiedReference(boolean valid, String uri, List<VerifiedReference> manifestReferences) {
         this.valid = valid;

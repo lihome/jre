@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /**
@@ -40,16 +40,15 @@ import java.util.Arrays;
 
 import javax.xml.crypto.MarshalException;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.Text;
-
 import com.sun.org.apache.xml.internal.security.exceptions.XMLSecurityException;
 import com.sun.org.apache.xml.internal.security.utils.Constants;
 import com.sun.org.apache.xml.internal.security.utils.I18n;
 import com.sun.org.apache.xml.internal.security.utils.Signature11ElementProxy;
 import com.sun.org.apache.xml.internal.security.utils.XMLUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.Text;
 
 public class ECKeyValue extends Signature11ElementProxy implements KeyValueContent {
 
@@ -161,6 +160,7 @@ public class ECKeyValue extends Signature11ElementProxy implements KeyValueConte
     }
 
     /** {@inheritDoc} */
+    @Override
     public PublicKey getPublicKey() throws XMLSecurityException {
         try {
             ECParameterSpec ecParams = null;
@@ -210,6 +210,7 @@ public class ECKeyValue extends Signature11ElementProxy implements KeyValueConte
     }
 
     /** {@inheritDoc} */
+    @Override
     public String getBaseLocalName() {
         return Constants._TAG_ECKEYVALUE;
     }

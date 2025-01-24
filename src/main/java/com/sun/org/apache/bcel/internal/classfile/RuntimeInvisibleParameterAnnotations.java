@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /*
@@ -27,21 +27,21 @@ import java.io.IOException;
 import com.sun.org.apache.bcel.internal.Const;
 
 /**
- * Represents a parameter annotation that is represented in the class file
- * but is not provided to the JVM.
+ * Represents a parameter annotation that is represented in the class file but is not provided to the JVM.
  *
  * @since 6.0
  */
 public class RuntimeInvisibleParameterAnnotations extends ParameterAnnotations {
 
     /**
-     * @param name_index Index pointing to the name <em>Code</em>
+     * @param nameIndex Index pointing to the name <em>Code</em>
      * @param length Content length in bytes
      * @param input Input stream
-     * @param constant_pool Array of constants
+     * @param constantPool Array of constants
+     * @throws IOException Thrown when an I/O exception of some sort has occurred.
      */
-    public RuntimeInvisibleParameterAnnotations(final int name_index, final int length, final DataInput input, final ConstantPool constant_pool)
-            throws IOException {
-        super(Const.ATTR_RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS, name_index, length, input, constant_pool);
+    public RuntimeInvisibleParameterAnnotations(final int nameIndex, final int length, final DataInput input, final ConstantPool constantPool)
+        throws IOException {
+        super(Const.ATTR_RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS, nameIndex, length, input, constantPool);
     }
 }

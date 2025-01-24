@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
- * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ * Copyright (c) 2017, 2023, Oracle and/or its affiliates. All rights reserved.
  */
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -21,9 +20,8 @@
 
 package com.sun.org.apache.xml.internal.dtm.ref;
 
+import java.util.HashMap;
 import java.util.Vector;
-
-import com.sun.org.apache.xml.internal.utils.IntVector;
 
 /** <p>DTMStringPool is an "interning" mechanism for strings. It will
  * create a stable 1:1 mapping between a set of string values and a set of
@@ -53,13 +51,13 @@ import com.sun.org.apache.xml.internal.utils.IntVector;
  * ObjectPool if one was needed.</p>
  *
  * <p>Status: Passed basic test in main().</p>
+ *
+ * @LastModified: Nov 2023
  * */
 public class DTMStringPool
 {
   Vector m_intToString;
-  static final int HASHPRIME=101;
-  int[] m_hashStart=new int[HASHPRIME];
-  IntVector m_hashChain;
+  HashMap<String, Integer> m_stringToInt;
   public static final int NULL=-1;
 
   /**
@@ -70,7 +68,7 @@ public class DTMStringPool
   public DTMStringPool(int chainSize)
     {
       m_intToString=new Vector();
-      m_hashChain=new IntVector(chainSize);
+      m_stringToInt = new HashMap<>();
       removeAllElements();
 
       // -sb Add this to force empty strings to be index 0.
@@ -85,9 +83,7 @@ public class DTMStringPool
   public void removeAllElements()
     {
       m_intToString.removeAllElements();
-      for(int i=0;i<HASHPRIME;++i)
-        m_hashStart[i]=NULL;
-      m_hashChain.removeAllElements();
+      m_stringToInt.clear();
     }
 
   /** @return string whose value is uniquely identified by this integer index.
@@ -106,30 +102,13 @@ public class DTMStringPool
     {
       if(s==null) return NULL;
 
-      int hashslot=s.hashCode()%HASHPRIME;
-      if(hashslot<0) hashslot=-hashslot;
-
-      // Is it one we already know?
-      int hashlast=m_hashStart[hashslot];
-      int hashcandidate=hashlast;
-      while(hashcandidate!=NULL)
-        {
-          if(m_intToString.elementAt(hashcandidate).equals(s))
-            return hashcandidate;
-
-          hashlast=hashcandidate;
-          hashcandidate=m_hashChain.elementAt(hashcandidate);
-        }
+      Integer index = m_stringToInt.get(s);
+      if(index != null) return index;
 
       // New value. Add to tables.
       int newIndex=m_intToString.size();
-      m_intToString.addElement(s);
-
-      m_hashChain.addElement(NULL);     // Initialize to no-following-same-hash
-      if(hashlast==NULL)  // First for this hash
-        m_hashStart[hashslot]=newIndex;
-      else // Link from previous with same hash
-        m_hashChain.setElementAt(newIndex,hashlast);
+      m_intToString.add(s);
+      m_stringToInt.put(s, newIndex);
 
       return newIndex;
     }

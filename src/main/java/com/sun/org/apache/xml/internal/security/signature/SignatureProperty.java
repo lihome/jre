@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /**
@@ -49,7 +49,7 @@ public class SignatureProperty extends SignatureElementProxy {
     }
 
     /**
-     * Constructs {@link SignatureProperty} using sepcified {@code target} attribute and
+     * Constructs {@link SignatureProperty} using specified {@code target} attribute and
      * {@code id} attribute
      *
      * @param doc the {@link Document} in which {@code XMLsignature} is placed
@@ -126,6 +126,7 @@ public class SignatureProperty extends SignatureElementProxy {
     }
 
     /** {@inheritDoc} */
+    @Override
     public String getBaseLocalName() {
         return Constants._TAG_SIGNATUREPROPERTY;
     }

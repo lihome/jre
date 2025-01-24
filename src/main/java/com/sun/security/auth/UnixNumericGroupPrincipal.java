@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2023, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -25,6 +25,9 @@
 
 package com.sun.security.auth;
 
+import java.io.IOException;
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
 import java.security.Principal;
 
 /**
@@ -201,10 +204,8 @@ public class UnixNumericGroupPrincipal implements
             return false;
         UnixNumericGroupPrincipal that = (UnixNumericGroupPrincipal)o;
 
-        if (this.getName().equals(that.getName()) &&
-            this.isPrimaryGroup() == that.isPrimaryGroup())
-            return true;
-        return false;
+        return this.getName().equals(that.getName()) &&
+                this.isPrimaryGroup() == that.isPrimaryGroup();
     }
 
     /**
@@ -216,5 +217,25 @@ public class UnixNumericGroupPrincipal implements
      */
     public int hashCode() {
         return toString().hashCode();
+    }
+
+    /**
+     * Restores the state of this object from the stream.
+     *
+     * @param  stream the {@code ObjectInputStream} from which data is read
+     * @throws IOException if an I/O error occurs
+     * @throws ClassNotFoundException if a serialized class cannot be loaded
+     */
+    private void readObject(ObjectInputStream stream)
+            throws IOException, ClassNotFoundException {
+        stream.defaultReadObject();
+        if (name == null) {
+            java.text.MessageFormat form = new java.text.MessageFormat
+                    (sun.security.util.ResourcesMgr.getString
+                        ("invalid.null.input.value",
+                        "sun.security.util.AuthResources"));
+            Object[] source = {"name"};
+            throw new InvalidObjectException(form.format(source));
+        }
     }
 }

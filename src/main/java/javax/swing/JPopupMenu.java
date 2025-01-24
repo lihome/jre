@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2023, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -25,27 +25,45 @@
 
 package javax.swing;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.AWTEvent;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.Graphics;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.Insets;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.Window;
+import java.awt.event.FocusEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.beans.*;
 
-import java.util.Locale;
 import java.util.Vector;
-import java.util.Hashtable;
-import javax.accessibility.*;
+
+import javax.accessibility.Accessible;
+import javax.accessibility.AccessibleContext;
+import javax.accessibility.AccessibleRole;
+import javax.accessibility.AccessibleSelection;
+import javax.accessibility.AccessibleState;
+import javax.swing.event.EventListenerList;
+import javax.swing.event.MenuKeyEvent;
+import javax.swing.event.MenuKeyListener;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.swing.plaf.PopupMenuUI;
-import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicComboPopup;
-import javax.swing.event.*;
 
 import sun.awt.SunToolkit;
-import sun.security.util.SecurityConstants;
-
-import java.applet.Applet;
 
 /**
  * An implementation of a popup menu -- a small window that pops up
@@ -741,6 +759,16 @@ public class JPopupMenu extends JComponent implements Accessible,MenuElement {
         }
     }
 
+    private Window getMenuInvoker() {
+        if (invoker instanceof Window) {
+            return (Window) invoker;
+        } else {
+            return invoker == null
+                    ? null
+                    : SwingUtilities.getWindowAncestor(invoker);
+        }
+    }
+
     /**
      * Sets the visibility of the popup menu.
      *
@@ -783,14 +811,26 @@ public class JPopupMenu extends JComponent implements Accessible,MenuElement {
             }
         }
 
-        if(b) {
+        if (b) {
             firePopupMenuWillBecomeVisible();
+
+            if (Toolkit.getDefaultToolkit() instanceof SunToolkit) {
+                SunToolkit sunToolkit = (SunToolkit) Toolkit.getDefaultToolkit();
+                sunToolkit.dismissPopupOnFocusLostIfNeeded(getMenuInvoker());
+            }
+
             showPopup();
             firePropertyChange("visible", Boolean.FALSE, Boolean.TRUE);
 
 
-        } else if(popup != null) {
+        } else if (popup != null) {
             firePopupMenuWillBecomeInvisible();
+
+            if (Toolkit.getDefaultToolkit() instanceof SunToolkit) {
+                SunToolkit sunToolkit = (SunToolkit) Toolkit.getDefaultToolkit();
+                sunToolkit.dismissPopupOnFocusLostIfNeededCleanUp(getMenuInvoker());
+            }
+
             popup.hide();
             popup = null;
             firePropertyChange("visible", Boolean.TRUE, Boolean.FALSE);

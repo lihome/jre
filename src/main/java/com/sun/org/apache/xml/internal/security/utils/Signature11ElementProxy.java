@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /**
@@ -69,6 +69,7 @@ public abstract class Signature11ElementProxy extends ElementProxy {
     }
 
     /** {@inheritDoc} */
+    @Override
     public String getBaseNamespace() {
         return Constants.SignatureSpec11NS;
     }

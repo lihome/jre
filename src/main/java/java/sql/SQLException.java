@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1996, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2024, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -36,7 +36,7 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
  * <P>Each <code>SQLException</code> provides several kinds of information:
  * <UL>
  *   <LI> a string describing the error.  This is used as the Java Exception
- *       message, available via the method <code>getMesasge</code>.
+ *       message, available via the method <code>getMessage</code>.
  *   <LI> a "SQLstate" string, which follows either the XOPEN SQLstate conventions
  *        or the SQL:2003 conventions.
  *       The values of the SQLState string are described in the appropriate spec.

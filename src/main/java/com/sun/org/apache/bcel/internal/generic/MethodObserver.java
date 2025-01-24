@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /*
@@ -22,11 +22,10 @@
 package com.sun.org.apache.bcel.internal.generic;
 
 /**
- * Implement this interface if you're interested in changes to a MethodGen object
- * and register yourself with addObserver().
- *
+ * Implement this interface if you're interested in changes to a MethodGen object and register yourself with
+ * addObserver().
  */
 public interface MethodObserver {
 
-    void notify( MethodGen method );
+    void notify(MethodGen method);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2023, Oracle and/or its affiliates. All rights reserved.
  */
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -29,128 +29,59 @@ import com.sun.org.apache.bcel.internal.util.ByteSequence;
 /**
  * Abstract super class for all Java byte codes.
  *
- * @version $Id$
- * @LastModified: July 2020
+ * @LastModified: Feb 2023
  */
 public abstract class Instruction implements Cloneable {
 
-    private short length = 1; // Length of instruction in bytes
-    private short opcode = -1; // Opcode number
+    static final Instruction[] EMPTY_ARRAY = {};
 
     private static InstructionComparator cmp = InstructionComparator.DEFAULT;
 
-
     /**
-     * Empty constructor needed for Instruction.readInstruction.
-     * Not to be used otherwise.
-     */
-    Instruction() {
-    }
-
-
-    public Instruction(final short opcode, final short length) {
-        this.length = length;
-        this.opcode = opcode;
-    }
-
-
-    /**
-     * Dump instruction as byte code to stream out.
-     * @param out Output stream
-     */
-    public void dump( final DataOutputStream out ) throws IOException {
-        out.writeByte(opcode); // Common for all instructions
-    }
-
-
-    /** @return name of instruction, i.e., opcode name
-     */
-    public String getName() {
-        return Const.getOpcodeName(opcode);
-    }
-
-
-    /**
-     * Long output format:
+     * Gets Comparator object used in the equals() method to determine equality of instructions.
      *
-     * &lt;name of opcode&gt; "["&lt;opcode number&gt;"]"
-     * "("&lt;length of instruction&gt;")"
+     * @return currently used comparator for equals()
+     * @deprecated (6.0) use the built in comparator, or wrap this class in another object that implements these methods
+     */
+    @Deprecated
+    public static InstructionComparator getComparator() {
+        return cmp;
+    }
+
+    /**
+     * Tests if the value can fit in a byte (signed)
      *
-     * @param verbose long/short format switch
-     * @return mnemonic for instruction
+     * @param value the value to check
+     * @return true if the value is in range
+     * @since 6.0
      */
-    public String toString( final boolean verbose ) {
-        if (verbose) {
-            return getName() + "[" + opcode + "](" + length + ")";
-        }
-        return getName();
+    public static boolean isValidByte(final int value) {
+        return value >= Byte.MIN_VALUE && value <= Byte.MAX_VALUE;
     }
 
-
     /**
-     * @return mnemonic for instruction in verbose format
-     */
-    @Override
-    public String toString() {
-        return toString(true);
-    }
-
-
-    /**
-     * @return mnemonic for instruction with sumbolic references resolved
-     */
-    public String toString( final ConstantPool cp ) {
-        return toString(false);
-    }
-
-
-    /**
-     * Use with caution, since `BranchInstruction's have a `target' reference which
-     * is not copied correctly (only basic types are). This also applies for
-     * `Select' instructions with their multiple branch targets.
+     * Tests if the value can fit in a short (signed)
      *
-     * @see BranchInstruction
-     * @return (shallow) copy of an instruction
+     * @param value the value to check
+     * @return true if the value is in range
+     * @since 6.0
      */
-    public Instruction copy() {
-        Instruction i = null;
-        // "Constant" instruction, no need to duplicate
-        if (InstructionConst.getInstruction(this.getOpcode()) != null) {
-            i = this;
-        } else {
-            try {
-                i = (Instruction) clone();
-            } catch (final CloneNotSupportedException e) {
-                System.err.println(e);
-            }
-        }
-        return i;
+    public static boolean isValidShort(final int value) {
+        return value >= Short.MIN_VALUE && value <= Short.MAX_VALUE;
     }
 
-
     /**
-     * Read needed data (e.g. index) from file.
-     *
-     * @param bytes byte sequence to read from
-     * @param wide "wide" instruction flag
-     * @throws IOException may be thrown if the implementation needs to read data from the file
-     */
-    protected void initFromFile( final ByteSequence bytes, final boolean wide ) throws IOException {
-    }
-
-
-    /**
-     * Read an instruction from (byte code) input stream and return the
-     * appropiate object.
+     * Reads an instruction from (byte code) input stream and return the appropriate object.
      * <p>
-     * If the Instruction is defined in {@link InstructionConst}, then the
-     * singleton instance is returned.
+     * If the Instruction is defined in {@link InstructionConst}, then the singleton instance is returned.
+     * </p>
      * @param bytes input stream bytes
      * @return instruction object being read
+     * @throws IOException Thrown when an I/O exception of some sort has occurred.
      * @see InstructionConst#getInstruction(int)
      */
     // @since 6.0 no longer final
-    public static Instruction readInstruction( final ByteSequence bytes ) throws IOException {
+    public static Instruction readInstruction(final ByteSequence bytes) throws IOException {
         boolean wide = false;
         short opcode = (short) bytes.readUnsignedByte();
         Instruction obj = null;
@@ -460,8 +391,7 @@ public abstract class Instruction implements Cloneable {
 
         }
 
-        if (wide
-                && !((obj instanceof LocalVariableInstruction) || (obj instanceof IINC) || (obj instanceof RET))) {
+        if (wide && !(obj instanceof LocalVariableInstruction || obj instanceof RET)) {
             throw new ClassGenException("Illegal opcode after wide: " + opcode);
         }
         obj.setOpcode(opcode);
@@ -470,36 +400,104 @@ public abstract class Instruction implements Cloneable {
     }
 
     /**
-     * This method also gives right results for instructions whose
-     * effect on the stack depends on the constant pool entry they
-     * reference.
-     *  @return Number of words consumed from stack by this instruction,
-     * or Constants.UNPREDICTABLE, if this can not be computed statically
+     * Sets comparator to be used for equals().
+     *
+     * @deprecated (6.0) use the built in comparator, or wrap this class in another object that implements these methods
      */
-    public int consumeStack( final ConstantPoolGen cpg ) {
+    @Deprecated
+    public static void setComparator(final InstructionComparator c) {
+        cmp = c;
+    }
+
+    /**
+     * @deprecated (since 6.0) will be made private; do not access directly, use getter/setter
+     */
+    @Deprecated
+    protected short length = 1; // Length of instruction in bytes
+
+    /**
+     * @deprecated (since 6.0) will be made private; do not access directly, use getter/setter
+     */
+    @Deprecated
+    protected short opcode = -1; // Opcode number
+
+    /**
+     * Empty constructor needed for Instruction.readInstruction. Not to be used otherwise.
+     */
+    Instruction() {
+    }
+
+    public Instruction(final short opcode, final short length) {
+        this.length = length;
+        this.opcode = opcode;
+    }
+
+    /**
+     * Call corresponding visitor method(s). The order is: Call visitor methods of implemented interfaces first, then call
+     * methods according to the class hierarchy in descending order, i.e., the most specific visitXXX() call comes last.
+     *
+     * @param v Visitor object
+     */
+    public abstract void accept(Visitor v);
+
+    /**
+     * This method also gives right results for instructions whose effect on the stack depends on the constant pool entry
+     * they reference.
+     *
+     * @return Number of words consumed from stack by this instruction, or Constants.UNPREDICTABLE, if this can not be
+     *         computed statically
+     */
+    public int consumeStack(final ConstantPoolGen cpg) {
         return Const.getConsumeStack(opcode);
     }
 
-
     /**
-     * This method also gives right results for instructions whose
-     * effect on the stack depends on the constant pool entry they
-     * reference.
-     * @return Number of words produced onto stack by this instruction,
-     * or Constants.UNPREDICTABLE, if this can not be computed statically
+     * Use with caution, since 'BranchInstruction's have a 'target' reference which is not copied correctly (only basic
+     * types are). This also applies for 'Select' instructions with their multiple branch targets.
+     *
+     * @see BranchInstruction
+     * @return (shallow) copy of an instruction
      */
-    public int produceStack( final ConstantPoolGen cpg ) {
-        return Const.getProduceStack(opcode);
+    public Instruction copy() {
+        Instruction i = null;
+        // "Constant" instruction, no need to duplicate
+        if (InstructionConst.getInstruction(this.getOpcode()) != null) {
+            i = this;
+        } else {
+            try {
+                i = (Instruction) clone();
+            } catch (final CloneNotSupportedException e) {
+                System.err.println(e);
+            }
+        }
+        return i;
     }
 
-
     /**
-     * @return this instructions opcode
+     * Some instructions may be reused, so don't do anything by default.
      */
-    public short getOpcode() {
-        return opcode;
+    void dispose() {
     }
 
+    /**
+     * Dumps instruction as byte code to stream out.
+     *
+     * @param out Output stream
+     * @throws IOException Thrown when an I/O exception of some sort has occurred.
+     */
+    public void dump(final DataOutputStream out) throws IOException {
+        out.writeByte(opcode); // Common for all instructions
+    }
+
+    /**
+     * Tests for equality, delegated to comparator
+     *
+     * @return true if that is an Instruction and has the same opcode
+     */
+    @Override
+    public boolean equals(final Object that) {
+        return that instanceof Instruction && cmp.equals(this, (Instruction) that);
+    }
 
     /**
      * @return length (in bytes) of instruction
@@ -508,96 +506,96 @@ public abstract class Instruction implements Cloneable {
         return length;
     }
 
-
     /**
-     * Needed in readInstruction and subclasses in this package
+     * @return name of instruction, i.e., opcode name
      */
-    void setOpcode( final short opcode ) {
-        this.opcode = opcode;
+    public String getName() {
+        return Const.getOpcodeName(opcode);
     }
 
-
     /**
-     * Needed in readInstruction and subclasses in this package
-     * @since 6.0
+     * @return this instructions opcode
      */
-    final void setLength( final int length ) {
-        this.length = (short) length; // TODO check range?
+    public short getOpcode() {
+        return opcode;
     }
 
-
-    /** Some instructions may be reused, so don't do anything by default.
-     */
-    void dispose() {
-    }
-
-
     /**
-     * Call corresponding visitor method(s). The order is:
-     * Call visitor methods of implemented interfaces first, then
-     * call methods according to the class hierarchy in descending order,
-     * i.e., the most specific visitXXX() call comes last.
+     * Gets the hashCode of this object.
      *
-     * @param v Visitor object
-     */
-    public abstract void accept( Visitor v );
-
-
-    /** Get Comparator object used in the equals() method to determine
-     * equality of instructions.
-     *
-     * @return currently used comparator for equals()
-     * @deprecated (6.0) use the built in comparator, or wrap this class in another object that implements these methods
-     */
-    @Deprecated
-    public static InstructionComparator getComparator() {
-        return cmp;
-    }
-
-
-    /** Set comparator to be used for equals().
-      * @deprecated (6.0) use the built in comparator, or wrap this class in another object that implements these methods
-     */
-    @Deprecated
-    public static void setComparator( final InstructionComparator c ) {
-        cmp = c;
-    }
-
-
-    /** Check for equality, delegated to comparator
-     * @return true if that is an Instruction and has the same opcode
-     */
-    @Override
-    public boolean equals( final Object that ) {
-        return (that instanceof Instruction) ? cmp.equals(this, (Instruction) that) : false;
-    }
-
-    /** calculate the hashCode of this object
      * @return the hashCode
      * @since 6.0
      */
     @Override
     public int hashCode() {
-       return opcode;
+        return opcode;
     }
 
     /**
-     * Check if the value can fit in a byte (signed)
-     * @param value the value to check
-     * @return true if the value is in range
-     * @since 6.0
+     * Reads needed data (e.g. index) from file.
+     *
+     * @param bytes byte sequence to read from
+     * @param wide "wide" instruction flag
+     * @throws IOException may be thrown if the implementation needs to read data from the file
      */
-    public static boolean isValidByte(final int value) {
-        return value >= Byte.MIN_VALUE && value <= Byte.MAX_VALUE;
+    @SuppressWarnings("unused") // thrown by subclasses
+    protected void initFromFile(final ByteSequence bytes, final boolean wide) throws IOException {
     }
 
     /**
-     * Check if the value can fit in a short (signed)
-     * @param value the value to check
-     * @return true if the value is in range
+     * This method also gives right results for instructions whose effect on the stack depends on the constant pool entry
+     * they reference.
+     *
+     * @return Number of words produced onto stack by this instruction, or Constants.UNPREDICTABLE, if this can not be
+     *         computed statically
+     */
+    public int produceStack(final ConstantPoolGen cpg) {
+        return Const.getProduceStack(opcode);
+    }
+
+    /**
+     * Needed in readInstruction and subclasses in this package
+     *
      * @since 6.0
      */
-    public static boolean isValidShort(final int value) {
-        return value >= Short.MIN_VALUE && value <= Short.MAX_VALUE;
+    final void setLength(final int length) {
+        this.length = (short) length; // TODO check range?
+    }
+
+    /**
+     * Needed in readInstruction and subclasses in this package
+     */
+    void setOpcode(final short opcode) {
+        this.opcode = opcode;
+    }
+
+    /**
+     * @return mnemonic for instruction in verbose format
+     */
+    @Override
+    public String toString() {
+        return toString(true);
+    }
+
+    /**
+     * Long output format:
+     *
+     * &lt;name of opcode&gt; "["&lt;opcode number&gt;"]" "("&lt;length of instruction&gt;")"
+     *
+     * @param verbose long/short format switch
+     * @return mnemonic for instruction
+     */
+    public String toString(final boolean verbose) {
+        if (verbose) {
+            return getName() + "[" + opcode + "](" + length + ")";
+        }
+        return getName();
+    }
+
+    /**
+     * @return mnemonic for instruction with sumbolic references resolved
+     */
+    public String toString(final ConstantPool cp) {
+        return toString(false);
     }
 }

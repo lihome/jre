@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /**
@@ -309,7 +309,7 @@ public final class Transform extends SignatureElementProxy {
     /**
      * Transforms the input, and generates {@link XMLSignatureInput} as output.
      *
-     * @param input input {@link XMLSignatureInput} which can supplied Octect
+     * @param input input {@link XMLSignatureInput} which can supplied Octet
      * Stream and NodeSet as Input of Transformation
      * @param os where to output the result of the last transformation
      * @param secureValidation Whether secure validation is enabled

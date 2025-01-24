@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /*
@@ -22,10 +22,9 @@
 package com.sun.org.apache.bcel.internal.generic;
 
 /**
- * Denotes an instruction to be a variable length instruction, such as
- * GOTO, JSR, LOOKUPSWITCH and TABLESWITCH.
+ * Denotes an instruction to be a variable length instruction, such as GOTO, JSR, LOOKUPSWITCH and TABLESWITCH.
  *
-
+ *
  * @see GOTO
  * @see JSR
  * @see LOOKUPSWITCH

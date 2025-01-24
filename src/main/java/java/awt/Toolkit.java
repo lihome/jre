@@ -1669,9 +1669,7 @@ public abstract class Toolkit {
         // ensure that the proper libraries are loaded
         loadLibraries();
         initAssistiveTechnologies();
-        if (!GraphicsEnvironment.isHeadless()) {
-            initIDs();
-        }
+        initIDs();
     }
 
     /**

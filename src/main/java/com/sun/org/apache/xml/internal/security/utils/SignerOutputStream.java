@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /**
@@ -44,6 +44,7 @@ public class SignerOutputStream extends ByteArrayOutputStream {
     }
 
     /** {@inheritDoc} */
+    @Override
     public void write(byte[] arg0)  {
         try {
             sa.update(arg0);
@@ -53,6 +54,7 @@ public class SignerOutputStream extends ByteArrayOutputStream {
     }
 
     /** {@inheritDoc} */
+    @Override
     public void write(int arg0) {
         try {
             sa.update((byte)arg0);
@@ -62,6 +64,7 @@ public class SignerOutputStream extends ByteArrayOutputStream {
     }
 
     /** {@inheritDoc} */
+    @Override
     public void write(byte[] arg0, int arg1, int arg2) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Canonicalized SignedInfo:");

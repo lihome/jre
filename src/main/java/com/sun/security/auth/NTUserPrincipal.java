@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1999, 2023, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -25,6 +25,9 @@
 
 package com.sun.security.auth;
 
+import java.io.IOException;
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
 import java.security.Principal;
 
 /**
@@ -125,9 +128,7 @@ public class NTUserPrincipal implements Principal, java.io.Serializable {
             return false;
         NTUserPrincipal that = (NTUserPrincipal)o;
 
-            if (name.equals(that.getName()))
-                return true;
-            return false;
+        return name.equals(that.getName());
     }
 
     /**
@@ -139,5 +140,26 @@ public class NTUserPrincipal implements Principal, java.io.Serializable {
      */
     public int hashCode() {
             return this.getName().hashCode();
+    }
+
+
+    /**
+     * Restores the state of this object from the stream.
+     *
+     * @param  stream the {@code ObjectInputStream} from which data is read
+     * @throws IOException if an I/O error occurs
+     * @throws ClassNotFoundException if a serialized class cannot be loaded
+     */
+    private void readObject(ObjectInputStream stream)
+            throws IOException, ClassNotFoundException {
+        stream.defaultReadObject();
+        if (name == null) {
+            java.text.MessageFormat form = new java.text.MessageFormat
+                    (sun.security.util.ResourcesMgr.getString
+                        ("invalid.null.input.value",
+                        "sun.security.util.AuthResources"));
+            Object[] source = {"name"};
+            throw new InvalidObjectException(form.format(source));
+        }
     }
 }

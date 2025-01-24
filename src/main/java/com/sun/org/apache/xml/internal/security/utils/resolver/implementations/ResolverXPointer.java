@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /**
@@ -104,6 +104,7 @@ public class ResolverXPointer extends ResourceResolverSpi {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean engineCanResolveURI(ResourceResolverContext context) {
         return isXPointerSlash(context.uriToResolve) || isXPointerId(context.uriToResolve);
     }

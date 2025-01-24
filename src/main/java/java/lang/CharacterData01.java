@@ -1,4 +1,4 @@
-// This file was generated AUTOMATICALLY from a template file Fri Mar 17 03:57:52 GMT 2023
+// This file was generated AUTOMATICALLY from a template file Wed Dec 04 08:04:46 GMT 2024
 /*
  * Copyright (c) 2003, 2013, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
@@ -354,7 +354,7 @@ class CharacterData01 extends CharacterData {
     private CharacterData01() {};
 
     // The following tables and code generated using:
-  // java GenerateCharacter -plane 1 -template /System/Volumes/Data/jenkins/workspace/8-2-build-macosx-x64/jdk8u371/3355/jdk/make/data/characterdata/CharacterData01.java.template -spec /System/Volumes/Data/jenkins/workspace/8-2-build-macosx-x64/jdk8u371/3355/jdk/make/data/unicodedata/UnicodeData.txt -specialcasing /System/Volumes/Data/jenkins/workspace/8-2-build-macosx-x64/jdk8u371/3355/jdk/make/data/unicodedata/SpecialCasing.txt -proplist /System/Volumes/Data/jenkins/workspace/8-2-build-macosx-x64/jdk8u371/3355/jdk/make/data/unicodedata/PropList.txt -o /System/Volumes/Data/jenkins/workspace/8-2-build-macosx-x64/jdk8u371/3355/build/macosx-x64/jdk/gensrc/java/lang/CharacterData01.java -string -usecharforbyte 11 4 1
+  // java GenerateCharacter -plane 1 -template /System/Volumes/Data/jenkins/workspace/8-2-build-macosx-aarch64-OS12.X-Xcode12.4-sans-NAS/jdk8u441/1521/jdk/make/data/characterdata/CharacterData01.java.template -spec /System/Volumes/Data/jenkins/workspace/8-2-build-macosx-aarch64-OS12.X-Xcode12.4-sans-NAS/jdk8u441/1521/jdk/make/data/unicodedata/UnicodeData.txt -specialcasing /System/Volumes/Data/jenkins/workspace/8-2-build-macosx-aarch64-OS12.X-Xcode12.4-sans-NAS/jdk8u441/1521/jdk/make/data/unicodedata/SpecialCasing.txt -proplist /System/Volumes/Data/jenkins/workspace/8-2-build-macosx-aarch64-OS12.X-Xcode12.4-sans-NAS/jdk8u441/1521/jdk/make/data/unicodedata/PropList.txt -o /System/Volumes/Data/jenkins/workspace/8-2-build-macosx-aarch64-OS12.X-Xcode12.4-sans-NAS/jdk8u441/1521/build/macosx-aarch64/jdk/gensrc/java/lang/CharacterData01.java -string -usecharforbyte 11 4 1
   // The X table has 2048 entries for a total of 4096 bytes.
 
   static final char X[] = (

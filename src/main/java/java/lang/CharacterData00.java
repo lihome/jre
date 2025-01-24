@@ -1,6 +1,6 @@
-// This file was generated AUTOMATICALLY from a template file Fri Mar 17 03:57:51 GMT 2023
+// This file was generated AUTOMATICALLY from a template file Wed Dec 04 08:04:46 GMT 2024
 /*
- * Copyright (c) 2003, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2003, 2023, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -107,9 +107,11 @@ class CharacterData00 extends CharacterData {
 
     boolean isJavaIdentifierStart(int ch) {
         // isJavaIdentifierStart strictly conforms to code points assigned
-        // in Unicode 6.2. Since code points {32FF} and {20BB..20BF} are not
-        // from Unicode 6.2, return false.
-        if(ch == 0x32FF || (ch>= 0x20BB && ch<= 0x20BF))
+        // in Unicode 6.2. Since code points {32FF}, {20BB..20BF}, and
+        // {9FCD..9FEF} are not from Unicode 6.2, return false.
+        if(ch == 0x32FF ||
+          (ch>= 0x20BB && ch<= 0x20BF) ||
+          (ch>= 0x9FCD && ch<= 0x9FEF))
             return false;
         int props = getProperties(ch);
         return ((props & 0x00007000) >= 0x00005000);
@@ -117,9 +119,11 @@ class CharacterData00 extends CharacterData {
 
     boolean isJavaIdentifierPart(int ch) {
         // isJavaIdentifierPart strictly conforms to code points assigned
-        // in Unicode 6.2. Since code points {32FF} and {20BB..20BF} are not
-        // from Unicode 6.2, return false.
-        if(ch == 0x32FF || (ch>= 0x20BB && ch<= 0x20BF))
+        // in Unicode 6.2. Since code points {32FF}, {20BB..20BF}, and
+        // {9FCD..9FEF} are not from Unicode 6.2, return false.
+        if(ch == 0x32FF ||
+          (ch>= 0x20BB && ch<= 0x20BF) ||
+          (ch>= 0x9FCD && ch<= 0x9FEF))
             return false;
         int props = getProperties(ch);
         return ((props & 0x00003000) != 0);
@@ -646,7 +650,7 @@ class CharacterData00 extends CharacterData {
     private CharacterData00() {};
 
     // The following tables and code generated using:
-  // java GenerateCharacter -plane 0 -template /System/Volumes/Data/jenkins/workspace/8-2-build-macosx-x64/jdk8u371/3355/jdk/make/data/characterdata/CharacterData00.java.template -spec /System/Volumes/Data/jenkins/workspace/8-2-build-macosx-x64/jdk8u371/3355/jdk/make/data/unicodedata/UnicodeData.txt -specialcasing /System/Volumes/Data/jenkins/workspace/8-2-build-macosx-x64/jdk8u371/3355/jdk/make/data/unicodedata/SpecialCasing.txt -proplist /System/Volumes/Data/jenkins/workspace/8-2-build-macosx-x64/jdk8u371/3355/jdk/make/data/unicodedata/PropList.txt -o /System/Volumes/Data/jenkins/workspace/8-2-build-macosx-x64/jdk8u371/3355/build/macosx-x64/jdk/gensrc/java/lang/CharacterData00.java -string -usecharforbyte 11 4 1
+  // java GenerateCharacter -plane 0 -template /System/Volumes/Data/jenkins/workspace/8-2-build-macosx-aarch64-OS12.X-Xcode12.4-sans-NAS/jdk8u441/1521/jdk/make/data/characterdata/CharacterData00.java.template -spec /System/Volumes/Data/jenkins/workspace/8-2-build-macosx-aarch64-OS12.X-Xcode12.4-sans-NAS/jdk8u441/1521/jdk/make/data/unicodedata/UnicodeData.txt -specialcasing /System/Volumes/Data/jenkins/workspace/8-2-build-macosx-aarch64-OS12.X-Xcode12.4-sans-NAS/jdk8u441/1521/jdk/make/data/unicodedata/SpecialCasing.txt -proplist /System/Volumes/Data/jenkins/workspace/8-2-build-macosx-aarch64-OS12.X-Xcode12.4-sans-NAS/jdk8u441/1521/jdk/make/data/unicodedata/PropList.txt -o /System/Volumes/Data/jenkins/workspace/8-2-build-macosx-aarch64-OS12.X-Xcode12.4-sans-NAS/jdk8u441/1521/build/macosx-aarch64/jdk/gensrc/java/lang/CharacterData00.java -string -usecharforbyte 11 4 1
       static final char[][][] charMap;
 // The X table has 2048 entries for a total of 4096 bytes.
 
@@ -748,18 +752,15 @@ class CharacterData00 extends CharacterData {
     "\u11A0\u11A0\u11A0\u11A0\u11A0\u11A0\u11A0\u11A0\u11A0\u11A0\u11A0\u11A0\u11A0"+
     "\u11A0\u11A0\u11A0\u11A0\u11A0\u11A0\u11A0\u11A0\u11A0\u11A0\u11A0\u11A0\u11A0"+
     "\u11A0\u11A0\u11A0\u11A0\u11A0\u11A0\u11A0\u11A0\u11A0\u11A0\u11A0\u11A0\u11A0"+
-    "\u11A0\u11A0\u11A0\u11A0\u11A0\u11A0\u11A0\u11A0\u11C0\u0390\u11D0\u06F0\u06F0"+
+    "\u11A0\u11A0\u11A0\u11A0\u11A0\u11A0\u11A0\u11A0\u11C0\u11D0\u11E0\u06F0\u06F0"+
     "\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0"+
     "\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0"+
-    "\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u11E0\u0960\u11F0\u0A50\u06F0\u06F0"+
-    "\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u1200\u1210\200\u1220\u1230\u06F0\u06F0"+
-    "\u1240\u1250\u1260\200\u1270\u1280\u1290\u0390\u12A0\u12B0\u12C0\u06F0\u12D0"+
-    "\u12E0\u12F0\u1300\u1310\u1320\u1330\u1340\u0900\u03C0\u1350\u1360\u0390\u06F0"+
-    "\u1370\u1380\u1390\u06F0\u13A0\u13B0\u13C0\u13D0\u13E0\u0390\u0390\u0390\u0390"+
-    "\u06F0\u13F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0"+
-    "\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0"+
-    "\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0"+
-    "\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0"+
+    "\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u11F0\u0960\u1200\u0A50\u06F0\u06F0"+
+    "\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u1210\u1220\200\u1230\u1240\u06F0\u06F0"+
+    "\u1250\u1260\u1270\200\u1280\u1290\u12A0\u0390\u12B0\u12C0\u12D0\u06F0\u12E0"+
+    "\u12F0\u1300\u1310\u1320\u1330\u1340\u1350\u0900\u03C0\u1360\u1370\u0390\u06F0"+
+    "\u1380\u1390\u13A0\u06F0\u13B0\u13C0\u13D0\u13E0\u13F0\u0390\u0390\u0390\u0390"+
+    "\u06F0\u1400\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0"+
     "\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0"+
     "\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0"+
     "\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0"+
@@ -783,33 +784,36 @@ class CharacterData00 extends CharacterData {
     "\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0"+
     "\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0"+
     "\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0"+
-    "\u1400\u1410\u1420\u1430\u1430\u1430\u1430\u1430\u1430\u1430\u1430\u1430\u1430"+
-    "\u1430\u1430\u1430\u1430\u1430\u1430\u1430\u1430\u1430\u1430\u1430\u1430\u1430"+
-    "\u1430\u1430\u1430\u1430\u1430\u1430\u1430\u1430\u1430\u1430\u1430\u1430\u1430"+
-    "\u1430\u1430\u1430\u1430\u1430\u1430\u1430\u1430\u1430\u1430\u1430\u1430\u1430"+
-    "\u1430\u1430\u1430\u1430\u1430\u1430\u1430\u1430\u1430\u1430\u1430\u1430\u1430"+
-    "\u1430\u1430\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440"+
+    "\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0"+
+    "\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0"+
+    "\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0\u06F0"+
+    "\u1410\u1420\u1430\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440"+
     "\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440"+
     "\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440"+
     "\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440"+
     "\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440"+
-    "\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440"+
-    "\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440"+
-    "\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440"+
-    "\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440"+
-    "\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440"+
-    "\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440"+
-    "\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440"+
-    "\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440"+
-    "\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440"+
-    "\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u1440"+
-    "\u1440\u1440\u1440\u1440\u1440\u1440\u1440\u11A0\u11A0\u11A0\u1450\u11A0\u1460"+
-    "\u1470\u1480\u11A0\u11A0\u11A0\u1490\u11A0\u11A0\u14A0\u0390\u14B0\u14C0\u14D0"+
-    "\u02B0\u02B0\u14E0\u14F0\u02B0\u02B0\u02B0\u02B0\u02B0\u02B0\u02B0\u02B0\u02B0"+
-    "\u02B0\u1500\u1510\u02B0\u1520\u02B0\u1530\u1540\u1550\u1560\u1570\u1580\u02B0"+
-    "\u02B0\u02B0\u1590\u15A0\040\u15B0\u15C0\u15D0\u15E0\u15F0\u1600").toCharArray();
+    "\u1440\u1440\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450"+
+    "\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450"+
+    "\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450"+
+    "\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450"+
+    "\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450"+
+    "\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450"+
+    "\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450"+
+    "\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450"+
+    "\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450"+
+    "\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450"+
+    "\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450"+
+    "\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450"+
+    "\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450"+
+    "\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450"+
+    "\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u1450"+
+    "\u1450\u1450\u1450\u1450\u1450\u1450\u1450\u11A0\u11A0\u11A0\u1460\u11A0\u1470"+
+    "\u1480\u1490\u11A0\u11A0\u11A0\u14A0\u11A0\u11A0\u14B0\u0390\u14C0\u14D0\u14E0"+
+    "\u02B0\u02B0\u14F0\u1500\u02B0\u02B0\u02B0\u02B0\u02B0\u02B0\u02B0\u02B0\u02B0"+
+    "\u02B0\u1510\u1520\u02B0\u1530\u02B0\u1540\u1550\u1560\u1570\u1580\u1590\u02B0"+
+    "\u02B0\u02B0\u15A0\u15B0\040\u15C0\u15D0\u15E0\u15F0\u1600\u1610").toCharArray();
 
-  // The Y table has 5648 entries for a total of 11296 bytes.
+  // The Y table has 5664 entries for a total of 11328 bytes.
 
   static final char Y[] = (
     "\000\000\000\000\002\004\006\000\000\000\000\000\000\000\010\004\012\014\016"+
@@ -1113,29 +1117,30 @@ class CharacterData00 extends CharacterData {
     "\u02E2\u0344\u0344\u0344\u0344\u0344\u0344\u0344\u0344\u0344\u0344\u0344\u0344"+
     "\u0344\u0344\u0344\u0344\u0344\u0344\u0344\u0344\u0344\u0344\u0344\u0344\u0344"+
     "\u0344\u0344\362\362\362\362\362\u0344\u0344\u0344\u0344\u0344\u0344\u0346"+
-    "\362\362\362\362\362\362\362\362\362\224\224\224\224\224\224\224\224\224\224"+
-    "\u0234\224\224\224\224\224\224\224\224\224\224\224\u01BC\362\u016A\u016A\u016A"+
-    "\u016A\u016A\u016A\u016A\u016A\u016A\u016A\u016A\u01D6\362\362\362\362\224"+
-    "\224\224\224\224\224\224\224\224\224\224\224\224\224\u0348\020\224\224\224"+
-    "\224\224\224\224\224\u01F4\u01F4\u01F4\u01F4\u01F4\224\362\362\362\362\362"+
-    "\362\362\362\362\362\140\140\140\140\140\140\140\u01B2\u0130\u034A\u014E\u014E"+
-    "\u014E\u014E\356\u031C\140\140\140\140\140\140\140\140\140\140\140\140\362"+
-    "\362\362\u01BA\224\224\224\u034C\u034C\u034C\u034C\u034E\356\u013E\u013E\u013E"+
-    "\362\362\362\362\344\344\344\344\344\344\344\344\344\344\344\u0350\346\346"+
-    "\346\346\344\140\140\140\140\140\140\140\210\140\140\140\140\140\140\140\140"+
-    "\140\140\140\140\140\140\140\u023C\210\210\210\144\146\u030A\140\140\140\140"+
-    "\140\u0352\u0354\u030A\u0356\140\140\362\362\362\362\362\362\140\140\140\140"+
-    "\140\u0358\362\362\362\362\362\362\362\362\362\362\362\362\362\362\362\362"+
-    "\362\362\362\362\362\362\334\220\224\224\224\u01AA\224\u01AA\224\u01B2\224"+
-    "\224\224\224\224\224\224\224\224\224\224\u01FE\u01AE\u01A8\u016A\u016A\362"+
-    "\362\u01C2\u01C2\u01C2\u01F0\u035A\362\362\362\224\224\224\224\224\224\224"+
-    "\224\224\224\020\020\362\362\362\362\u01AC\224\224\224\224\224\224\224\224"+
-    "\224\224\224\224\224\224\224\224\224\224\224\224\224\224\224\224\224\u01AC"+
-    "\u01AC\u01AC\u01AC\u01AC\u01AC\u01AC\u01AC\u0192\362\362\362\362\u013E\u01EA"+
-    "\u01EA\u01EA\u01EA\u01EA\362\362\362\356\356\356\356\356\356\356\356\356\224"+
-    "\224\224\u013E\u0220\362\362\u01F4\u01F4\u01F4\u01F4\u01F4\224\224\224\224"+
-    "\224\224\224\224\224\224\224\224\224\224\u014E\u014E\u01A0\356\u013E\224\224"+
-    "\224\224\224\224\224\224\224\224\224\u01C8\u014E\u014E\u014E\u014E\u014E\u0202"+
+    "\224\224\224\224\224\224\224\224\224\224\224\224\224\224\224\224\224\362\362"+
+    "\362\362\362\362\362\362\224\224\224\224\224\224\224\224\224\224\u0234\224"+
+    "\224\224\224\224\224\224\224\224\224\224\u01BC\362\u016A\u016A\u016A\u016A"+
+    "\u016A\u016A\u016A\u016A\u016A\u016A\u016A\u01D6\362\362\362\362\224\224\224"+
+    "\224\224\224\224\224\224\224\224\224\224\224\u0348\020\224\224\224\224\224"+
+    "\224\224\224\u01F4\u01F4\u01F4\u01F4\u01F4\224\362\362\362\362\362\362\362"+
+    "\362\362\362\140\140\140\140\140\140\140\u01B2\u0130\u034A\u014E\u014E\u014E"+
+    "\u014E\356\u031C\140\140\140\140\140\140\140\140\140\140\140\140\362\362\362"+
+    "\u01BA\224\224\224\u034C\u034C\u034C\u034C\u034E\356\u013E\u013E\u013E\362"+
+    "\362\362\362\344\344\344\344\344\344\344\344\344\344\344\u0350\346\346\346"+
+    "\346\344\140\140\140\140\140\140\140\210\140\140\140\140\140\140\140\140\140"+
+    "\140\140\140\140\140\140\u023C\210\210\210\144\146\u030A\140\140\140\140\140"+
+    "\u0352\u0354\u030A\u0356\140\140\362\362\362\362\362\362\140\140\140\140\140"+
+    "\u0358\362\362\362\362\362\362\362\362\362\362\362\362\362\362\362\362\362"+
+    "\362\362\362\362\362\334\220\224\224\224\u01AA\224\u01AA\224\u01B2\224\224"+
+    "\224\224\224\224\224\224\224\224\224\u01FE\u01AE\u01A8\u016A\u016A\362\362"+
+    "\u01C2\u01C2\u01C2\u01F0\u035A\362\362\362\224\224\224\224\224\224\224\224"+
+    "\224\224\020\020\362\362\362\362\u01AC\224\224\224\224\224\224\224\224\224"+
+    "\224\224\224\224\224\224\224\224\224\224\224\224\224\224\224\224\u01AC\u01AC"+
+    "\u01AC\u01AC\u01AC\u01AC\u01AC\u01AC\u0192\362\362\362\362\u013E\u01EA\u01EA"+
+    "\u01EA\u01EA\u01EA\362\362\362\356\356\356\356\356\356\356\356\356\224\224"+
+    "\224\u013E\u0220\362\362\u01F4\u01F4\u01F4\u01F4\u01F4\224\224\224\224\224"+
+    "\224\224\224\224\224\224\224\224\224\u014E\u014E\u01A0\356\u013E\224\224\224"+
+    "\224\224\224\224\224\224\224\224\u01C8\u014E\u014E\u014E\u014E\u014E\u0202"+
     "\362\362\362\362\362\u0146\224\224\224\224\224\224\224\224\224\u01B2\u01AC"+
     "\u014E\u014E\u01AC\u01A8\u01AC\u035C\u013E\u013E\u013E\u013E\u013E\u013E\u013C"+
     "\u01EA\u01EA\u01EA\u01EA\u01EA\362\362\u013E\224\224\224\224\u01C8\u014E\u014E"+
@@ -1307,7 +1312,7 @@ class CharacterData00 extends CharacterData {
     "\u6800\030\u4000\u3006\u6800\033\u6800\033\000\u7004\000\u05EB\000\u05EB\000"+
     "\u042B\000\u042B\000\u044B\000\u056B\000\u068B\000\u080B\u6800\034\u6800\u048B"+
     "\u6800\u048B\u6800\u048B\000\034\u6800\u080B\000\u7005\000\u7005\000\u7005"+
-    "\u7800\000\000\u7004\u6800\030\u4000\007\u6800\030\000\u776A\000\u776A\000"+
+    "\000\u7005\000\u7004\u6800\030\u4000\007\u6800\030\000\u776A\000\u776A\000"+
     "\u776A\000\u762A\u6800\033\u6800\u7004\u6800\u7004\000\033\000\033\006\u7001"+
     "\000\u7002\u7800\000\u07FE\u7001\u7800\000\u2800\u601A\u2800\034\000\u3008"+
     "\000\030\000\u7004\000\u3008\000\u3008\000\030\000\023\000\023\000\022\000"+
@@ -1374,7 +1379,7 @@ class CharacterData00 extends CharacterData {
     "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"+
     "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000").toCharArray();
 
-  // In all, the character property tables require 19112 bytes.
+  // In all, the character property tables require 19144 bytes.
 
     static {
             charMap = new char[][][] {

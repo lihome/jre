@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /**
@@ -43,16 +43,19 @@ public class DigesterOutputStream extends ByteArrayOutputStream {
     }
 
     /** {@inheritDoc} */
+    @Override
     public void write(byte[] arg0) {
         write(arg0, 0, arg0.length);
     }
 
     /** {@inheritDoc} */
-    public void write(int arg0) {
+    @Override
+    public synchronized void write(int arg0) {
         mda.update((byte)arg0);
     }
 
     /** {@inheritDoc} */
+    @Override
     public void write(byte[] arg0, int arg1, int arg2) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Pre-digested input:");

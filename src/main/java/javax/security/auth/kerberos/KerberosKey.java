@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2024, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -233,9 +233,9 @@ public class KerberosKey implements SecretKey, Destroyable {
         if (destroyed) {
             return "Destroyed Principal";
         }
-        return "Kerberos Principal " + principal.toString() +
-                "Key Version " + versionNum +
-                "key "  + key.toString();
+        return "KerberosKey: principal " + principal +
+                ", version " + versionNum +
+                ", key "  + key.toString();
     }
 
     /**

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /*
@@ -23,7 +23,6 @@ package com.sun.org.apache.bcel.internal.generic;
 
 /**
  * Denote family of instructions that allocates space in the heap.
- *
  */
 public interface AllocationInstruction {
 }

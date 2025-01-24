@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /**
@@ -95,7 +95,7 @@ public final class JavaUtils {
 
     /**
      * This method reads all bytes from the given InputStream till EOF and
-     * returns them as a byte array.
+     * returns them as a byte array. The method doesn't close the input stream.
      *
      * @param inputStream
      * @return the bytes read from the stream

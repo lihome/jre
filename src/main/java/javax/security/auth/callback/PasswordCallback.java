@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1999, 2024, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -24,6 +24,12 @@
  */
 
 package javax.security.auth.callback;
+
+import java.io.InvalidObjectException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.util.Arrays;
+import sun.misc.Cleaner;
 
 /**
  * <p> Underlying security services instantiate and pass a
@@ -52,6 +58,7 @@ public class PasswordCallback implements Callback, java.io.Serializable {
      */
     private char[] inputPassword;
 
+    private transient Cleaner cleaner;
     /**
      * Construct a {@code PasswordCallback} with a prompt
      * and a boolean specifying whether the password should be displayed
@@ -112,7 +119,14 @@ public class PasswordCallback implements Callback, java.io.Serializable {
      * @see #getPassword
      */
     public void setPassword(char[] password) {
+        if (cleaner != null) {
+            cleaner.clean();
+            cleaner = null;
+        }
         this.inputPassword = (password == null ? null : password.clone());
+        if (this.inputPassword != null) {
+            cleaner = Cleaner.create(this, cleanerFor(inputPassword));
+        }
     }
 
     /**
@@ -134,9 +148,39 @@ public class PasswordCallback implements Callback, java.io.Serializable {
      * Clear the retrieved password.
      */
     public void clearPassword() {
-        if (inputPassword != null) {
-            for (int i = 0; i < inputPassword.length; i++)
-                inputPassword[i] = ' ';
+        // Cleanup the last retrieved password copy.
+        if (cleaner != null) {
+            cleaner.clean();
+            cleaner = null;
         }
+    }
+
+    /**
+     * Restores the state of this object from the stream.
+     *
+     * @param  stream the {@code ObjectInputStream} from which data is read
+     * @throws IOException if an I/O error occurs
+     * @throws ClassNotFoundException if a serialized class cannot be loaded
+     */
+    private void readObject(ObjectInputStream stream)
+            throws IOException, ClassNotFoundException {
+        stream.defaultReadObject();
+
+        if (prompt == null || prompt.isEmpty()) {
+            throw new InvalidObjectException("Missing prompt");
+        }
+
+        if (inputPassword != null) {
+            char[] temp = inputPassword;
+            inputPassword = temp.clone();
+            Arrays.fill(temp, '0');
+            cleaner = Cleaner.create(this, cleanerFor(inputPassword));
+        }
+    }
+
+    private static Runnable cleanerFor(char[] password) {
+        return () -> {
+            Arrays.fill(password, ' ');
+        };
     }
 }

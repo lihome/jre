@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1996, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2023, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -1324,6 +1324,8 @@ public class ObjectInputStream
      * Invoke the serialization filter if non-null.
      * If the filter rejects or an exception is thrown, throws InvalidClassException.
      *
+     * Logs and/or commits a DeserializationEvent, if configured.
+     *
      * @param clazz the class; may be null
      * @param arrayLength the array length requested; use {@code -1} if not creating an array
      * @throws InvalidClassException if it rejected by the filter or
@@ -1331,11 +1333,12 @@ public class ObjectInputStream
      */
     private void filterCheck(Class<?> clazz, int arrayLength)
             throws InvalidClassException {
+        // Info about the stream is not available if overridden by subclass, return 0
+        long bytesRead = (bin == null) ? 0 : bin.getBytesRead();
+        RuntimeException ex = null;
+        ObjectInputFilter.Status status = null;
+
         if (serialFilter != null) {
-            RuntimeException ex = null;
-            ObjectInputFilter.Status status;
-            // Info about the stream is not available if overridden by subclass, return 0
-            long bytesRead = (bin == null) ? 0 : bin.getBytesRead();
             try {
                 status = serialFilter.checkInput(new FilterValues(clazz, arrayLength,
                         totalObjectRefs, depth, bytesRead));
@@ -1353,9 +1356,6 @@ public class ObjectInputStream
                             status, clazz, arrayLength, totalObjectRefs, depth, bytesRead,
                             Objects.toString(ex, "n/a"));
                 }
-                InvalidClassException ice = new InvalidClassException("filter status: " + status);
-                ice.initCause(ex);
-                throw ice;
             } else {
                 // Trace logging for those that succeed
                 if (Logging.traceLogger != null) {
@@ -1366,6 +1366,24 @@ public class ObjectInputStream
                 }
             }
         }
+
+        tryCommitJFREvent(serialFilter != null, status != null ? status.name() : null,
+            clazz, arrayLength, totalObjectRefs, depth, bytesRead,
+            ex != null ? ex.getClass() : null, ex != null ? ex.getMessage() : null);
+
+        if (serialFilter != null &&
+            (status == null || status == ObjectInputFilter.Status.REJECTED)) {
+            InvalidClassException ice = new InvalidClassException("filter status: " + status);
+            ice.initCause(ex);
+            throw ice;
+        }
+
+    }
+
+    private void tryCommitJFREvent(boolean filterConfigured, String filterStatus,
+        Class<?> type, int arrayLength, long objectReferences, long depth,
+        long bytesRead, Class<?> exceptionType, String exceptionMessage) {
+        // JFR code instrumentation may occur here
     }
 
     /**

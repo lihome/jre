@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /**
@@ -22,6 +22,7 @@
  */
 package com.sun.org.apache.xml.internal.security.signature;
 
+import com.sun.org.apache.xml.internal.security.transforms.TransformationException;
 import org.w3c.dom.Node;
 
 /**
@@ -37,7 +38,7 @@ public interface NodeFilter {
      *           -1 if the node and all it's child must not be output.
      *
      */
-    int isNodeInclude(Node n);
+    int isNodeInclude(Node n) throws TransformationException;
 
     /**
      * Tells if a node must be output in a c14n.
@@ -50,6 +51,6 @@ public interface NodeFilter {
      *            0 if node must not be output,
      *           -1 if the node and all it's child must not be output.
      */
-    int isNodeIncludeDO(Node n, int level);
+    int isNodeIncludeDO(Node n, int level) throws TransformationException;
 
 }

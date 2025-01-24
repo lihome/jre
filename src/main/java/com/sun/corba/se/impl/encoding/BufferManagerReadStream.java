@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2009, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2023, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -95,10 +95,7 @@ public class BufferManagerReadStream
     public ByteBufferWithInfo underflow (ByteBufferWithInfo bbwi)
     {
 
-      ByteBufferWithInfo result = null;
-
-      try {
-          //System.out.println("ENTER underflow");
+        ByteBufferWithInfo result = null;
 
         synchronized (fragmentQueue) {
 
@@ -106,22 +103,31 @@ public class BufferManagerReadStream
                 throw new RequestCanceledException(cancelReqId);
             }
 
+            // measure time waited to protect against spurious wakeups
+            long endTime = System.currentTimeMillis() + FRAGMENT_TIMEOUT;
+            long remainingWaitTime = FRAGMENT_TIMEOUT;
+
             while (fragmentQueue.size() == 0) {
-
                 if (endOfStream) {
-                    throw wrapper.endOfStream() ;
+                    throw wrapper.endOfStream();
                 }
-
-                boolean interrupted = false;
-                try {
-                    fragmentQueue.wait(FRAGMENT_TIMEOUT);
-                } catch (InterruptedException e) {
-                    interrupted = true;
-                }
-
-                if (!interrupted && fragmentQueue.size() == 0) {
+                if (remainingWaitTime <= 0L) {
                     throw wrapper.bufferReadManagerTimeout();
+                } else {
+                    if (debug && remainingWaitTime != FRAGMENT_TIMEOUT) {
+                        // requested wait time wasn't fulfilled
+                        dprint("underflow() - new wait call required with value: "
+                                + remainingWaitTime);
+                    }
                 }
+                try {
+                    fragmentQueue.wait(remainingWaitTime);
+                } catch (InterruptedException e) {
+                    if (debug) {
+                        dprint("underflow() - fragment queue wait timeout interrupted");
+                    }
+                }
+                remainingWaitTime = endTime - System.currentTimeMillis();
 
                 if (receivedCancel) {
                     throw new RequestCanceledException(cancelReqId);
@@ -131,8 +137,7 @@ public class BufferManagerReadStream
             result = fragmentQueue.dequeue();
             result.fragmented = true;
 
-            if (debug)
-            {
+            if (debug) {
                 // print address of ByteBuffer being dequeued
                 int bbAddr = System.identityHashCode(result.byteBuffer);
                 StringBuffer sb1 = new StringBuffer(80);
@@ -145,12 +150,10 @@ public class BufferManagerReadStream
             // VERY IMPORTANT
             // Release bbwi.byteBuffer to the ByteBufferPool only if
             // this BufferManagerStream is not marked for potential restore.
-            if (markEngaged == false && bbwi != null && bbwi.byteBuffer != null)
-            {
+            if (markEngaged == false && bbwi != null && bbwi.byteBuffer != null) {
                 ByteBufferPool byteBufferPool = getByteBufferPool();
 
-                if (debug)
-                {
+                if (debug) {
                     // print address of ByteBuffer being released
                     int bbAddress = System.identityHashCode(bbwi.byteBuffer);
                     StringBuffer sb = new StringBuffer(80);
@@ -166,9 +169,6 @@ public class BufferManagerReadStream
             }
         }
         return result;
-      } finally {
-          //System.out.println("EXIT underflow");
-      }
     }
 
     public void init(Message msg) {
@@ -271,7 +271,6 @@ public class BufferManagerReadStream
             }
             fragmentStack = null;
         }
-
     }
 
     protected ByteBufferPool getByteBufferPool()

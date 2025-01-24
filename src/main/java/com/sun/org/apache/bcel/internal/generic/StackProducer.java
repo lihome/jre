@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /*
@@ -22,13 +22,12 @@
 package com.sun.org.apache.bcel.internal.generic;
 
 /**
- * Denote an instruction that may produce a value on top of the stack
- * (this excludes DUP_X1, e.g.)
- *
+ * Denotes an instruction that may produce a value on top of the stack (this excludes DUP_X1, e.g.)
  */
 public interface StackProducer {
 
-    /** @return how many words are produced on stack
+    /**
+     * @return how many words are produced on stack
      */
-    int produceStack( ConstantPoolGen cpg );
+    int produceStack(ConstantPoolGen cpg);
 }

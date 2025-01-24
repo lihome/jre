@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /**
@@ -134,8 +134,7 @@ public class X509DigestResolver extends KeyResolverSpi {
             while (storageIterator.hasNext()) {
                 X509Certificate cert = (X509Certificate) storageIterator.next();
 
-                for (int i = 0; i < x509Digests.length; i++) {
-                    XMLX509Digest keyInfoDigest = x509Digests[i];
+                for (XMLX509Digest keyInfoDigest : x509Digests) {
                     byte[] certDigestBytes = XMLX509Digest.getDigestBytesFromCert(cert, keyInfoDigest.getAlgorithm());
 
                     if (Arrays.equals(keyInfoDigest.getDigestBytes(), certDigestBytes)) {

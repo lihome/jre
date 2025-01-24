@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
- * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ * Copyright (c) 2023, Oracle and/or its affiliates. All rights reserved.
  */
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -21,25 +20,23 @@
 
 package com.sun.org.apache.bcel.internal.util;
 
-import java.util.Collection;
+import com.sun.org.apache.bcel.internal.Const;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.sun.org.apache.bcel.internal.classfile.JavaClass;
 
 /**
- * Utility class implementing a (typesafe) set of JavaClass objects.
- * Since JavaClass has no equals() method, the name of the class is
- * used for comparison.
+ * Utility class implementing a (type-safe) set of JavaClass objects. Since JavaClass has no equals() method, the name of the class is used for comparison.
  *
  * @see ClassStack
+ * @LastModified: Feb 2023
  */
 public class ClassSet {
 
     private final Map<String, JavaClass> map = new HashMap<>();
 
-
-    public boolean add( final JavaClass clazz ) {
+    public boolean add(final JavaClass clazz) {
         boolean result = false;
         if (!map.containsKey(clazz.getClassName())) {
             result = true;
@@ -48,26 +45,19 @@ public class ClassSet {
         return result;
     }
 
-
-    public void remove( final JavaClass clazz ) {
-        map.remove(clazz.getClassName());
-    }
-
-
     public boolean empty() {
         return map.isEmpty();
     }
 
-
-    public JavaClass[] toArray() {
-        final Collection<JavaClass> values = map.values();
-        final JavaClass[] classes = new JavaClass[values.size()];
-        values.toArray(classes);
-        return classes;
+    public String[] getClassNames() {
+        return map.keySet().toArray(Const.EMPTY_STRING_ARRAY);
     }
 
+    public void remove(final JavaClass clazz) {
+        map.remove(clazz.getClassName());
+    }
 
-    public String[] getClassNames() {
-        return map.keySet().toArray(new String[map.size()]);
+    public JavaClass[] toArray() {
+        return map.values().toArray(JavaClass.EMPTY_ARRAY);
     }
 }

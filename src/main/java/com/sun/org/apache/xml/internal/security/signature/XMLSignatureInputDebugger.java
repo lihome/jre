@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /**
@@ -127,7 +127,7 @@ public class XMLSignatureInputDebugger {
     /**
      * Constructor XMLSignatureInputDebugger
      *
-     * @param xmlSignatureInput the signatur to pretty print
+     * @param xmlSignatureInput the signature to pretty print
      * @param inclusiveNamespace
      */
     public XMLSignatureInputDebugger(

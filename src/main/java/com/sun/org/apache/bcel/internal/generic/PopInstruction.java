@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /*
@@ -22,8 +22,7 @@
 package com.sun.org.apache.bcel.internal.generic;
 
 /**
- * Denotes an unparameterized instruction to pop a value on top from the stack,
- * such as ISTORE, POP, PUTSTATIC.
+ * Denotes an unparameterized instruction to pop a value on top from the stack, such as ISTORE, POP, PUTSTATIC.
  *
  * @see ISTORE
  * @see POP

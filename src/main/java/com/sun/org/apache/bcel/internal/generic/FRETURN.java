@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /*
@@ -22,29 +22,29 @@
 package com.sun.org.apache.bcel.internal.generic;
 
 /**
- * FRETURN -  Return float from method
- * <PRE>Stack: ..., value -&gt; &lt;empty&gt;</PRE>
+ * FRETURN - Return float from method
  *
+ * <PRE>
+ * Stack: ..., value -&gt; &lt;empty&gt;
+ * </PRE>
  */
 public class FRETURN extends ReturnInstruction {
 
-    /** Return float from method
+    /**
+     * Return float from method
      */
     public FRETURN() {
         super(com.sun.org.apache.bcel.internal.Const.FRETURN);
     }
 
-
     /**
-     * Call corresponding visitor method(s). The order is:
-     * Call visitor methods of implemented interfaces first, then
-     * call methods according to the class hierarchy in descending order,
-     * i.e., the most specific visitXXX() call comes last.
+     * Call corresponding visitor method(s). The order is: Call visitor methods of implemented interfaces first, then call
+     * methods according to the class hierarchy in descending order, i.e., the most specific visitXXX() call comes last.
      *
      * @param v Visitor object
      */
     @Override
-    public void accept( final Visitor v ) {
+    public void accept(final Visitor v) {
         v.visitExceptionThrower(this);
         v.visitTypedInstruction(this);
         v.visitStackConsumer(this);

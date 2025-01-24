@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /*
@@ -24,7 +24,6 @@ package com.sun.org.apache.bcel.internal.generic;
 /**
  * Denotes an instruction to perform an unconditional branch, i.e., GOTO, JSR.
  *
-
  * @see GOTO
  * @see JSR
  */

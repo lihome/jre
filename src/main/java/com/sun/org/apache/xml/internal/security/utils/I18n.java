@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /**
@@ -55,7 +55,7 @@ public final class I18n {
     /**
      * Method translate
      *
-     * translates a message ID into an internationalized String, see alse
+     * translates a message ID into an internationalized String, see also
      * {@code XMLSecurityException.getExceptionMEssage()}. The strings are
      * stored in the {@code ResourceBundle}, which is identified in
      * {@code exceptionMessagesResourceBundleBase}

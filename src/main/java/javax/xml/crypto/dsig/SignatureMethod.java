@@ -34,7 +34,7 @@ import java.security.spec.AlgorithmParameterSpec;
 
 /**
  * A representation of the XML <code>SignatureMethod</code> element
- * as defined in the <a href="http://www.w3.org/TR/xmldsig-core/">
+ * as defined in the <a href="https://www.w3.org/TR/xmldsig-core/">
  * W3C Recommendation for XML-Signature Syntax and Processing</a>.
  * The XML Schema Definition is defined as:
  * <p>

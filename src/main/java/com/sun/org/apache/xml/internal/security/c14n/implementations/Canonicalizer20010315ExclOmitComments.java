@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /**
@@ -34,6 +34,7 @@ public class Canonicalizer20010315ExclOmitComments extends Canonicalizer20010315
     }
 
     /** {@inheritDoc} */
+    @Override
     public final String engineGetURI() {
         return Canonicalizer.ALGO_ID_C14N_EXCL_OMIT_COMMENTS;
     }

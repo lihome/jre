@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2017, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2024, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -144,20 +144,20 @@ public final class SignedObject implements Serializable {
      */
     public SignedObject(Serializable object, PrivateKey signingKey,
                         Signature signingEngine)
-        throws IOException, InvalidKeyException, SignatureException {
-            // creating a stream pipe-line, from a to b
-            ByteArrayOutputStream b = new ByteArrayOutputStream();
-            ObjectOutput a = new ObjectOutputStream(b);
+            throws IOException, InvalidKeyException, SignatureException {
+        // creating a stream pipe-line, from a to b
+        ByteArrayOutputStream b = new ByteArrayOutputStream();
+        ObjectOutput a = new ObjectOutputStream(b);
 
-            // write and flush the object content to byte array
-            a.writeObject(object);
-            a.flush();
-            a.close();
-            this.content = b.toByteArray();
-            b.close();
+        // write and flush the object content to byte array
+        a.writeObject(object);
+        a.flush();
+        a.close();
+        this.content = b.toByteArray();
+        b.close();
 
-            // now sign the encapsulated object
-            this.sign(signingKey, signingEngine);
+        // now sign the encapsulated object
+        this.sign(signingKey, signingEngine);
     }
 
     /**
@@ -235,12 +235,12 @@ public final class SignedObject implements Serializable {
      * @exception SignatureException if signing fails.
      */
     private void sign(PrivateKey signingKey, Signature signingEngine)
-        throws InvalidKeyException, SignatureException {
-            // initialize the signing engine
-            signingEngine.initSign(signingKey);
-            signingEngine.update(this.content.clone());
-            this.signature = signingEngine.sign().clone();
-            this.thealgorithm = signingEngine.getAlgorithm();
+            throws InvalidKeyException, SignatureException {
+        // initialize the signing engine
+        signingEngine.initSign(signingKey);
+        signingEngine.update(this.content.clone());
+        this.signature = signingEngine.sign();
+        this.thealgorithm = signingEngine.getAlgorithm();
     }
 
     /**
@@ -248,10 +248,16 @@ public final class SignedObject implements Serializable {
      * a stream.
      */
     private void readObject(java.io.ObjectInputStream s)
-        throws java.io.IOException, ClassNotFoundException {
-            java.io.ObjectInputStream.GetField fields = s.readFields();
-            content = ((byte[])fields.get("content", null)).clone();
-            signature = ((byte[])fields.get("signature", null)).clone();
-            thealgorithm = (String)fields.get("thealgorithm", null);
+            throws IOException, ClassNotFoundException {
+       ObjectInputStream.GetField fields = s.readFields();
+       byte[] c = (byte[]) fields.get("content", null);
+       byte[] sig = (byte[]) fields.get("signature", null);
+       String a = (String) fields.get("thealgorithm", null);
+       if (c == null || sig == null || a == null) {
+           throw new InvalidObjectException("One or more null fields");
+       }
+       content = c.clone();
+       signature = sig.clone();
+       thealgorithm = a;
     }
 }

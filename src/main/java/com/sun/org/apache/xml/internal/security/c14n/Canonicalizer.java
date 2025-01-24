@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /**
@@ -122,7 +122,7 @@ public final class Canonicalizer {
      * @return a Canonicalizer instance ready for the job
      * @throws InvalidCanonicalizerException
      */
-    public static final Canonicalizer getInstance(String algorithmURI)
+    public static Canonicalizer getInstance(String algorithmURI)
         throws InvalidCanonicalizerException {
         return new Canonicalizer(algorithmURI);
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /*
@@ -34,23 +34,19 @@ public class ClassStack {
 
     private final Stack<JavaClass> stack = new Stack<>();
 
-
-    public void push( final JavaClass clazz ) {
-        stack.push(clazz);
+    public boolean empty() {
+        return stack.empty();
     }
-
 
     public JavaClass pop() {
         return stack.pop();
     }
 
+    public void push(final JavaClass clazz) {
+        stack.push(clazz);
+    }
 
     public JavaClass top() {
         return stack.peek();
-    }
-
-
-    public boolean empty() {
-        return stack.empty();
     }
 }

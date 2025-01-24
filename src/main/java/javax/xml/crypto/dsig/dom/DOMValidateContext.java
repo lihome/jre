@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, 2023, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -50,6 +50,22 @@ import org.w3c.dom.Node;
  * <code>DOMValidateContext</code> is used with different signature structures
  * (for example, you should not use the same <code>DOMValidateContext</code>
  * instance to validate two different {@link XMLSignature} objects).
+ *
+ * @implNote
+ * The JDK implementation supports a secure validation mode which can be
+ * enabled by setting the <code>org.jcp.xml.dsig.secureValidation</code> property
+ * to <code>Boolean.TRUE</code> (see the {@link #setProperty setProperty} method).
+ * When enabled, validation of XML signatures are subject to stricter checking
+ * of algorithms and other constraints as specified by the
+ * <code>jdk.xml.dsig.secureValidationPolicy</code> security property.
+ * The mode can be disabled by setting the property to {@code Boolean.FALSE}.
+ * The mode can also be enabled or disabled by setting the
+ * org.jcp.xml.dsig.secureValidation system property to "true" or "false".
+ * Any other value for the system property is also treated as "false".
+ * If the system property is set, it supersedes the
+ * {@code DOMValidateContext} property value. The secure validation mode is
+ * enabled by default if you are running code with a SecurityManager, otherwise
+ * it is disabled by default.
  *
  * @author Sean Mullan
  * @author JSR 105 Expert Group
@@ -103,10 +119,7 @@ public class DOMValidateContext extends DOMCryptoContext
 
         this.node = node;
         super.setKeySelector(ks);
-        if (System.getSecurityManager() != null) {
-            super.setProperty("org.jcp.xml.dsig.secureValidation",
-                              Boolean.TRUE);
-        }
+        super.setProperty("org.jcp.xml.dsig.secureValidation", Boolean.TRUE);
     }
 
     /**

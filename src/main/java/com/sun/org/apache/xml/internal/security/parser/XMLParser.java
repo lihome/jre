@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /**
@@ -31,6 +31,15 @@ import org.w3c.dom.Document;
  */
 public interface XMLParser {
 
+    /**
+     * Parses a document from the input stream.
+     * Caller is responsible for closing the stream.
+     *
+     * @param inputStream
+     * @param disallowDocTypeDeclarations
+     * @return {@link Document}
+     * @throws XMLParserException
+     */
     Document parse(InputStream inputStream, boolean disallowDocTypeDeclarations) throws XMLParserException;
 
 }

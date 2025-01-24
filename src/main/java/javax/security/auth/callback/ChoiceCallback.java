@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1999, 2024, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -24,6 +24,10 @@
  */
 
 package javax.security.auth.callback;
+
+import java.io.IOException;
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
 
 /**
  * <p> Underlying security services instantiate and pass a
@@ -98,20 +102,20 @@ public class ChoiceCallback implements Callback, java.io.Serializable {
     public ChoiceCallback(String prompt, String[] choices,
                 int defaultChoice, boolean multipleSelectionsAllowed) {
 
-        if (prompt == null || prompt.isEmpty() ||
-            choices == null || choices.length == 0 ||
-            defaultChoice < 0 || defaultChoice >= choices.length)
-            throw new IllegalArgumentException();
-
-        for (int i = 0; i < choices.length; i++) {
-            if (choices[i] == null || choices[i].isEmpty())
-                throw new IllegalArgumentException();
+        choices = (choices == null || choices.length == 0 ? choices :
+                choices.clone());
+        String errMsg = doSanityCheck(prompt, choices, defaultChoice,
+                multipleSelectionsAllowed);
+        if (errMsg != null) {
+            throw new IllegalArgumentException(errMsg);
         }
 
         this.prompt = prompt;
-        this.choices = choices;
         this.defaultChoice = defaultChoice;
         this.multipleSelectionsAllowed = multipleSelectionsAllowed;
+
+        this.choices = choices;
+
     }
 
     /**
@@ -190,9 +194,11 @@ public class ChoiceCallback implements Callback, java.io.Serializable {
      * @see #getSelectedIndexes
      */
     public void setSelectedIndexes(int[] selections) {
-        if (!multipleSelectionsAllowed)
+        if (!multipleSelectionsAllowed) {
             throw new UnsupportedOperationException();
-        this.selections = selections;
+        }
+        this.selections = ((selections == null || selections.length == 0) ?
+                selections : selections.clone());
     }
 
     /**
@@ -207,5 +213,47 @@ public class ChoiceCallback implements Callback, java.io.Serializable {
      */
     public int[] getSelectedIndexes() {
         return selections;
+    }
+
+    /**
+     * Restores the state of this object from the stream.
+     *
+     * @param  stream the {@code ObjectInputStream} from which data is read
+     * @throws IOException if an I/O error occurs
+     * @throws ClassNotFoundException if a serialized class cannot be loaded
+     */
+    private void readObject(ObjectInputStream stream)
+            throws IOException, ClassNotFoundException {
+        stream.defaultReadObject();
+        choices = (choices == null || choices.length == 0 ?
+                choices :  choices.clone());
+        String errMsg = doSanityCheck(prompt, choices, defaultChoice,
+                multipleSelectionsAllowed);
+        if (errMsg != null) {
+            throw new InvalidObjectException(errMsg);
+        }
+
+        selections = (selections == null || selections.length == 0 ?
+                selections :  selections.clone());
+        if (selections != null && selections.length > 1 &&
+                !multipleSelectionsAllowed) {
+            throw new InvalidObjectException("Multiple selections not allowed");
+        }
+    }
+
+    private static String doSanityCheck(String prompt, String[] choices,
+            int defaultChoice, boolean allowMultiple) {
+        if ((prompt == null) || prompt.isEmpty() ||
+                (choices == null) || (choices.length == 0) ||
+                (defaultChoice < 0) || (defaultChoice >= choices.length)) {
+            return "Missing/invalid prompt/choices";
+        }
+
+        for (int i = 0; i < choices.length; i++) {
+            if ((choices[i] == null) || choices[i].isEmpty()) {
+                return "Null/empty choices value";
+            }
+        }
+        return null;
     }
 }

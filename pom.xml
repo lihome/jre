@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.lihome</groupId>
   <artifactId>jre</artifactId>
-  <version>1.8.0_371</version>
+  <version>1.8.0_441</version>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -15,8 +15,9 @@
     <dependency>
       <groupId>org.checkerframework</groupId>
       <artifactId>compiler</artifactId>
-      <version>2.3.1</version>
+      <version>2.4.0</version>
     </dependency>
+    
   </dependencies>
 
   <build>

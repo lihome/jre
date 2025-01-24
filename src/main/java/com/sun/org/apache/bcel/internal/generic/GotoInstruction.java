@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /*
@@ -23,19 +23,16 @@ package com.sun.org.apache.bcel.internal.generic;
 
 /**
  * Super class for GOTO
- *
  */
 public abstract class GotoInstruction extends BranchInstruction implements UnconditionalBranch {
 
-    GotoInstruction(final short opcode, final InstructionHandle target) {
-        super(opcode, target);
-    }
-
-
     /**
-     * Empty constructor needed for Instruction.readInstruction.
-     * Not to be used otherwise.
+     * Empty constructor needed for Instruction.readInstruction. Not to be used otherwise.
      */
     GotoInstruction() {
+    }
+
+    GotoInstruction(final short opcode, final InstructionHandle target) {
+        super(opcode, target);
     }
 }

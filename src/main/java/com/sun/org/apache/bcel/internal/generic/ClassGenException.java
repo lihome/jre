@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /*
@@ -22,18 +22,14 @@
 package com.sun.org.apache.bcel.internal.generic;
 
 /**
- * Thrown on internal errors. Extends RuntimeException so it hasn't to be declared
- * in the throws clause every time.
- *
+ * Thrown on internal exceptions.
  */
 public class ClassGenException extends RuntimeException {
 
     private static final long serialVersionUID = 7247369755051242791L;
 
     public ClassGenException() {
-        super();
     }
-
 
     public ClassGenException(final String s) {
         super(s);

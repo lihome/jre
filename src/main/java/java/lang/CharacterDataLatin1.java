@@ -1,4 +1,4 @@
-// This file was generated AUTOMATICALLY from a template file Fri Mar 17 03:57:51 GMT 2023
+// This file was generated AUTOMATICALLY from a template file Wed Dec 04 08:04:46 GMT 2024
 /*
  * Copyright (c) 2002, 2013, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
@@ -252,7 +252,7 @@ class CharacterDataLatin1 extends CharacterData {
     private CharacterDataLatin1() {};
 
     // The following tables and code generated using:
-  // java GenerateCharacter -template /System/Volumes/Data/jenkins/workspace/8-2-build-macosx-x64/jdk8u371/3355/jdk/make/data/characterdata/CharacterDataLatin1.java.template -spec /System/Volumes/Data/jenkins/workspace/8-2-build-macosx-x64/jdk8u371/3355/jdk/make/data/unicodedata/UnicodeData.txt -specialcasing /System/Volumes/Data/jenkins/workspace/8-2-build-macosx-x64/jdk8u371/3355/jdk/make/data/unicodedata/SpecialCasing.txt -proplist /System/Volumes/Data/jenkins/workspace/8-2-build-macosx-x64/jdk8u371/3355/jdk/make/data/unicodedata/PropList.txt -o /System/Volumes/Data/jenkins/workspace/8-2-build-macosx-x64/jdk8u371/3355/build/macosx-x64/jdk/gensrc/java/lang/CharacterDataLatin1.java -string -usecharforbyte -latin1 8
+  // java GenerateCharacter -template /System/Volumes/Data/jenkins/workspace/8-2-build-macosx-aarch64-OS12.X-Xcode12.4-sans-NAS/jdk8u441/1521/jdk/make/data/characterdata/CharacterDataLatin1.java.template -spec /System/Volumes/Data/jenkins/workspace/8-2-build-macosx-aarch64-OS12.X-Xcode12.4-sans-NAS/jdk8u441/1521/jdk/make/data/unicodedata/UnicodeData.txt -specialcasing /System/Volumes/Data/jenkins/workspace/8-2-build-macosx-aarch64-OS12.X-Xcode12.4-sans-NAS/jdk8u441/1521/jdk/make/data/unicodedata/SpecialCasing.txt -proplist /System/Volumes/Data/jenkins/workspace/8-2-build-macosx-aarch64-OS12.X-Xcode12.4-sans-NAS/jdk8u441/1521/jdk/make/data/unicodedata/PropList.txt -o /System/Volumes/Data/jenkins/workspace/8-2-build-macosx-aarch64-OS12.X-Xcode12.4-sans-NAS/jdk8u441/1521/build/macosx-aarch64/jdk/gensrc/java/lang/CharacterDataLatin1.java -string -usecharforbyte -latin1 8
   // The A table has 256 entries for a total of 1024 bytes.
 
   static final int A[] = new int[256];

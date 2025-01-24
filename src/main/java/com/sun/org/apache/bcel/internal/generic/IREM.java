@@ -24,34 +24,24 @@ import com.sun.org.apache.bcel.internal.ExceptionConst;
 
 /**
  * IREM - Remainder of int
- * <PRE>Stack: ..., value1, value2 -&gt; result</PRE>
+ * <PRE>
+ * Stack: ..., value1, value2 -&gt; result
+ * </PRE>
  *
  * @LastModified: Jan 2020
  */
 public class IREM extends ArithmeticInstruction implements ExceptionThrower {
 
-    /** Remainder of ints
+    /**
+     * Remainder of ints
      */
     public IREM() {
         super(com.sun.org.apache.bcel.internal.Const.IREM);
     }
 
-
-    /** @return exceptions this instruction may cause
-     */
-    @Override
-    public Class<?>[] getExceptions() {
-        return new Class[] {
-            ExceptionConst.ARITHMETIC_EXCEPTION
-        };
-    }
-
-
     /**
-     * Call corresponding visitor method(s). The order is:
-     * Call visitor methods of implemented interfaces first, then
-     * call methods according to the class hierarchy in descending order,
-     * i.e., the most specific visitXXX() call comes last.
+     * Call corresponding visitor method(s). The order is: Call visitor methods of implemented interfaces first, then call
+     * methods according to the class hierarchy in descending order, i.e., the most specific visitXXX() call comes last.
      *
      * @param v Visitor object
      */
@@ -63,5 +53,13 @@ public class IREM extends ArithmeticInstruction implements ExceptionThrower {
         v.visitStackConsumer(this);
         v.visitArithmeticInstruction(this);
         v.visitIREM(this);
+    }
+
+    /**
+     * @return exceptions this instruction may cause
+     */
+    @Override
+    public Class<?>[] getExceptions() {
+        return new Class<?>[] {ExceptionConst.ARITHMETIC_EXCEPTION};
     }
 }

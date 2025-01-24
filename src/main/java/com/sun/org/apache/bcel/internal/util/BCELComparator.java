@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /*
@@ -35,8 +35,7 @@ public interface BCELComparator {
      * @param THAT
      * @return true if and only if THIS equals THAT
      */
-    boolean equals( Object THIS, Object THAT );
-
+    boolean equals(Object THIS, Object THAT);
 
     /**
      * Return hashcode for THIS.hashCode()
@@ -44,5 +43,5 @@ public interface BCELComparator {
      * @param THIS
      * @return hashcode for THIS.hashCode()
      */
-    int hashCode( Object THIS );
+    int hashCode(Object THIS);
 }
